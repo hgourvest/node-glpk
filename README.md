@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/hgourvest/node-glpk.svg?branch=master)](https://travis-ci.org/hgourvest/node-glpk)
 # node-glpk
 Node.js native module for GLPK.
 
