@@ -13,12 +13,12 @@ prob.readLp("todd.lpt");
 prob.scale(glp.SF_AUTO);
 prob.simplex({presolve: glp.ON});
 if (prob.getNumInt() > 0){
-function callback(tree){
-if (tree.reason() == glp.IBINGO){
-// ...
-}
-}
-prob.intopt({cbFunc: callback});
+  function callback(tree){
+    if (tree.reason() == glp.IBINGO){
+      // ...
+    }
+  }
+  prob.intopt({cbFunc: callback});
 }
 prob.delete();
 ```
