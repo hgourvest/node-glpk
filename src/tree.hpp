@@ -3,6 +3,7 @@
 #include <node_object_wrap.h>
 #include "glpk/glpk.h"
 #include "common.h"
+#include "stdlib.h"
 
 namespace NodeGLPK {
 
