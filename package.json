@@ -1,11 +1,17 @@
 {
   "name": "glpk",
   "version": "0.0.1",
+  "license": "MPL",
   "main": "./build/Release/glpk",
   "authors": [
     "Henri Gourvest <hgourvest@progdigy.com>"
   ],
-  "description": "a Node.js addon for GLPK",
+   "repository": {
+    "type": "git",
+    "url": "git://github.com/hgourvest/node-glpk.git"
+  },
+  "homepage": "http://github.com/hgourvest/node-glpk",
+  "description": "Node.js native module for GLPK.",
   "keywords": [
     "glpk"
     ]
