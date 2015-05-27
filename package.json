@@ -1,0 +1,12 @@
+{
+  "name": "glpk",
+  "version": "0.0.1",
+  "main": "./build/Release/glpk",
+  "authors": [
+    "Henri Gourvest <hgourvest@progdigy.com>"
+  ],
+  "description": "a Node.js addon for GLPK",
+  "keywords": [
+    "glpk"
+    ]
+}
