@@ -1,7 +1,7 @@
 var glp = require('..');
 var lp = new glp.Problem();
 
-lp.readLp("examples/todd.lpt");
+lp.readLp("todd.lpt");
 lp.scale(glp.SF_AUTO);
 lp.simplex({presolve: glp.ON});
 if (lp.getNumInt() > 0){
