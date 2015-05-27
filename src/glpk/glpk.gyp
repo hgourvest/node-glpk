@@ -1,13 +1,20 @@
 {
   "targets": [
     {
-      "target_name": "glpk",
+      "target_name": "libglpk",
       "type": "static_library",
 	  "defines": [
-		 "HAVE_SYS_TIME_H"
-		,"HAVE_GETTIMEOFDAY"
+		"HAVE_GETTIMEOFDAY"
       ],
-      "include_dirs": [
+      "conditions": [
+		['OS=="linux"', {
+			"defines": ["HAVE_SYS_TIME_H"]
+		}],
+		['OS=="mac"', {
+			"defines": ["HAVE_SYS_TIME_H"]
+		}]
+	  ],
+	  "include_dirs": [
         "./",
         "./amd/",
         "./bflib/",
