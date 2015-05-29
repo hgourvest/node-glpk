@@ -1,7 +1,7 @@
 {
   "name": "glpk",
-  "version": "0.0.2",
-  "license": "MPL",
+  "version": "0.0.3",
+  "license": "MPL-2.0",
   "main": "./build/Release/glpk",
   "authors": [
     "Henri Gourvest <hgourvest@progdigy.com>"
