@@ -17,6 +17,10 @@
     return; \
  }
 
+#define GLP_CATCH_RET(X) try{X}catch(...){isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "abort")));return;}
+
+#define GLP_CATCH(X) try{X}catch(...){isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "abort")));}
+
 #define GLP_DEFINE_CONSTANT(target, constant, name)\
 do {\
 Isolate* isolate = Isolate::GetCurrent();\
@@ -41,7 +45,7 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     \
-    API(host->handle, V8TOCSTRING(args[0]));\
+    GLP_CATCH_RET(API(host->handle, V8TOCSTRING(args[0]));)\
 }
 
 #define GLP_BIND_STR(CLASS, NAME, API)\
@@ -52,11 +56,11 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     \
-    const char* name = API(host->handle);\
+    GLP_CATCH_RET(const char* name = API(host->handle);\
     if (name)\
         args.GetReturnValue().Set(String::NewFromUtf8(isolate, name));\
     else\
-        args.GetReturnValue().Set(String::NewFromUtf8(isolate, ""));\
+        args.GetReturnValue().Set(String::NewFromUtf8(isolate, ""));)\
 }
 
 #define GLP_BIND_VOID_INT32(CLASS, NAME, API)\
@@ -70,7 +74,7 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     \
-    API(host->handle, args[0]->Int32Value());\
+    GLP_CATCH_RET(API(host->handle, args[0]->Int32Value());)\
 }
 
 #define GLP_BIND_VALUE(CLASS, NAME, API)\
@@ -81,7 +85,7 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     \
-    args.GetReturnValue().Set(API(host->handle));\
+    GLP_CATCH_RET(args.GetReturnValue().Set(API(host->handle));)\
 }
 
 #define GLP_BIND_VOID_INT32_STR(CLASS, NAME, API)\
@@ -95,7 +99,7 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     \
-    API(host->handle, args[0]->Int32Value(), V8TOCSTRING(args[1]));\
+    GLP_CATCH_RET(API(host->handle, args[0]->Int32Value(), V8TOCSTRING(args[1]));)\
 }
 
 #define GLP_BIND_STR_INT32(CLASS, NAME, API);\
@@ -109,11 +113,11 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     \
-    const char* name = API(host->handle, args[0]->Int32Value());\
+    GLP_CATCH_RET(const char* name = API(host->handle, args[0]->Int32Value());\
     if (name)\
         args.GetReturnValue().Set(String::NewFromUtf8(isolate, name));\
     else\
-        args.GetReturnValue().Set(String::NewFromUtf8(isolate, ""));\
+        args.GetReturnValue().Set(String::NewFromUtf8(isolate, ""));)\
 }
 
 #define GLP_BIND_VOID_INT32_INT32_DOUBLE_DOUBLE(CLASS, NAME, API)\
@@ -128,8 +132,8 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     \
-    API(host->handle, args[0]->Int32Value(), args[1]->Int32Value(),\
-                     args[2]->NumberValue(), args[3]->NumberValue());\
+    GLP_CATCH_RET(API(host->handle, args[0]->Int32Value(), args[1]->Int32Value(),\
+                     args[2]->NumberValue(), args[3]->NumberValue());)\
 }
 
 #define GLP_BIND_VOID_INT32_DOUBLE(CLASS, NAME, API)\
@@ -143,7 +147,7 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     \
-    API(host->handle, args[0]->Int32Value(), args[1]->NumberValue());\
+    GLP_CATCH_RET(API(host->handle, args[0]->Int32Value(), args[1]->NumberValue());)\
 }
 
 #define GLP_BIND_VALUE_INT32(CLASS, NAME, API)\
@@ -157,7 +161,7 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     \
-    args.GetReturnValue().Set(API(host->handle, args[0]->Int32Value()));\
+    GLP_CATCH_RET(args.GetReturnValue().Set(API(host->handle, args[0]->Int32Value()));)\
 }
 
 #define GLP_BIND_VOID_INT32_INT32ARRAY_FLOAT64ARRAY(CLASS, NAME, API)\
@@ -184,7 +188,7 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
     for (size_t i = 0; i < ja->Length(); i++) pja[i] = ja->Get(i)->Int32Value();\
     for (size_t i = 0; i < ar->Length(); i++) par[i] = ar->Get(i)->NumberValue();\
     \
-    API(host->handle, args[0]->Int32Value(), count, pja, par);\
+    GLP_CATCH_RET(API(host->handle, args[0]->Int32Value(), count, pja, par);)\
     \
     free(pja);\
     free(par);\
@@ -201,27 +205,31 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     \
-    int row = args[0]->Int32Value();\
-    int count = API(host->handle, row, NULL, NULL);\
-    \
-    if ((args.Length() == 2) && (args[1]->IsFunction())) {\
-        int* idx = (int*)malloc((count + 1) * sizeof(int));\
-        double* val = (double*)malloc((count + 1) * sizeof(double));\
-        API(host->handle, row, idx, val);\
-        Local<Int32Array> ja = Int32Array::New(ArrayBuffer::New(isolate, sizeof(int) * (count+1)), 0, count + 1);\
-        Local<Float64Array> ar = Float64Array::New(ArrayBuffer::New(isolate, sizeof(double) * (count+1)), 0, count + 1);\
-        for (int i = 1; i <= count; i++) ja->Set((uint32_t)i, Int32::New(isolate, idx[i]));\
-        for (int i = 1; i <= count; i++) ar->Set((uint32_t)i, Number::New(isolate, val[i]));\
-        free(idx);\
-        free(val);\
+    try{\
+        int row = args[0]->Int32Value();\
+        int count = API(host->handle, row, NULL, NULL);\
         \
-        Local<Function> cb = Local<Function>::Cast(args[1]);\
-        const unsigned argc = 2;\
-        Local<Value> argv[argc] = {ja, ar};\
-        cb->Call(isolate->GetCurrentContext()->Global(), argc, argv);\
+        if ((args.Length() == 2) && (args[1]->IsFunction())) {\
+            int* idx = (int*)malloc((count + 1) * sizeof(int));\
+            double* val = (double*)malloc((count + 1) * sizeof(double));\
+            API(host->handle, row, idx, val);\
+            Local<Int32Array> ja = Int32Array::New(ArrayBuffer::New(isolate, sizeof(int) * (count+1)), 0, count + 1);\
+            Local<Float64Array> ar = Float64Array::New(ArrayBuffer::New(isolate, sizeof(double) * (count+1)), 0, count + 1);\
+        	for (int i = 1; i <= count; i++) ja->Set((uint32_t)i, Int32::New(isolate, idx[i]));\
+        	for (int i = 1; i <= count; i++) ar->Set((uint32_t)i, Number::New(isolate, val[i]));\
+        	free(idx);\
+        	free(val);\
+            \
+            Local<Function> cb = Local<Function>::Cast(args[1]);\
+            const unsigned argc = 2;\
+            Local<Value> argv[argc] = {ja, ar};\
+            cb->Call(isolate->GetCurrentContext()->Global(), argc, argv);\
+            args.GetReturnValue().Set(count);\
+        }\
+    } catch(...){\
+        isolate->ThrowException(Exception::TypeError( \
+            String::NewFromUtf8(isolate, "abort"))); \
     }\
-    \
-    args.GetReturnValue().Set(count);\
 }
 
 #define GLP_BIND_VOID(CLASS, NAME, API)\
@@ -234,7 +242,7 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     \
-    API(host->handle);\
+    GLP_CATCH_RET(API(host->handle);)\
 }
 
 #define GLP_BIND_VOID_INT32ARRAY(CLASS, NAME, API)\
@@ -255,7 +263,7 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
     V8CHECK(!host->handle, "object deleted");\
     \
     count--;\
-    API(host->handle, count, idx);\
+    GLP_CATCH_RET(API(host->handle, count, idx);)\
     free(idx);\
 }
 
@@ -270,7 +278,7 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     \
-    args.GetReturnValue().Set(API(host->handle, V8TOCSTRING(args[0])));\
+    GLP_CATCH_RET(args.GetReturnValue().Set(API(host->handle, V8TOCSTRING(args[0])));)\
 }
 
 #define GLP_BIND_VOID_INT32_INT32(CLASS, NAME, API)\
@@ -284,7 +292,7 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     \
-    API(host->handle, args[0]->Int32Value(), args[1]->Int32Value());\
+    GLP_CATCH_RET(API(host->handle, args[0]->Int32Value(), args[1]->Int32Value());)\
 }
 
 #define GLP_BIND_VALUE_INT32_STR(CLASS, NAME, API)\
@@ -298,7 +306,7 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     \
-    args.GetReturnValue().Set(API(host->handle, args[0]->Int32Value(), V8TOCSTRING(args[1])));\
+    GLP_CATCH_RET(args.GetReturnValue().Set(API(host->handle, args[0]->Int32Value(), V8TOCSTRING(args[1])));)\
 }
 
 #define GLP_BIND_VALUE_STR_INT32(CLASS, NAME, API)\
@@ -312,7 +320,7 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     \
-    args.GetReturnValue().Set(API(host->handle, V8TOCSTRING(args[0]), args[1]->Int32Value()));\
+    GLP_CATCH_RET(args.GetReturnValue().Set(API(host->handle, V8TOCSTRING(args[0]), args[1]->Int32Value()));)\
 }
 
 #define GLP_BIND_DELETE(CLASS, NAME, API)\
@@ -323,7 +331,7 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
     CLASS* obj = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!obj->handle, "object already deleted");\
     \
-    API(obj->handle);\
+    GLP_CATCH_RET(API(obj->handle);)\
     obj->handle = NULL;\
 }
 

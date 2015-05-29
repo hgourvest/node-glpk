@@ -150,9 +150,10 @@ namespace NodeGLPK {
             
             V8CHECK(!args.IsConstructCall(), "Constructor Problem requires 'new'");
             
-            Problem* obj = new Problem();
-            obj->Wrap(args.This());
-            args.GetReturnValue().Set(args.This());
+            GLP_CATCH_RET(Problem* obj = new Problem();
+                      obj->Wrap(args.This());
+                      args.GetReturnValue().Set(args.This());
+            )
         }
 
         static void LoadMatrix(const FunctionCallbackInfo<Value>& args){
@@ -178,7 +179,7 @@ namespace NodeGLPK {
             Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
             V8CHECK(!lp->handle, "object deleted");
             
-            glp_load_matrix(lp->handle, args[0]->Int32Value(), pia, pja, par);
+            GLP_CATCH(glp_load_matrix(lp->handle, args[0]->Int32Value(), pia, pja, par);)
             
             free(pia);
             free(pja);
@@ -248,18 +249,20 @@ namespace NodeGLPK {
             
             V8CHECK(args.Length() > 1, "Wrong number of arguments");
             
-            glp_smcp scmp;
-            glp_init_smcp(&scmp);
-            if (args.Length() == 1) {
-                if (args[0]->IsObject()){
-                    ScmpInit(isolate, &scmp, args[0]);
-                }
-            }
-            
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
-            V8CHECK(!lp->handle, "object deleted");
-            
-            glp_simplex(lp->handle, &scmp);
+            GLP_CATCH_RET(
+                      glp_smcp scmp;
+                      glp_init_smcp(&scmp);
+                      if (args.Length() == 1) {
+                          if (args[0]->IsObject()){
+                              ScmpInit(isolate, &scmp, args[0]);
+                          }
+                      }
+                      
+                      Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+                      V8CHECK(!lp->handle, "object deleted");
+                      
+                      glp_simplex(lp->handle, &scmp);
+            )
         }
         
         static void Exact(const FunctionCallbackInfo<Value>& args) {
@@ -268,18 +271,20 @@ namespace NodeGLPK {
             
             V8CHECK(args.Length() > 1, "Wrong number of arguments");
             
-            glp_smcp scmp;
-            glp_init_smcp(&scmp);
-            if (args.Length() == 1) {
-                if (args[0]->IsObject()){
-                    ScmpInit(isolate, &scmp, args[0]);
-                }
-            }
-            
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
-            V8CHECK(!lp->handle, "object deleted");
-            
-            glp_exact(lp->handle, &scmp);
+            GLP_CATCH_RET(
+                      glp_smcp scmp;
+                      glp_init_smcp(&scmp);
+                      if (args.Length() == 1) {
+                          if (args[0]->IsObject()){
+                              ScmpInit(isolate, &scmp, args[0]);
+                          }
+                      }
+                      
+                      Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+                      V8CHECK(!lp->handle, "object deleted");
+                      
+                      glp_exact(lp->handle, &scmp);
+            )
         }
         
         static void IptcpInit(Isolate* isolate, glp_iptcp* iptcp, Local<Value> value){
@@ -309,18 +314,20 @@ namespace NodeGLPK {
             
             V8CHECK(args.Length() > 1, "Wrong number of arguments");
             
-            glp_iptcp iptcp;
-            glp_init_iptcp(&iptcp);
-            if (args.Length() == 1) {
-                if (args[0]->IsObject()){
-                    IptcpInit(isolate, &iptcp, args[0]);
-                }
-            }
-            
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
-            V8CHECK(!lp->handle, "object deleted");
-            
-            glp_interior(lp->handle, &iptcp);
+            GLP_CATCH_RET(
+                      glp_iptcp iptcp;
+                      glp_init_iptcp(&iptcp);
+                      if (args.Length() == 1) {
+                          if (args[0]->IsObject()){
+                              IptcpInit(isolate, &iptcp, args[0]);
+                          }
+                      }
+                      
+                      Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+                      V8CHECK(!lp->handle, "object deleted");
+                      
+                      glp_interior(lp->handle, &iptcp);
+            )
         }
         
         static void ReadMps(const FunctionCallbackInfo<Value>& args) {
@@ -331,39 +338,41 @@ namespace NodeGLPK {
             V8CHECK(args.Length() != 3, "Wrong number of arguments");
             V8CHECK(!args[0]->IsInt32() || !(args[1]->IsObject() || args[1]->IsNull() || args[1]->IsUndefined()) || !args[2]->IsString(), "Wrong arguments");
             
-            glp_mpscp mpscp;
-            glp_init_mpscp(&mpscp);
-            if (args.Length() == 1) {
-                if (args[1]->IsObject()){
-                    Local<Object> obj = args[1]->ToObject();
-                    Local<Array> props = obj->GetPropertyNames();
-                    for(uint32_t i = 0; i < props->Length(); i++){
-                        Local<Value> key = props->Get(i);
-                        Local<Value> val = obj->Get(key);
-                        std::string keystr = std::string(V8TOCSTRING(key));
-                        if (keystr == "blank"){
-                            V8CHECK(!val->IsInt32(), "blank: should be int32");
-                            mpscp.blank = val->Int32Value();
-                        } else if (keystr == "tolMps"){
-                            V8CHECK(!val->IsNumber(), "tolMps: should be number");
-                            mpscp.tol_mps = val->NumberValue();
-                        } else if (keystr == "objName"){
-                            V8CHECK(!val->IsString(), "objName: should be a string");
-                            objname = std::string(V8TOCSTRING(val));
-                            mpscp.obj_name = (char*) objname.c_str();
-                        } else {
-                            std::string error("Unknow field: ");
-                            error += keystr;
-                            V8CHECK(true, error.c_str());
-                        }
-                    }
-                }
-            }
-            
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
-            V8CHECK(!lp->handle, "object deleted");
-            
-            args.GetReturnValue().Set(glp_read_mps(lp->handle, args[0]->Int32Value(), &mpscp, V8TOCSTRING(args[2])));
+            GLP_CATCH_RET(
+                      glp_mpscp mpscp;
+                      glp_init_mpscp(&mpscp);
+                      if (args.Length() == 1) {
+                          if (args[1]->IsObject()){
+                              Local<Object> obj = args[1]->ToObject();
+                              Local<Array> props = obj->GetPropertyNames();
+                              for(uint32_t i = 0; i < props->Length(); i++){
+                                  Local<Value> key = props->Get(i);
+                                  Local<Value> val = obj->Get(key);
+                                  std::string keystr = std::string(V8TOCSTRING(key));
+                                  if (keystr == "blank"){
+                                      V8CHECK(!val->IsInt32(), "blank: should be int32");
+                                      mpscp.blank = val->Int32Value();
+                                  } else if (keystr == "tolMps"){
+                                      V8CHECK(!val->IsNumber(), "tolMps: should be number");
+                                      mpscp.tol_mps = val->NumberValue();
+                                  } else if (keystr == "objName"){
+                                      V8CHECK(!val->IsString(), "objName: should be a string");
+                                      objname = std::string(V8TOCSTRING(val));
+                                      mpscp.obj_name = (char*) objname.c_str();
+                                  } else {
+                                      std::string error("Unknow field: ");
+                                      error += keystr;
+                                      V8CHECK(true, error.c_str());
+                                  }
+                              }
+                          }
+                      }
+                      
+                      Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+                      V8CHECK(!lp->handle, "object deleted");
+                      
+                      args.GetReturnValue().Set(glp_read_mps(lp->handle, args[0]->Int32Value(), &mpscp, V8TOCSTRING(args[2])));
+            )
         }
         
         static void WriteMps(const FunctionCallbackInfo<Value>& args) {
@@ -374,39 +383,41 @@ namespace NodeGLPK {
             V8CHECK(args.Length() != 3, "Wrong number of arguments");
             V8CHECK(!args[0]->IsInt32() || !(args[1]->IsObject() || args[1]->IsNull() || args[1]->IsUndefined()) || !args[2]->IsString(), "Wrong arguments");
             
-            glp_mpscp mpscp;
-            glp_init_mpscp(&mpscp);
-            if (args.Length() == 1) {
-                if (args[1]->IsObject()){
-                    Local<Object> obj = args[1]->ToObject();
-                    Local<Array> props = obj->GetPropertyNames();
-                    for(uint32_t i = 0; i < props->Length(); i++){
-                        Local<Value> key = props->Get(i);
-                        Local<Value> val = obj->Get(key);
-                        std::string keystr = std::string(V8TOCSTRING(key));
-                        if (keystr == "blank"){
-                            V8CHECK(!val->IsInt32(), "blank: should be int32");
-                            mpscp.blank = val->Int32Value();
-                        } else if (keystr == "tolMps"){
-                            V8CHECK(!val->IsNumber(), "tolMps: should be number");
-                            mpscp.tol_mps = val->NumberValue();
-                        } else if (keystr == "objName"){
-                            V8CHECK(!val->IsString(), "objName: should be a string");
-                            objname = std::string(V8TOCSTRING(val));
-                            mpscp.obj_name = (char*) objname.c_str();
-                        } else {
-                            std::string error("Unknow field: ");
-                            error += keystr;
-                            V8CHECK(true, error.c_str());
-                        }
-                    }
-                }
-            }
-            
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
-            V8CHECK(!lp->handle, "object deleted");
-            
-            args.GetReturnValue().Set(glp_write_mps(lp->handle, args[0]->Int32Value(), &mpscp, V8TOCSTRING(args[2])));
+            GLP_CATCH_RET(
+                      glp_mpscp mpscp;
+                      glp_init_mpscp(&mpscp);
+                      if (args.Length() == 1) {
+                          if (args[1]->IsObject()){
+                              Local<Object> obj = args[1]->ToObject();
+                              Local<Array> props = obj->GetPropertyNames();
+                              for(uint32_t i = 0; i < props->Length(); i++){
+                                  Local<Value> key = props->Get(i);
+                                  Local<Value> val = obj->Get(key);
+                                  std::string keystr = std::string(V8TOCSTRING(key));
+                                  if (keystr == "blank"){
+                                      V8CHECK(!val->IsInt32(), "blank: should be int32");
+                                      mpscp.blank = val->Int32Value();
+                                  } else if (keystr == "tolMps"){
+                                      V8CHECK(!val->IsNumber(), "tolMps: should be number");
+                                      mpscp.tol_mps = val->NumberValue();
+                                  } else if (keystr == "objName"){
+                                      V8CHECK(!val->IsString(), "objName: should be a string");
+                                      objname = std::string(V8TOCSTRING(val));
+                                      mpscp.obj_name = (char*) objname.c_str();
+                                  } else {
+                                      std::string error("Unknow field: ");
+                                      error += keystr;
+                                      V8CHECK(true, error.c_str());
+                                  }
+                              }
+                          }
+                      }
+                      
+                      Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+                      V8CHECK(!lp->handle, "object deleted");
+                      
+                      args.GetReturnValue().Set(glp_write_mps(lp->handle, args[0]->Int32Value(), &mpscp, V8TOCSTRING(args[2])));
+            )
         }
         
         typedef struct{
@@ -431,101 +442,103 @@ namespace NodeGLPK {
             
             V8CHECK(args.Length() > 1, "Wrong number of arguments");
             
-            glp_iocp iocp;
-            glp_init_iocp(&iocp);
-            if (args.Length() == 1) {
-                if (args[0]->IsObject()){
-                    Local<Object> obj = args[0]->ToObject();
-                    Local<Array> props = obj->GetPropertyNames();
-                    for(uint32_t i = 0; i < props->Length(); i++){
-                        Local<Value> key = props->Get(i);
-                        Local<Value> val = obj->Get(key);
-                        std::string keystr = std::string(V8TOCSTRING(key));
-                        if (keystr == "msgLev"){
-                            V8CHECK(!val->IsInt32(), "msgLev: should be int32");
-                            iocp.msg_lev = val->Int32Value();
-                        } else if (keystr == "brTech"){
-                            V8CHECK(!val->IsInt32(), "brTech: should be int32");
-                            iocp.br_tech = val->Int32Value();
-                        } else if (keystr == "btTech"){
-                            V8CHECK(!val->IsInt32(), "btTech: should be int32");
-                            iocp.bt_tech = val->Int32Value();
-                        } else if (keystr == "tolInt"){
-                            V8CHECK(!val->IsNumber(), "tolInt: should be number");
-                            iocp.tol_int = val->NumberValue();
-                        } else if (keystr == "tolObj"){
-                            V8CHECK(!val->IsNumber(), "tolObj: should be number");
-                            iocp.tol_obj = val->NumberValue();
-                        } else if (keystr == "tmLim"){
-                            V8CHECK(!val->IsInt32(), "tmLim: should be int32");
-                            iocp.tm_lim = val->Int32Value();
-                        } else if (keystr == "outFrq"){
-                            V8CHECK(!val->IsInt32(), "outFrq: should be int32");
-                            iocp.out_frq = val->Int32Value();
-                        } else if (keystr == "outDly"){
-                            V8CHECK(!val->IsInt32(), "outDly: should be int32");
-                            iocp.out_dly = val->Int32Value();
-                        } else if (keystr == "ppTech"){
-                            V8CHECK(!val->IsInt32(), "ppTech: should be int32");
-                            iocp.pp_tech = val->Int32Value();
-                        } else if (keystr == "mipGap"){
-                            V8CHECK(!val->IsNumber(), "mipGap: should be number");
-                            iocp.mip_gap = val->NumberValue();
-                        } else if (keystr == "mirCuts"){
-                            V8CHECK(!val->IsInt32(), "mirCuts: should be int32");
-                            iocp.mir_cuts = val->Int32Value();
-                        } else if (keystr == "gmiCuts"){
-                            V8CHECK(!val->IsInt32(), "gmiCuts: should be int32");
-                            iocp.gmi_cuts = val->Int32Value();
-                        } else if (keystr == "covCuts"){
-                            V8CHECK(!val->IsInt32(), "covCuts: should be int32");
-                            iocp.cov_cuts = val->Int32Value();
-                        } else if (keystr == "clqCuts"){
-                            V8CHECK(!val->IsInt32(), "clqCuts: should be int32");
-                            iocp.clq_cuts = val->Int32Value();
-                        } else if (keystr == "presolve"){
-                            V8CHECK(!val->IsInt32(), "presolve: should be int32");
-                            iocp.presolve = val->Int32Value();
-                        } else if (keystr == "binarize"){
-                            V8CHECK(!val->IsInt32(), "binarize: should be int32");
-                            iocp.binarize = val->Int32Value();
-                        } else if (keystr == "fpHeur"){
-                            V8CHECK(!val->IsInt32(), "fpHeur: should be int32");
-                            iocp.fp_heur = val->Int32Value();
-                        } else if (keystr == "psHeur"){
-                            V8CHECK(!val->IsInt32(), "psHeur: should be int32");
-                            iocp.ps_heur = val->Int32Value();
-                        } else if (keystr == "psTmLim"){
-                            V8CHECK(!val->IsInt32(), "psTmLim: should be int32");
-                            iocp.ps_tm_lim = val->Int32Value();
-                        } else if (keystr == "useSol"){
-                            V8CHECK(!val->IsInt32(), "useSol: should be int32");
-                            iocp.use_sol = val->Int32Value();
-                        } else if (keystr == "alien"){
-                            V8CHECK(!val->IsInt32(), "alien: should be int32");
-                            iocp.alien = val->Int32Value();
-                        } else if (keystr == "saveSol"){
-                            V8CHECK(!val->IsString(), "saveSol: should be a string");
-                            solfile = std::string(V8TOCSTRING(val));
-                            iocp.save_sol = solfile.c_str();
-                        } else if (keystr == "cbFunc"){
-                            V8CHECK(!val->IsFunction(), "cbFunc: should be a function");
-                            iocp.cb_func = IocpCallback;
-                            info.cb = Local<Function>::Cast(val);
-                            iocp.cb_info = &info;
-                        } else {
-                            std::string error("Unknow field: ");
-                            error += keystr;
-                            V8CHECK(true, error.c_str());
-                        }
-                    }
-                }
-            }
-            
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
-            V8CHECK(!lp->handle, "object deleted");
-            
-            glp_intopt(lp->handle, &iocp);
+            GLP_CATCH_RET(
+                      glp_iocp iocp;
+                      glp_init_iocp(&iocp);
+                      if (args.Length() == 1) {
+                          if (args[0]->IsObject()){
+                              Local<Object> obj = args[0]->ToObject();
+                              Local<Array> props = obj->GetPropertyNames();
+                              for(uint32_t i = 0; i < props->Length(); i++){
+                                  Local<Value> key = props->Get(i);
+                                  Local<Value> val = obj->Get(key);
+                                  std::string keystr = std::string(V8TOCSTRING(key));
+                                  if (keystr == "msgLev"){
+                                      V8CHECK(!val->IsInt32(), "msgLev: should be int32");
+                                      iocp.msg_lev = val->Int32Value();
+                                  } else if (keystr == "brTech"){
+                                      V8CHECK(!val->IsInt32(), "brTech: should be int32");
+                                      iocp.br_tech = val->Int32Value();
+                                  } else if (keystr == "btTech"){
+                                      V8CHECK(!val->IsInt32(), "btTech: should be int32");
+                                      iocp.bt_tech = val->Int32Value();
+                                  } else if (keystr == "tolInt"){
+                                      V8CHECK(!val->IsNumber(), "tolInt: should be number");
+                                      iocp.tol_int = val->NumberValue();
+                                  } else if (keystr == "tolObj"){
+                                      V8CHECK(!val->IsNumber(), "tolObj: should be number");
+                                      iocp.tol_obj = val->NumberValue();
+                                  } else if (keystr == "tmLim"){
+                                      V8CHECK(!val->IsInt32(), "tmLim: should be int32");
+                                      iocp.tm_lim = val->Int32Value();
+                                  } else if (keystr == "outFrq"){
+                                      V8CHECK(!val->IsInt32(), "outFrq: should be int32");
+                                      iocp.out_frq = val->Int32Value();
+                                  } else if (keystr == "outDly"){
+                                      V8CHECK(!val->IsInt32(), "outDly: should be int32");
+                                      iocp.out_dly = val->Int32Value();
+                                  } else if (keystr == "ppTech"){
+                                      V8CHECK(!val->IsInt32(), "ppTech: should be int32");
+                                      iocp.pp_tech = val->Int32Value();
+                                  } else if (keystr == "mipGap"){
+                                      V8CHECK(!val->IsNumber(), "mipGap: should be number");
+                                      iocp.mip_gap = val->NumberValue();
+                                  } else if (keystr == "mirCuts"){
+                                      V8CHECK(!val->IsInt32(), "mirCuts: should be int32");
+                                      iocp.mir_cuts = val->Int32Value();
+                                  } else if (keystr == "gmiCuts"){
+                                      V8CHECK(!val->IsInt32(), "gmiCuts: should be int32");
+                                      iocp.gmi_cuts = val->Int32Value();
+                                  } else if (keystr == "covCuts"){
+                                      V8CHECK(!val->IsInt32(), "covCuts: should be int32");
+                                      iocp.cov_cuts = val->Int32Value();
+                                  } else if (keystr == "clqCuts"){
+                                      V8CHECK(!val->IsInt32(), "clqCuts: should be int32");
+                                      iocp.clq_cuts = val->Int32Value();
+                                  } else if (keystr == "presolve"){
+                                      V8CHECK(!val->IsInt32(), "presolve: should be int32");
+                                      iocp.presolve = val->Int32Value();
+                                  } else if (keystr == "binarize"){
+                                      V8CHECK(!val->IsInt32(), "binarize: should be int32");
+                                      iocp.binarize = val->Int32Value();
+                                  } else if (keystr == "fpHeur"){
+                                      V8CHECK(!val->IsInt32(), "fpHeur: should be int32");
+                                      iocp.fp_heur = val->Int32Value();
+                                  } else if (keystr == "psHeur"){
+                                      V8CHECK(!val->IsInt32(), "psHeur: should be int32");
+                                      iocp.ps_heur = val->Int32Value();
+                                  } else if (keystr == "psTmLim"){
+                                      V8CHECK(!val->IsInt32(), "psTmLim: should be int32");
+                                      iocp.ps_tm_lim = val->Int32Value();
+                                  } else if (keystr == "useSol"){
+                                      V8CHECK(!val->IsInt32(), "useSol: should be int32");
+                                      iocp.use_sol = val->Int32Value();
+                                  } else if (keystr == "alien"){
+                                      V8CHECK(!val->IsInt32(), "alien: should be int32");
+                                      iocp.alien = val->Int32Value();
+                                  } else if (keystr == "saveSol"){
+                                      V8CHECK(!val->IsString(), "saveSol: should be a string");
+                                      solfile = std::string(V8TOCSTRING(val));
+                                      iocp.save_sol = solfile.c_str();
+                                  } else if (keystr == "cbFunc"){
+                                      V8CHECK(!val->IsFunction(), "cbFunc: should be a function");
+                                      iocp.cb_func = IocpCallback;
+                                      info.cb = Local<Function>::Cast(val);
+                                      iocp.cb_info = &info;
+                                  } else {
+                                      std::string error("Unknow field: ");
+                                      error += keystr;
+                                      V8CHECK(true, error.c_str());
+                                  }
+                              }
+                          }
+                      }
+                      
+                      Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+                      V8CHECK(!lp->handle, "object deleted");
+                      
+                      glp_intopt(lp->handle, &iocp);
+            )
         }
         
         static void ReadLp(const FunctionCallbackInfo<Value>& args) {
@@ -551,7 +564,7 @@ namespace NodeGLPK {
             Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
             V8CHECK(!lp->handle, "object deleted");
             
-            args.GetReturnValue().Set(glp_write_lp(lp->handle, NULL, V8TOCSTRING(args[0])));
+            GLP_CATCH_RET(args.GetReturnValue().Set(glp_write_lp(lp->handle, NULL, V8TOCSTRING(args[0])));)
         }
         
         static void CheckKkt(const FunctionCallbackInfo<Value>& args) {
@@ -566,7 +579,7 @@ namespace NodeGLPK {
             
             double ae_max, re_max;
             int ae_ind, re_ind;
-            glp_check_kkt(lp->handle, args[0]->Int32Value(), args[1]->Int32Value(), &ae_max, &ae_ind, &re_max, &re_ind);
+            GLP_CATCH_RET(glp_check_kkt(lp->handle, args[0]->Int32Value(), args[1]->Int32Value(), &ae_max, &ae_ind, &re_max, &re_ind);)
             
             Local<Function> cb = Local<Function>::Cast(args[2]);
             const unsigned argc = 4;
@@ -576,7 +589,7 @@ namespace NodeGLPK {
                 Int32::New(isolate, re_max),
                 Number::New(isolate, re_ind)
             };
-            cb->Call(isolate->GetCurrentContext()->Global(), argc, argv);
+            GLP_CATCH_RET(cb->Call(isolate->GetCurrentContext()->Global(), argc, argv);)
         }
         
         static void PrintRanges(const FunctionCallbackInfo<Value>& args) {
@@ -592,18 +605,20 @@ namespace NodeGLPK {
             uint32_t count = 0;
             int* plist = NULL;
             
-            if (args[0]->IsInt32Array()) {
-                Local<Int32Array> list = Local<Int32Array>::Cast(args[0]);
-                count = list->Length();
-                if (count > 1) {
-                    plist = (int*)malloc(count * sizeof(int));
-                    for (size_t i = 0; i < count; i++) plist[i] = list->Get(i)->Int32Value();
-                    count--;
-                }
-            }
-            
-            args.GetReturnValue().Set(glp_print_ranges(lp->handle, count, plist, args[1]->Int32Value(), V8TOCSTRING(args[2])));
-            
+            GLP_CATCH(
+                      if (args[0]->IsInt32Array()) {
+                          Local<Int32Array> list = Local<Int32Array>::Cast(args[0]);
+                          count = list->Length();
+                          if (count > 1) {
+                              plist = (int*)malloc(count * sizeof(int));
+                              for (size_t i = 0; i < count; i++) plist[i] = list->Get(i)->Int32Value();
+                              count--;
+                          }
+                      }
+                      
+                      args.GetReturnValue().Set(glp_print_ranges(lp->handle, count, plist, args[1]->Int32Value(), V8TOCSTRING(args[2])));
+                      
+            )
             if (plist) free(plist);
         }
         
@@ -614,18 +629,20 @@ namespace NodeGLPK {
             Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
             V8CHECK(!lp->handle, "object deleted");
             
-            glp_bfcp bfcp;
-            glp_get_bfcp(lp->handle, &bfcp);
-            Local<Object> ret = Object::New(isolate);
-            GLP_SET_FIELD_INT32(ret, "type", bfcp.type);
-            GLP_SET_FIELD_DOUBLE(ret, "pivTol", bfcp.piv_tol);
-            GLP_SET_FIELD_INT32(ret, "pivLim", bfcp.piv_lim);
-            GLP_SET_FIELD_INT32(ret, "suhl", bfcp.suhl);
-            GLP_SET_FIELD_DOUBLE(ret, "epsTol", bfcp.eps_tol);
-            GLP_SET_FIELD_INT32(ret, "nfsMax", bfcp.nfs_max);
-            GLP_SET_FIELD_INT32(ret, "nrsMax", bfcp.nrs_max);
-            
-            args.GetReturnValue().Set(ret);
+            GLP_CATCH_RET(
+                      glp_bfcp bfcp;
+                      glp_get_bfcp(lp->handle, &bfcp);
+                      Local<Object> ret = Object::New(isolate);
+                      GLP_SET_FIELD_INT32(ret, "type", bfcp.type);
+                      GLP_SET_FIELD_DOUBLE(ret, "pivTol", bfcp.piv_tol);
+                      GLP_SET_FIELD_INT32(ret, "pivLim", bfcp.piv_lim);
+                      GLP_SET_FIELD_INT32(ret, "suhl", bfcp.suhl);
+                      GLP_SET_FIELD_DOUBLE(ret, "epsTol", bfcp.eps_tol);
+                      GLP_SET_FIELD_INT32(ret, "nfsMax", bfcp.nfs_max);
+                      GLP_SET_FIELD_INT32(ret, "nrsMax", bfcp.nrs_max);
+                      
+                      args.GetReturnValue().Set(ret);
+            )
         }
         
         static void SetBfcp(const FunctionCallbackInfo<Value>& args) {
@@ -638,46 +655,48 @@ namespace NodeGLPK {
             Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
             V8CHECK(!lp->handle, "object deleted");
             
-            glp_bfcp bfcp;
-            glp_get_bfcp(lp->handle, &bfcp);
-            
-            if (args[0]->IsObject()){
-                Local<Object> obj = args[0]->ToObject();
-                Local<Array> props = obj->GetPropertyNames();
-                for(uint32_t i = 0; i < props->Length(); i++){
-                    Local<Value> key = props->Get(i);
-                    Local<Value> val = obj->Get(key);
-                    std::string keystr = std::string(V8TOCSTRING(key));
-                    if (keystr == "type"){
-                        V8CHECK(!val->IsInt32(), "type: should be int32");
-                        bfcp.type = val->Int32Value();
-                    } else if (keystr == "pivTol"){
-                        V8CHECK(!val->IsNumber(), "pivTol: should be number");
-                        bfcp.piv_tol = val->NumberValue();
-                    } else if (keystr == "pivLim"){
-                        V8CHECK(!val->IsInt32(), "pivLim: should be int32");
-                        bfcp.piv_lim = val->Int32Value();
-                    } else if (keystr == "suhl"){
-                        V8CHECK(!val->IsInt32(), "suhl: should be int32");
-                        bfcp.suhl = val->Int32Value();
-                    } else if (keystr == "epsTol"){
-                        V8CHECK(!val->IsNumber(), "epsTol: should be number");
-                        bfcp.eps_tol = val->NumberValue();
-                    } else if (keystr == "nfsMax"){
-                        V8CHECK(!val->IsInt32(), "nfsMax: should be int32");
-                        bfcp.nfs_max = val->Int32Value();
-                    } else if (keystr == "nrsMax"){
-                        V8CHECK(!val->IsInt32(), "nrsMax: should be int32");
-                        bfcp.nrs_max = val->Int32Value();
-                    } else {
-                        std::string error("Unknow field: ");
-                        error += keystr;
-                        V8CHECK(true, error.c_str());
-                    }
-                }
-            }
-            
-            glp_set_bfcp(lp->handle, &bfcp);
+            GLP_CATCH_RET(
+                      glp_bfcp bfcp;
+                      glp_get_bfcp(lp->handle, &bfcp);
+                      
+                      if (args[0]->IsObject()){
+                          Local<Object> obj = args[0]->ToObject();
+                          Local<Array> props = obj->GetPropertyNames();
+                          for(uint32_t i = 0; i < props->Length(); i++){
+                              Local<Value> key = props->Get(i);
+                              Local<Value> val = obj->Get(key);
+                              std::string keystr = std::string(V8TOCSTRING(key));
+                              if (keystr == "type"){
+                                  V8CHECK(!val->IsInt32(), "type: should be int32");
+                                  bfcp.type = val->Int32Value();
+                              } else if (keystr == "pivTol"){
+                                  V8CHECK(!val->IsNumber(), "pivTol: should be number");
+                                  bfcp.piv_tol = val->NumberValue();
+                              } else if (keystr == "pivLim"){
+                                  V8CHECK(!val->IsInt32(), "pivLim: should be int32");
+                                  bfcp.piv_lim = val->Int32Value();
+                              } else if (keystr == "suhl"){
+                                  V8CHECK(!val->IsInt32(), "suhl: should be int32");
+                                  bfcp.suhl = val->Int32Value();
+                              } else if (keystr == "epsTol"){
+                                  V8CHECK(!val->IsNumber(), "epsTol: should be number");
+                                  bfcp.eps_tol = val->NumberValue();
+                              } else if (keystr == "nfsMax"){
+                                  V8CHECK(!val->IsInt32(), "nfsMax: should be int32");
+                                  bfcp.nfs_max = val->Int32Value();
+                              } else if (keystr == "nrsMax"){
+                                  V8CHECK(!val->IsInt32(), "nrsMax: should be int32");
+                                  bfcp.nrs_max = val->Int32Value();
+                              } else {
+                                  std::string error("Unknow field: ");
+                                  error += keystr;
+                                  V8CHECK(true, error.c_str());
+                              }
+                          }
+                      }
+                      
+                      glp_set_bfcp(lp->handle, &bfcp);
+            )
         }
         
         GLP_BIND_VOID_STR(Problem, SetProbName, glp_set_prob_name);

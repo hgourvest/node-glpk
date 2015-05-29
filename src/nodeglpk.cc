@@ -17,7 +17,7 @@ extern "C" {
         Isolate* isolate = Isolate::GetCurrent();
         HandleScope scope(isolate);
         
-        args.GetReturnValue().Set(String::NewFromUtf8(isolate, glp_version()));
+        GLP_CATCH_RET(args.GetReturnValue().Set(String::NewFromUtf8(isolate, glp_version()));)
     }
     
     void bind_glp_term_out(const FunctionCallbackInfo<Value>& args) {
@@ -27,7 +27,7 @@ extern "C" {
         V8CHECK(args.Length() != 1, "Wrong number of arguments");\
         V8CHECK(!args[0]->IsInt32(), "Wrong arguments");\
         
-        args.GetReturnValue().Set(Int32::New(isolate, glp_term_out(args[0]->Int32Value())));
+        GLP_CATCH_RET(args.GetReturnValue().Set(Int32::New(isolate, glp_term_out(args[0]->Int32Value())));)
     }
     
     void bind_glp_mem_limit(const FunctionCallbackInfo<Value>& args) {
@@ -37,11 +37,19 @@ extern "C" {
         V8CHECK(args.Length() != 1, "Wrong number of arguments");\
         V8CHECK(!args[0]->IsInt32(), "Wrong arguments");\
         
-        glp_mem_limit(args[0]->Int32Value());
+        GLP_CATCH_RET(glp_mem_limit(args[0]->Int32Value());)
     }
     
+    void bind_error_hook(void *info){
+        throw 0;
+    }
+    
+    
+    
     void Init(Handle<Object> exports) {
-        glp_init_env();
+
+        glp_error_hook(bind_error_hook, NULL);
+        
         
         NODE_SET_METHOD(exports, "version", bind_glp_version);
         NODE_SET_METHOD(exports, "termOut", bind_glp_term_out);

@@ -43,9 +43,11 @@ namespace NodeGLPK {
             
             V8CHECK(!args.IsConstructCall(), "Constructor Mathprog requires 'new'");
             
-            Mathprog* obj = new Mathprog();
-            obj->Wrap(args.This());
-            args.GetReturnValue().Set(args.This());
+            GLP_CATCH_RET(
+                Mathprog* obj = new Mathprog();
+                obj->Wrap(args.This());
+                      args.GetReturnValue().Set(args.This());
+            );
         }
         
         GLP_BIND_VALUE_STR_INT32(Mathprog, ReadModel, glp_mpl_read_model);
@@ -62,11 +64,12 @@ namespace NodeGLPK {
 
             Mathprog* host = ObjectWrap::Unwrap<Mathprog>(args.Holder());
             V8CHECK(!host->handle, "object deleted");
-
-            if ((args.Length() == 1) && (!args[0]->IsString()))
-              args.GetReturnValue().Set(glp_mpl_generate(host->handle, V8TOCSTRING(args[0])));
-            else
-              args.GetReturnValue().Set(glp_mpl_generate(host->handle, NULL));
+            GLP_CATCH_RET(
+                if ((args.Length() == 1) && (!args[0]->IsString()))
+                    args.GetReturnValue().Set(glp_mpl_generate(host->handle, V8TOCSTRING(args[0])));
+                else
+                    args.GetReturnValue().Set(glp_mpl_generate(host->handle, NULL));
+            )
         }
         
         static void BuildProb(const FunctionCallbackInfo<Value>& args){
@@ -82,7 +85,7 @@ namespace NodeGLPK {
             Problem* lp = ObjectWrap::Unwrap<Problem>(args[0]->ToObject());
             V8CHECK(!lp || !lp->handle, "invalid problem");
             
-            glp_mpl_build_prob(mp->handle, lp->handle);
+            GLP_CATCH_RET(glp_mpl_build_prob(mp->handle, lp->handle);)
         }
 
         static void Postsolve(const FunctionCallbackInfo<Value>& args){
@@ -98,7 +101,7 @@ namespace NodeGLPK {
             Problem* lp = ObjectWrap::Unwrap<Problem>(args[0]->ToObject());
             V8CHECK(!lp || !lp->handle, "invalid problem");
             
-            args.GetReturnValue().Set(glp_mpl_postsolve(mp->handle, lp->handle, args[1]->Int32Value()));
+            GLP_CATCH_RET(args.GetReturnValue().Set(glp_mpl_postsolve(mp->handle, lp->handle, args[1]->Int32Value()));)
         }
         
         GLP_BIND_DELETE(Mathprog, Delete, glp_mpl_free_wksp);

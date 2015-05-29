@@ -68,9 +68,11 @@ namespace NodeGLPK {
             
             V8CHECK(!args.IsConstructCall(), "Constructor Tree requires 'new'");
             
-            Tree* obj = new Tree();
-            obj->Wrap(args.This());
-            args.GetReturnValue().Set(args.This());
+            GLP_CATCH_RET(
+                      Tree* obj = new Tree();
+                      obj->Wrap(args.This());
+                      args.GetReturnValue().Set(args.This());
+            )
         }
         
         GLP_BIND_VALUE(Tree, Reason, glp_ios_reason);
@@ -85,7 +87,7 @@ namespace NodeGLPK {
             V8CHECK(!host->handle, "object deleted");
             
             int a_cnt, n_cnt, t_cnt;
-            glp_ios_tree_size(host->handle, &a_cnt, &n_cnt, &t_cnt);
+            GLP_CATCH_RET(glp_ios_tree_size(host->handle, &a_cnt, &n_cnt, &t_cnt);)
             Local<Object> ret = Object::New(isolate);
             GLP_SET_FIELD_INT32(ret, "a", a_cnt);
             GLP_SET_FIELD_INT32(ret, "n", n_cnt);
@@ -121,7 +123,7 @@ namespace NodeGLPK {
             V8CHECK(!host->handle, "object deleted");
             
             glp_attr attr;
-            glp_ios_row_attr(host->handle, args[0]->Int32Value(), &attr);
+            GLP_CATCH_RET(glp_ios_row_attr(host->handle, args[0]->Int32Value(), &attr);)
             
             Local<Object> ret = Object::New(isolate);
             GLP_SET_FIELD_INT32(ret, "level", attr.level);
@@ -159,8 +161,8 @@ namespace NodeGLPK {
             }
             
             count--;
-            args.GetReturnValue().Set(glp_ios_add_row(tree->handle, V8TOCSTRING(args[0]), args[1]->Int32Value(),
-                args[2]->Int32Value(), count, pind, pval, args[5]->Int32Value(), args[6]->NumberValue()));
+            GLP_CATCH(args.GetReturnValue().Set(glp_ios_add_row(tree->handle, V8TOCSTRING(args[0]), args[1]->Int32Value(),
+                args[2]->Int32Value(), count, pind, pval, args[5]->Int32Value(), args[6]->NumberValue()));)
             
             free(pind);
             free(pval);
@@ -189,11 +191,11 @@ namespace NodeGLPK {
             Local<Float64Array> x = Local<Float64Array>::Cast(args[0]);
             
             int count = (int)x->Length();
-            V8CHECK(count != (glp_get_num_cols(glp_ios_get_prob(tree->handle)) + 1), "Invalid arrays length");
+            GLP_CATCH_RET(V8CHECK(count != (glp_get_num_cols(glp_ios_get_prob(tree->handle)) + 1), "Invalid arrays length");)
             
             double* px = (double*)malloc(count * sizeof(double));
             for (int i = 0; i < count; i++) px[i] = x->NumberValue();
-            args.GetReturnValue().Set(glp_ios_heur_sol(tree->handle, px));
+            GLP_CATCH(args.GetReturnValue().Set(glp_ios_heur_sol(tree->handle, px));)
             free(px);
         }
         
