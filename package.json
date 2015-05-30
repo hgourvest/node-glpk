@@ -22,5 +22,6 @@
   "scripts": {
     "configure": "node-gyp configure",
     "build": "node-gyp build"
-  }
+  },
+  "engines" : { "node" : ">=0.11.0", "iojs": "*" }
 }
