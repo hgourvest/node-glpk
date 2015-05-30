@@ -14,7 +14,7 @@
 #define V8TOCSTRING(S) (*String::Utf8Value(S->ToString()))
 
 #define V8CHECK(T, E) if (T) { \
-    NanTypeError(E);\
+    NanThrowTypeError(E);\
     return; \
  }
 
