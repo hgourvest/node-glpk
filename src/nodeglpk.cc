@@ -7,7 +7,6 @@
 #include "common.h"
 
 #include "glpk/glpk.h"
-#include "glpk/env/glpenv.h"
 
 using namespace v8;
 using namespace NodeGLPK;
