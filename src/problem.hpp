@@ -13,12 +13,11 @@ namespace NodeGLPK {
     
     class Problem : public node::ObjectWrap {
     public:
+        
         static void Init(Handle<Object> exports){
-            Isolate* isolate = Isolate::GetCurrent();
-            
             // Prepare constructor template
-            Local<FunctionTemplate> tpl = FunctionTemplate::New(isolate, New);
-            tpl->SetClassName(String::NewFromUtf8(isolate, "Problem"));
+            Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(New);
+            tpl->SetClassName(NanNew<String>("Problem"));
             tpl->InstanceTemplate()->SetInternalFieldCount(1);
             
             // Prototype
@@ -130,13 +129,12 @@ namespace NodeGLPK {
             NODE_SET_PROTOTYPE_METHOD(tpl, "getColBind", GetColBind);
             NODE_SET_PROTOTYPE_METHOD(tpl, "warmUp", WarmUp);
             
-            constructor.Reset(isolate, tpl->GetFunction());
-            exports->Set(String::NewFromUtf8(isolate, "Problem"),
-                         tpl->GetFunction());
+            NanAssignPersistent(constructor, tpl);
+            exports->Set(NanNew<String>("Problem"), tpl->GetFunction());
         }
         
     private:
-        explicit Problem(){
+        explicit Problem(): node::ObjectWrap(){
             handle = glp_create_prob();
         }
 
@@ -144,21 +142,19 @@ namespace NodeGLPK {
             if (handle) glp_delete_prob(handle);
         }
         
-        static void New(const FunctionCallbackInfo<Value>& args){
-            Isolate* isolate = Isolate::GetCurrent();
-            HandleScope scope(isolate);
+        static NAN_METHOD(New) {
+            NanScope();
             
             V8CHECK(!args.IsConstructCall(), "Constructor Problem requires 'new'");
             
             GLP_CATCH_RET(Problem* obj = new Problem();
                       obj->Wrap(args.This());
-                      args.GetReturnValue().Set(args.This());
+                      NanReturnValue(args.This());
             )
         }
 
-        static void LoadMatrix(const FunctionCallbackInfo<Value>& args){
-            Isolate* isolate = Isolate::GetCurrent();
-            HandleScope scope(isolate);
+        static NAN_METHOD(LoadMatrix) {
+            NanScope();
             
             V8CHECK(args.Length() != 4, "Wrong number of arguments");
             V8CHECK(!args[0]->IsInt32() || !args[1]->IsInt32Array()
@@ -186,7 +182,7 @@ namespace NodeGLPK {
             free(par);
         }
 
-        static void ScmpInit(Isolate* isolate, glp_smcp* scmp, Local<Value> value){
+        static void ScmpInit(glp_smcp* scmp, Local<Value> value){
             Local<Object> obj = value->ToObject();
             Local<Array> props = obj->GetPropertyNames();
             for(uint32_t i = 0; i < props->Length(); i++){
@@ -243,9 +239,8 @@ namespace NodeGLPK {
             }
         }
 
-        static void Simplex(const FunctionCallbackInfo<Value>& args){
-            Isolate* isolate = Isolate::GetCurrent();
-            HandleScope scope(isolate);
+        static NAN_METHOD(Simplex) {
+            NanScope();
             
             V8CHECK(args.Length() > 1, "Wrong number of arguments");
             
@@ -254,7 +249,7 @@ namespace NodeGLPK {
                       glp_init_smcp(&scmp);
                       if (args.Length() == 1) {
                           if (args[0]->IsObject()){
-                              ScmpInit(isolate, &scmp, args[0]);
+                              ScmpInit(&scmp, args[0]);
                           }
                       }
                       
@@ -265,9 +260,8 @@ namespace NodeGLPK {
             )
         }
         
-        static void Exact(const FunctionCallbackInfo<Value>& args) {
-            Isolate* isolate = Isolate::GetCurrent();
-            HandleScope scope(isolate);
+        static NAN_METHOD(Exact) {
+            NanScope();
             
             V8CHECK(args.Length() > 1, "Wrong number of arguments");
             
@@ -276,7 +270,7 @@ namespace NodeGLPK {
                       glp_init_smcp(&scmp);
                       if (args.Length() == 1) {
                           if (args[0]->IsObject()){
-                              ScmpInit(isolate, &scmp, args[0]);
+                              ScmpInit(&scmp, args[0]);
                           }
                       }
                       
@@ -287,7 +281,7 @@ namespace NodeGLPK {
             )
         }
         
-        static void IptcpInit(Isolate* isolate, glp_iptcp* iptcp, Local<Value> value){
+        static void IptcpInit(glp_iptcp* iptcp, Local<Value> value){
             Local<Object> obj = value->ToObject();
             Local<Array> props = obj->GetPropertyNames();
             for(uint32_t i = 0; i < props->Length(); i++){
@@ -308,9 +302,8 @@ namespace NodeGLPK {
             }
         }
         
-        static void Interior(const FunctionCallbackInfo<Value>& args) {
-            Isolate* isolate = Isolate::GetCurrent();
-            HandleScope scope(isolate);
+        static NAN_METHOD(Interior) {
+            NanScope();
             
             V8CHECK(args.Length() > 1, "Wrong number of arguments");
             
@@ -319,7 +312,7 @@ namespace NodeGLPK {
                       glp_init_iptcp(&iptcp);
                       if (args.Length() == 1) {
                           if (args[0]->IsObject()){
-                              IptcpInit(isolate, &iptcp, args[0]);
+                              IptcpInit(&iptcp, args[0]);
                           }
                       }
                       
@@ -330,9 +323,9 @@ namespace NodeGLPK {
             )
         }
         
-        static void ReadMps(const FunctionCallbackInfo<Value>& args) {
-            Isolate* isolate = Isolate::GetCurrent();
-            HandleScope scope(isolate);
+        static NAN_METHOD(ReadMps) {
+            NanScope();
+            
             std::string objname;
             
             V8CHECK(args.Length() != 3, "Wrong number of arguments");
@@ -371,13 +364,12 @@ namespace NodeGLPK {
                       Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
                       V8CHECK(!lp->handle, "object deleted");
                       
-                      args.GetReturnValue().Set(glp_read_mps(lp->handle, args[0]->Int32Value(), &mpscp, V8TOCSTRING(args[2])));
+                      NanReturnValue(glp_read_mps(lp->handle, args[0]->Int32Value(), &mpscp, V8TOCSTRING(args[2])));
             )
         }
         
-        static void WriteMps(const FunctionCallbackInfo<Value>& args) {
-            Isolate* isolate = Isolate::GetCurrent();
-            HandleScope scope(isolate);
+        static NAN_METHOD(WriteMps) {
+            NanScope();
             std::string objname;
             
             V8CHECK(args.Length() != 3, "Wrong number of arguments");
@@ -416,29 +408,27 @@ namespace NodeGLPK {
                       Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
                       V8CHECK(!lp->handle, "object deleted");
                       
-                      args.GetReturnValue().Set(glp_write_mps(lp->handle, args[0]->Int32Value(), &mpscp, V8TOCSTRING(args[2])));
+                      NanReturnValue(glp_write_mps(lp->handle, args[0]->Int32Value(), &mpscp, V8TOCSTRING(args[2])));
             )
         }
         
         typedef struct{
-            Local<Function> cb;
+            NanCallback* cb;
         } CBInfo;
         
         static void IocpCallback(glp_tree *T, void *info){
-            Isolate* isolate = Isolate::GetCurrent();
-            Local<Function> cb = ((CBInfo*)info)->cb;
-            
+            NanCallback* cb = ((CBInfo*)info)->cb;
             const unsigned argc = 1;
             Local<Value> t = Tree::Instantiate(T);
-            Local<Value> argv[argc] = {Local<Value>::New(isolate, t)};
-            cb->Call(isolate->GetCurrentContext()->Global(), argc, argv);
+            Local<Value> argv[argc] = {NanNew<Value>(t)};
+            cb->Call(argc, argv);
         };
         
-        static void Intopt(const FunctionCallbackInfo<Value>& args) {
+        static NAN_METHOD(Intopt) {
             Isolate* isolate = Isolate::GetCurrent();
             HandleScope scope(isolate);
             std::string solfile;
-            CBInfo info;
+            CBInfo info = {NULL};
             
             V8CHECK(args.Length() > 1, "Wrong number of arguments");
             
@@ -523,7 +513,7 @@ namespace NodeGLPK {
                                   } else if (keystr == "cbFunc"){
                                       V8CHECK(!val->IsFunction(), "cbFunc: should be a function");
                                       iocp.cb_func = IocpCallback;
-                                      info.cb = Local<Function>::Cast(val);
+                                      info.cb = new NanCallback(Local<Function>::Cast(val));
                                       iocp.cb_info = &info;
                                   } else {
                                       std::string error("Unknow field: ");
@@ -538,12 +528,12 @@ namespace NodeGLPK {
                       V8CHECK(!lp->handle, "object deleted");
                       
                       glp_intopt(lp->handle, &iocp);
+                      if (info.cb) delete info.cb;
             )
         }
         
-        static void ReadLp(const FunctionCallbackInfo<Value>& args) {
-            Isolate* isolate = Isolate::GetCurrent();
-            HandleScope scope(isolate);
+        static NAN_METHOD(ReadLp) {
+            NanScope();
             
             V8CHECK(args.Length() != 1, "Wrong number of arguments");
             V8CHECK(!args[0]->IsString(), "Wrong arguments");
@@ -551,12 +541,11 @@ namespace NodeGLPK {
             Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
             V8CHECK(!lp->handle, "object deleted");
             
-            args.GetReturnValue().Set(glp_read_lp(lp->handle, NULL, V8TOCSTRING(args[0])));
+            NanReturnValue(glp_read_lp(lp->handle, NULL, V8TOCSTRING(args[0])));
         }
         
-        static void WriteLp(const FunctionCallbackInfo<Value>& args) {
-            Isolate* isolate = Isolate::GetCurrent();
-            HandleScope scope(isolate);
+        static NAN_METHOD(WriteLp) {
+            NanScope();
             
             V8CHECK(args.Length() != 1, "Wrong number of arguments");
             V8CHECK(!args[0]->IsString(), "Wrong arguments");
@@ -564,12 +553,11 @@ namespace NodeGLPK {
             Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
             V8CHECK(!lp->handle, "object deleted");
             
-            GLP_CATCH_RET(args.GetReturnValue().Set(glp_write_lp(lp->handle, NULL, V8TOCSTRING(args[0])));)
+            GLP_CATCH_RET(NanReturnValue(glp_write_lp(lp->handle, NULL, V8TOCSTRING(args[0])));)
         }
         
-        static void CheckKkt(const FunctionCallbackInfo<Value>& args) {
-            Isolate* isolate = Isolate::GetCurrent();
-            HandleScope scope(isolate);
+        static NAN_METHOD(CheckKkt) {
+            NanScope();
             
             V8CHECK(args.Length() != 3, "Wrong number of arguments");
             V8CHECK(!args[0]->IsInt32() || !args[1]->IsInt32() || !args[2]->IsFunction(), "Wrong arguments");
@@ -581,20 +569,20 @@ namespace NodeGLPK {
             int ae_ind, re_ind;
             GLP_CATCH_RET(glp_check_kkt(lp->handle, args[0]->Int32Value(), args[1]->Int32Value(), &ae_max, &ae_ind, &re_max, &re_ind);)
             
-            Local<Function> cb = Local<Function>::Cast(args[2]);
+            NanCallback* cb = new NanCallback(Local<Function>::Cast(args[2]));
             const unsigned argc = 4;
             Local<Value> argv[argc] = {
-                Int32::New(isolate, ae_max),
-                Number::New(isolate, ae_ind),
-                Int32::New(isolate, re_max),
-                Number::New(isolate, re_ind)
+                NanNew<Number>(ae_max),
+                NanNew<Int32>(ae_ind),
+                NanNew<Number>(re_max),
+                NanNew<Int32>(re_ind)
             };
-            GLP_CATCH_RET(cb->Call(isolate->GetCurrentContext()->Global(), argc, argv);)
+            GLP_CATCH(cb->Call(argc, argv);)
+            delete cb;
         }
         
-        static void PrintRanges(const FunctionCallbackInfo<Value>& args) {
-            Isolate* isolate = Isolate::GetCurrent();
-            HandleScope scope(isolate);
+        static NAN_METHOD(PrintRanges) {
+            NanScope();
             
             V8CHECK(args.Length() != 3, "Wrong number of arguments");
             V8CHECK(!(args[0]->IsInt32Array() || args[0]->IsNull() || args[0]->IsUndefined()) || !args[1]->IsInt32() || !args[2]->IsString(), "Wrong arguments");
@@ -616,15 +604,14 @@ namespace NodeGLPK {
                           }
                       }
                       
-                      args.GetReturnValue().Set(glp_print_ranges(lp->handle, count, plist, args[1]->Int32Value(), V8TOCSTRING(args[2])));
+                      NanReturnValue(glp_print_ranges(lp->handle, count, plist, args[1]->Int32Value(), V8TOCSTRING(args[2])));
                       
             )
             if (plist) free(plist);
         }
         
-        static void GetBfcp(const FunctionCallbackInfo<Value>& args) {
-            Isolate* isolate = Isolate::GetCurrent();
-            HandleScope scope(isolate);
+        static NAN_METHOD(GetBfcp) {
+            NanScope();
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
             V8CHECK(!lp->handle, "object deleted");
@@ -632,7 +619,7 @@ namespace NodeGLPK {
             GLP_CATCH_RET(
                       glp_bfcp bfcp;
                       glp_get_bfcp(lp->handle, &bfcp);
-                      Local<Object> ret = Object::New(isolate);
+                      Local<Object> ret = NanNew<Object>();
                       GLP_SET_FIELD_INT32(ret, "type", bfcp.type);
                       GLP_SET_FIELD_DOUBLE(ret, "pivTol", bfcp.piv_tol);
                       GLP_SET_FIELD_INT32(ret, "pivLim", bfcp.piv_lim);
@@ -641,13 +628,12 @@ namespace NodeGLPK {
                       GLP_SET_FIELD_INT32(ret, "nfsMax", bfcp.nfs_max);
                       GLP_SET_FIELD_INT32(ret, "nrsMax", bfcp.nrs_max);
                       
-                      args.GetReturnValue().Set(ret);
+                      NanReturnValue(ret);
             )
         }
         
-        static void SetBfcp(const FunctionCallbackInfo<Value>& args) {
-            Isolate* isolate = Isolate::GetCurrent();
-            HandleScope scope(isolate);
+        static NAN_METHOD(SetBfcp) {
+            NanScope();
             
             V8CHECK(args.Length() != 1, "Wrong number of arguments");
             V8CHECK(!(args[0]->IsObject() || args[0]->IsNull() || args[0]->IsUndefined()), "Wrong arguments");
@@ -911,24 +897,13 @@ namespace NodeGLPK {
         //void glp_analyze_coef(glp_prob *P, int k, double *coef1, int *var1,
         //                      double *value1, double *coef2, int *var2, double *value2);
         
-
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        static Persistent<Function> constructor;
+        static Persistent<FunctionTemplate> constructor;
     public:
         glp_prob *handle;
     };
     
-    Persistent<Function> Problem::constructor;
+    Persistent<FunctionTemplate> Problem::constructor;
 }
     
     

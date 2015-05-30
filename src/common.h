@@ -9,17 +9,18 @@
 #ifndef _common_h
 #define _common_h
 
+#include <nan.h>
+
 #define V8TOCSTRING(S) (*String::Utf8Value(S->ToString()))
 
 #define V8CHECK(T, E) if (T) { \
-    isolate->ThrowException(Exception::TypeError( \
-        String::NewFromUtf8(isolate, E))); \
+    NanTypeError(E);\
     return; \
  }
 
-#define GLP_CATCH_RET(X) try{X}catch(...){isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "abort")));return;}
+#define GLP_CATCH_RET(X) try{X}catch(...){NanThrowError("abort");return;}
 
-#define GLP_CATCH(X) try{X}catch(...){isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "abort")));}
+#define GLP_CATCH(X) try{X}catch(...){NanThrowError("abort");}
 
 #define GLP_DEFINE_CONSTANT(target, constant, name)\
 do {\
@@ -35,9 +36,8 @@ static_cast<PropertyAttribute>(ReadOnly | DontDelete);\
 while (0)
 
 #define GLP_BIND_VOID_STR(CLASS, NAME, API)\
-static void NAME(const FunctionCallbackInfo<Value>& args) {\
-    Isolate* isolate = Isolate::GetCurrent();\
-    HandleScope scope(isolate);\
+static NAN_METHOD(NAME) {\
+    NanScope();\
     \
     V8CHECK(args.Length() != 1, "Wrong number of arguments");\
     V8CHECK(!args[0]->IsString(), "Wrong arguments");\
@@ -49,24 +49,22 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
 }
 
 #define GLP_BIND_STR(CLASS, NAME, API)\
-static void NAME(const FunctionCallbackInfo<Value>& args) {\
-    Isolate* isolate = Isolate::GetCurrent();\
-    HandleScope scope(isolate);\
+static NAN_METHOD(NAME) {\
+    NanScope();\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     \
     GLP_CATCH_RET(const char* name = API(host->handle);\
     if (name)\
-        args.GetReturnValue().Set(String::NewFromUtf8(isolate, name));\
+        NanReturnValue(name);\
     else\
-        args.GetReturnValue().Set(String::NewFromUtf8(isolate, ""));)\
+        NanReturnValue("");)\
 }
 
 #define GLP_BIND_VOID_INT32(CLASS, NAME, API)\
-static void NAME(const FunctionCallbackInfo<Value>& args) {\
-    Isolate* isolate = Isolate::GetCurrent();\
-    HandleScope scope(isolate);\
+static NAN_METHOD(NAME) {\
+    NanScope();\
     \
     V8CHECK(args.Length() != 1, "Wrong number of arguments");\
     V8CHECK(!args[0]->IsInt32(), "Wrong arguments");\
@@ -78,20 +76,18 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
 }
 
 #define GLP_BIND_VALUE(CLASS, NAME, API)\
-static void NAME(const FunctionCallbackInfo<Value>& args) {\
-    Isolate* isolate = Isolate::GetCurrent();\
-    HandleScope scope(isolate);\
+static NAN_METHOD(NAME) {\
+    NanScope();\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     \
-    GLP_CATCH_RET(args.GetReturnValue().Set(API(host->handle));)\
+    GLP_CATCH_RET(NanReturnValue(API(host->handle));)\
 }
 
 #define GLP_BIND_VOID_INT32_STR(CLASS, NAME, API)\
-static void NAME(const FunctionCallbackInfo<Value>& args) {\
-    Isolate* isolate = Isolate::GetCurrent();\
-    HandleScope scope(isolate);\
+static NAN_METHOD(NAME) {\
+    NanScope();\
     \
     V8CHECK(args.Length() != 2, "Wrong number of arguments");\
     V8CHECK(!args[0]->IsInt32() || !args[1]->IsString(), "Wrong arguments");\
@@ -103,9 +99,8 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
 }
 
 #define GLP_BIND_STR_INT32(CLASS, NAME, API);\
-static void NAME(const FunctionCallbackInfo<Value>& args) {\
-    Isolate* isolate = Isolate::GetCurrent();\
-    HandleScope scope(isolate);\
+static NAN_METHOD(NAME) {\
+    NanScope();\
     \
     V8CHECK(args.Length() != 1, "Wrong number of arguments");\
     V8CHECK(!args[0]->IsInt32(), "Wrong arguments");\
@@ -115,15 +110,14 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
     \
     GLP_CATCH_RET(const char* name = API(host->handle, args[0]->Int32Value());\
     if (name)\
-        args.GetReturnValue().Set(String::NewFromUtf8(isolate, name));\
+        NanReturnValue(name);\
     else\
-        args.GetReturnValue().Set(String::NewFromUtf8(isolate, ""));)\
+        NanReturnValue("");)\
 }
 
 #define GLP_BIND_VOID_INT32_INT32_DOUBLE_DOUBLE(CLASS, NAME, API)\
-static void NAME(const FunctionCallbackInfo<Value>& args) {\
-    Isolate* isolate = Isolate::GetCurrent();\
-    HandleScope scope(isolate);\
+static NAN_METHOD(NAME) {\
+    NanScope();\
     \
     V8CHECK(args.Length() != 4, "Wrong number of arguments");\
     V8CHECK(!args[0]->IsInt32() || !args[1]->IsInt32()\
@@ -137,9 +131,8 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
 }
 
 #define GLP_BIND_VOID_INT32_DOUBLE(CLASS, NAME, API)\
-static void NAME(const FunctionCallbackInfo<Value>& args) {\
-    Isolate* isolate = Isolate::GetCurrent();\
-    HandleScope scope(isolate);\
+static NAN_METHOD(NAME) {\
+    NanScope();\
     \
     V8CHECK(args.Length() != 2, "Wrong number of arguments");\
     V8CHECK(!args[0]->IsInt32() || !args[1]->IsNumber(), "Wrong arguments");\
@@ -151,9 +144,8 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
 }
 
 #define GLP_BIND_VALUE_INT32(CLASS, NAME, API)\
-static void NAME(const FunctionCallbackInfo<Value>& args) {\
-    Isolate* isolate = Isolate::GetCurrent();\
-    HandleScope scope(isolate);\
+static NAN_METHOD(NAME) {\
+    NanScope();\
     \
     V8CHECK(args.Length() != 1, "Wrong number of arguments");\
     V8CHECK(!args[0]->IsInt32(), "Wrong arguments");\
@@ -161,13 +153,12 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     \
-    GLP_CATCH_RET(args.GetReturnValue().Set(API(host->handle, args[0]->Int32Value()));)\
+    GLP_CATCH_RET(NanReturnValue(API(host->handle, args[0]->Int32Value()));)\
 }
 
 #define GLP_BIND_VOID_INT32_INT32ARRAY_FLOAT64ARRAY(CLASS, NAME, API)\
-static void NAME(const FunctionCallbackInfo<Value>& args) {\
-    Isolate* isolate = Isolate::GetCurrent();\
-    HandleScope scope(isolate);\
+static NAN_METHOD(NAME) {\
+    NanScope();\
     \
     V8CHECK(args.Length() != 3, "Wrong number of arguments");\
     V8CHECK(!args[0]->IsUint32() || !args[1]->IsInt32Array() || !args[2]->IsFloat64Array(), "Wrong arguments");\
@@ -195,9 +186,8 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
 }
 
 #define GLP_BIND_VALUE_INT32_CALLBACK(CLASS, NAME, API)\
-static void NAME(const FunctionCallbackInfo<Value>& args) {\
-    Isolate* isolate = Isolate::GetCurrent();\
-    HandleScope scope(isolate);\
+static NAN_METHOD(NAME) {\
+    NanScope();\
     \
     V8CHECK((args.Length() < 1) || (args.Length() > 2), "Wrong number of arguments");\
     V8CHECK(!args[0]->IsInt32(), "Wrong arguments");\
@@ -213,29 +203,27 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
             int* idx = (int*)malloc((count + 1) * sizeof(int));\
             double* val = (double*)malloc((count + 1) * sizeof(double));\
             API(host->handle, row, idx, val);\
-            Local<Int32Array> ja = Int32Array::New(ArrayBuffer::New(isolate, sizeof(int) * (count+1)), 0, count + 1);\
-            Local<Float64Array> ar = Float64Array::New(ArrayBuffer::New(isolate, sizeof(double) * (count+1)), 0, count + 1);\
-        	for (int i = 1; i <= count; i++) ja->Set((uint32_t)i, Int32::New(isolate, idx[i]));\
-        	for (int i = 1; i <= count; i++) ar->Set((uint32_t)i, Number::New(isolate, val[i]));\
+            Local<Int32Array> ja = Int32Array::New(ArrayBuffer::New(Isolate::GetCurrent(), sizeof(int) * (count+1)), 0, count + 1);\
+            Local<Float64Array> ar = Float64Array::New(ArrayBuffer::New(Isolate::GetCurrent(), sizeof(double) * (count+1)), 0, count + 1);\
+        	for (int i = 1; i <= count; i++) ja->Set((uint32_t)i, Int32::New(Isolate::GetCurrent(), idx[i]));\
+        	for (int i = 1; i <= count; i++) ar->Set((uint32_t)i, Number::New(Isolate::GetCurrent(), val[i]));\
         	free(idx);\
         	free(val);\
             \
             Local<Function> cb = Local<Function>::Cast(args[1]);\
             const unsigned argc = 2;\
             Local<Value> argv[argc] = {ja, ar};\
-            cb->Call(isolate->GetCurrentContext()->Global(), argc, argv);\
-            args.GetReturnValue().Set(count);\
+            cb->Call(Isolate::GetCurrent()->GetCurrentContext()->Global(), argc, argv);\
+            NanReturnValue(count);\
         }\
     } catch(...){\
-        isolate->ThrowException(Exception::TypeError( \
-            String::NewFromUtf8(isolate, "abort"))); \
+        NanThrowError("abort"); \
     }\
 }
 
 #define GLP_BIND_VOID(CLASS, NAME, API)\
-static void NAME(const FunctionCallbackInfo<Value>& args) {\
-    Isolate* isolate = Isolate::GetCurrent();\
-    HandleScope scope(isolate);\
+static NAN_METHOD(NAME) {\
+    NanScope();\
     \
     V8CHECK(args.Length() != 0, "Wrong number of arguments");\
     \
@@ -246,9 +234,8 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
 }
 
 #define GLP_BIND_VOID_INT32ARRAY(CLASS, NAME, API)\
-static void NAME(const FunctionCallbackInfo<Value>& args) {\
-    Isolate* isolate = Isolate::GetCurrent();\
-    HandleScope scope(isolate);\
+static NAN_METHOD(NAME) {\
+    NanScope();\
     \
     V8CHECK(args.Length() != 1, "Wrong number of arguments");\
     V8CHECK(!args[0]->IsInt32Array(), "Wrong arguments");\
@@ -268,9 +255,8 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
 }
 
 #define GLP_BIND_VALUE_STR(CLASS, NAME, API)\
-static void NAME(const FunctionCallbackInfo<Value>& args) {\
-    Isolate* isolate = Isolate::GetCurrent();\
-    HandleScope scope(isolate);\
+static NAN_METHOD(NAME) {\
+    NanScope();\
     \
     V8CHECK(args.Length() != 1, "Wrong number of arguments");\
     V8CHECK(!args[0]->IsString(), "Wrong arguments");\
@@ -278,13 +264,12 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     \
-    GLP_CATCH_RET(args.GetReturnValue().Set(API(host->handle, V8TOCSTRING(args[0])));)\
+    GLP_CATCH_RET(NanReturnValue(API(host->handle, V8TOCSTRING(args[0])));)\
 }
 
 #define GLP_BIND_VOID_INT32_INT32(CLASS, NAME, API)\
-static void NAME(const FunctionCallbackInfo<Value>& args) {\
-    Isolate* isolate = Isolate::GetCurrent();\
-    HandleScope scope(isolate);\
+static NAN_METHOD(NAME) {\
+    NanScope();\
     \
     V8CHECK(args.Length() != 2, "Wrong number of arguments");\
     V8CHECK(!args[0]->IsInt32() || !args[1]->IsInt32(), "Wrong arguments");\
@@ -296,9 +281,8 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
 }
 
 #define GLP_BIND_VALUE_INT32_STR(CLASS, NAME, API)\
-static void NAME(const FunctionCallbackInfo<Value>& args) {\
-    Isolate* isolate = Isolate::GetCurrent();\
-    HandleScope scope(isolate);\
+static NAN_METHOD(NAME) {\
+    NanScope();\
     \
     V8CHECK(args.Length() != 2, "Wrong number of arguments");\
     V8CHECK(!args[0]->IsInt32() || !args[1]->IsString(), "Wrong arguments");\
@@ -306,13 +290,12 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     \
-    GLP_CATCH_RET(args.GetReturnValue().Set(API(host->handle, args[0]->Int32Value(), V8TOCSTRING(args[1])));)\
+    GLP_CATCH_RET(NanReturnValue(API(host->handle, args[0]->Int32Value(), V8TOCSTRING(args[1])));)\
 }
 
 #define GLP_BIND_VALUE_STR_INT32(CLASS, NAME, API)\
-    static void NAME(const FunctionCallbackInfo<Value>& args) {\
-    Isolate* isolate = Isolate::GetCurrent();\
-    HandleScope scope(isolate);\
+static NAN_METHOD(NAME) {\
+    NanScope();\
     \
     V8CHECK(args.Length() != 2, "Wrong number of arguments");\
     V8CHECK(!args[0]->IsString() || !args[1]->IsInt32(), "Wrong arguments");\
@@ -324,9 +307,8 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
 }
 
 #define GLP_BIND_DELETE(CLASS, NAME, API)\
-static void NAME(const FunctionCallbackInfo<Value>& args) {\
-    Isolate* isolate = Isolate::GetCurrent();\
-    HandleScope scope(isolate);\
+static NAN_METHOD(NAME) {\
+    NanScope();\
     \
     CLASS* obj = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!obj->handle, "object already deleted");\
@@ -336,10 +318,10 @@ static void NAME(const FunctionCallbackInfo<Value>& args) {\
 }
 
 #define GLP_SET_FIELD_INT32(OBJ, KEY, VALUE)\
-OBJ->Set(String::NewFromUtf8(isolate, KEY), Int32::New(isolate, VALUE));
+OBJ->Set(NanNew<String>(KEY), NanNew<Int32>(VALUE));
 
 #define GLP_SET_FIELD_DOUBLE(OBJ, KEY, VALUE)\
-OBJ->Set(String::NewFromUtf8(isolate, KEY), Number::New(isolate, VALUE));
+OBJ->Set(NanNew<String>(KEY), NanNew<Number>(VALUE));
 
 
 #endif

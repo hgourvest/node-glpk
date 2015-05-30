@@ -12,9 +12,8 @@
                 }
             }]
         ],
-        "dependencies": [
-            "src/glpk/glpk.gyp:libglpk"
-      ]
+      "dependencies": [ "src/glpk/glpk.gyp:libglpk" ],
+      "include_dirs": [ "<!(node -e \"require('nan')\")" ],
     }
   ]
 }

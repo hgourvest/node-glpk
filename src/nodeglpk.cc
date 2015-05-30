@@ -14,25 +14,21 @@ using namespace NodeGLPK;
 extern "C" {
     
     void bind_glp_version(const FunctionCallbackInfo<Value>& args) {
-        Isolate* isolate = Isolate::GetCurrent();
-        HandleScope scope(isolate);
-        
-        GLP_CATCH_RET(args.GetReturnValue().Set(String::NewFromUtf8(isolate, glp_version()));)
+        NanScope();
+        GLP_CATCH_RET(NanReturnValue(NanNew<String>(glp_version()));)
     }
     
     void bind_glp_term_out(const FunctionCallbackInfo<Value>& args) {
-        Isolate* isolate = Isolate::GetCurrent();
-        HandleScope scope(isolate);
+        NanScope();
         
         V8CHECK(args.Length() != 1, "Wrong number of arguments");\
         V8CHECK(!args[0]->IsInt32(), "Wrong arguments");\
         
-        GLP_CATCH_RET(args.GetReturnValue().Set(Int32::New(isolate, glp_term_out(args[0]->Int32Value())));)
+        GLP_CATCH_RET(NanReturnValue(NanNew<Int32>(glp_term_out(args[0]->Int32Value())));)
     }
     
     void bind_glp_mem_limit(const FunctionCallbackInfo<Value>& args) {
-        Isolate* isolate = Isolate::GetCurrent();
-        HandleScope scope(isolate);
+        NanScope();
         
         V8CHECK(args.Length() != 1, "Wrong number of arguments");\
         V8CHECK(!args[0]->IsInt32(), "Wrong arguments");\
@@ -51,9 +47,9 @@ extern "C" {
         glp_error_hook(bind_error_hook, NULL);
         
         
-        NODE_SET_METHOD(exports, "version", bind_glp_version);
-        NODE_SET_METHOD(exports, "termOut", bind_glp_term_out);
-        NODE_SET_METHOD(exports, "memLimit", bind_glp_mem_limit);
+        exports->Set(NanNew<String>("version"), NanNew<FunctionTemplate>(bind_glp_version)->GetFunction());
+        exports->Set(NanNew<String>("termOut"), NanNew<FunctionTemplate>(bind_glp_term_out)->GetFunction());
+        exports->Set(NanNew<String>("memLimit"), NanNew<FunctionTemplate>(bind_glp_mem_limit)->GetFunction());
                 
         GLP_DEFINE_CONSTANT(exports, GLP_MAJOR_VERSION, MAJOR_VERSION);
         GLP_DEFINE_CONSTANT(exports, GLP_MINOR_VERSION, MINOR_VERSION);
