@@ -7,49 +7,67 @@
 #include "common.h"
 
 #include "glpk/glpk.h"
+#include "glpk/env/glpenv.h"
 
 using namespace v8;
 using namespace NodeGLPK;
 
 extern "C" {
     
-    void bind_glp_version(const FunctionCallbackInfo<Value>& args) {
+    NAN_METHOD(Version) {
         NanScope();
         GLP_CATCH_RET(NanReturnValue(NanNew<String>(glp_version()));)
     }
     
-    void bind_glp_term_out(const FunctionCallbackInfo<Value>& args) {
+    NAN_METHOD(TermOut) {
         NanScope();
         
-        V8CHECK(args.Length() != 1, "Wrong number of arguments");\
-        V8CHECK(!args[0]->IsInt32(), "Wrong arguments");\
+        V8CHECK(args.Length() != 1, "Wrong number of arguments");
+        V8CHECK(!args[0]->IsInt32(), "Wrong arguments");
         
         GLP_CATCH_RET(NanReturnValue(NanNew<Int32>(glp_term_out(args[0]->Int32Value())));)
     }
+
+    int _TermHook(void *info, const char *s){
+        NanCallback* cb = reinterpret_cast<NanCallback*>(info);
+        Local<Value> argv[1] = {NanNew<String>(s)};
+        Local<Value> ret = cb->Call(1, argv);
+        return (ret->IsBoolean() && ret->BooleanValue())?1:0;
+    }
     
-    void bind_glp_mem_limit(const FunctionCallbackInfo<Value>& args) {
+    NAN_METHOD(TermHook) {
+        NanScope();
+        V8CHECK(args.Length() != 1, "Wrong number of arguments");
+        V8CHECK(!(args[0]->IsFunction() || args[0]->IsNull()), "Wrong arguments");
+        
+        if (args[0]->IsFunction())
+            GLP_CATCH_RET(glp_term_hook(_TermHook, new NanCallback(Local<Function>::Cast(args[0])));)
+        else
+            GLP_CATCH_RET(glp_term_hook(NULL, NULL);)
+    }
+                          
+    NAN_METHOD(MemLimit) {
         NanScope();
         
-        V8CHECK(args.Length() != 1, "Wrong number of arguments");\
-        V8CHECK(!args[0]->IsInt32(), "Wrong arguments");\
+        V8CHECK(args.Length() != 1, "Wrong number of arguments");
+        V8CHECK(!args[0]->IsInt32(), "Wrong arguments");
         
         GLP_CATCH_RET(glp_mem_limit(args[0]->Int32Value());)
     }
     
-    void bind_error_hook(void *info){
+    void _ErrorHook(void *info){
         throw 0;
     }
     
-    
-    
     void Init(Handle<Object> exports) {
-
-        glp_error_hook(bind_error_hook, NULL);
+        glp_init_env();
+        glp_error_hook(_ErrorHook, NULL);
         
         
-        exports->Set(NanNew<String>("version"), NanNew<FunctionTemplate>(bind_glp_version)->GetFunction());
-        exports->Set(NanNew<String>("termOut"), NanNew<FunctionTemplate>(bind_glp_term_out)->GetFunction());
-        exports->Set(NanNew<String>("memLimit"), NanNew<FunctionTemplate>(bind_glp_mem_limit)->GetFunction());
+        exports->Set(NanNew<String>("version"), NanNew<FunctionTemplate>(Version)->GetFunction());
+        exports->Set(NanNew<String>("termOut"), NanNew<FunctionTemplate>(TermOut)->GetFunction());
+        exports->Set(NanNew<String>("termHook"), NanNew<FunctionTemplate>(TermHook)->GetFunction());
+        exports->Set(NanNew<String>("memLimit"), NanNew<FunctionTemplate>(MemLimit)->GetFunction());
                 
         GLP_DEFINE_CONSTANT(exports, GLP_MAJOR_VERSION, MAJOR_VERSION);
         GLP_DEFINE_CONSTANT(exports, GLP_MINOR_VERSION, MINOR_VERSION);

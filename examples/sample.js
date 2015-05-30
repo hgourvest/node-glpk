@@ -1,6 +1,14 @@
 
 var glp = require('..');
 
+// hook console output
+glp.termHook(
+    function (s){
+        process.stdout.write(s);
+        return true;
+    }
+);
+
 var lp = new glp.Problem();
 lp.setProbName("sample");
 lp.setObjDir(glp.MAX);
