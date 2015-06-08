@@ -47,6 +47,7 @@ namespace NodeGLPK {
             Local<Value> ret = cons->NewInstance();
             Tree* host = ObjectWrap::Unwrap<Tree>(ret->ToObject());
             host->handle = tree;
+            host->thread = false;
             return ret;
         }
     private:
@@ -74,6 +75,7 @@ namespace NodeGLPK {
             
             Tree* host = ObjectWrap::Unwrap<Tree>(args.Holder());
             V8CHECK(!host->handle, "object deleted");
+            V8CHECK(host->thread, "an async operation is inprogress");
             
             int a_cnt, n_cnt, t_cnt;
             GLP_CATCH_RET(glp_ios_tree_size(host->handle, &a_cnt, &n_cnt, &t_cnt);)
@@ -109,6 +111,7 @@ namespace NodeGLPK {
             
             Tree* host = ObjectWrap::Unwrap<Tree>(args.Holder());
             V8CHECK(!host->handle, "object deleted");
+            V8CHECK(host->thread, "an async operation is inprogress");
             
             glp_attr attr;
             GLP_CATCH_RET(glp_ios_row_attr(host->handle, args[0]->Int32Value(), &attr);)
@@ -132,6 +135,7 @@ namespace NodeGLPK {
             
             Tree* tree = ObjectWrap::Unwrap<Tree>(args.Holder());
             V8CHECK(!tree->handle, "object deleted");
+            V8CHECK(tree->thread, "an async operation is inprogress");
             
             Local<Int32Array> ind = Local<Int32Array>::Cast(args[3]);
             Local<Float64Array> val = Local<Float64Array>::Cast(args[4]);
@@ -173,6 +177,7 @@ namespace NodeGLPK {
         
             Tree* tree = ObjectWrap::Unwrap<Tree>(args.Holder());
             V8CHECK(!tree->handle, "object deleted");
+            V8CHECK(tree->thread, "an async operation is inprogress");
             
             Local<Float64Array> x = Local<Float64Array>::Cast(args[0]);
             
@@ -184,9 +189,10 @@ namespace NodeGLPK {
             GLP_CATCH(NanReturnValue(glp_ios_heur_sol(tree->handle, px));)
             free(px);
         }
-        
+    public:
         static Persistent<FunctionTemplate> constructor;
         glp_tree *handle;
+        bool thread;
     };
     
     Persistent<FunctionTemplate> Tree::constructor;

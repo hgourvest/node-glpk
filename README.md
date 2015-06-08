@@ -10,16 +10,18 @@ $ npm install glpk
 ```js
 var glp = require("glpk");
 var prob = new glp.Problem();
-prob.readLp("todd.lpt");
-prob.scale(glp.SF_AUTO);
-prob.simplex({presolve: glp.ON});
+ 
+prob.readLpSync("todd.lpt");
+prob.scaleSync(glp.SF_AUTO);
+prob.simplexSync({presolve: glp.ON});
 if (prob.getNumInt() > 0){
   function callback(tree){
     if (tree.reason() == glp.IBINGO){
       // ...
     }
   }
-  prob.intopt({cbFunc: callback});
+  prob.intoptSync({cbFunc: callback});
 }
+console.log("objective: " + prob.mipObjVal());
 prob.delete();
 ```

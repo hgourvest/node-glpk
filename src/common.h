@@ -18,9 +18,16 @@
     return; \
  }
 
-#define GLP_CATCH_RET(X) try{X}catch(...){NanThrowError("abort");return;}
+#define V8CHECKBOOL(T, E) if (T) { \
+    NanThrowTypeError(E);\
+    return false; \
+}
 
-#define GLP_CATCH(X) try{X}catch(...){NanThrowError("abort");}
+//catch (const char * s){NanThrowError(s);return;}
+
+#define GLP_CATCH_RET(X) try{X}catch (const char * s) {NanThrowError(s);return;}
+
+#define GLP_CATCH(X) try{X}catch (const char * s) {NanThrowError(s);}
 
 #define GLP_DEFINE_CONSTANT(target, constant, name)\
 do {\
@@ -44,6 +51,7 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
+    V8CHECK(host->thread, "an async operation is inprogress")\
     \
     GLP_CATCH_RET(API(host->handle, V8TOCSTRING(args[0]));)\
 }
@@ -54,6 +62,7 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
+    V8CHECK(host->thread, "an async operation is inprogress")\
     \
     GLP_CATCH_RET(const char* name = API(host->handle);\
     if (name)\
@@ -71,6 +80,7 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
+    V8CHECK(host->thread, "an async operation is inprogress")\
     \
     GLP_CATCH_RET(API(host->handle, args[0]->Int32Value());)\
 }
@@ -81,6 +91,7 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
+    V8CHECK(host->thread, "an async operation is inprogress")\
     \
     GLP_CATCH_RET(NanReturnValue(API(host->handle));)\
 }
@@ -94,6 +105,7 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
+    V8CHECK(host->thread, "an async operation is inprogress")\
     \
     GLP_CATCH_RET(API(host->handle, args[0]->Int32Value(), V8TOCSTRING(args[1]));)\
 }
@@ -107,6 +119,7 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
+    V8CHECK(host->thread, "an async operation is inprogress")\
     \
     GLP_CATCH_RET(const char* name = API(host->handle, args[0]->Int32Value());\
     if (name)\
@@ -125,6 +138,7 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
+    V8CHECK(host->thread, "an async operation is inprogress")\
     \
     GLP_CATCH_RET(API(host->handle, args[0]->Int32Value(), args[1]->Int32Value(),\
                      args[2]->NumberValue(), args[3]->NumberValue());)\
@@ -139,6 +153,7 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
+    V8CHECK(host->thread, "an async operation is inprogress")\
     \
     GLP_CATCH_RET(API(host->handle, args[0]->Int32Value(), args[1]->NumberValue());)\
 }
@@ -152,6 +167,7 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
+    V8CHECK(host->thread, "an async operation is inprogress")\
     \
     GLP_CATCH_RET(NanReturnValue(API(host->handle, args[0]->Int32Value()));)\
 }
@@ -172,6 +188,7 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
+    V8CHECK(host->thread, "an async operation is inprogress")\
     \
     int* pja = (int*)malloc(ja->Length() * sizeof(int));\
     double* par = (double*)malloc(ar->Length() * sizeof(double));\
@@ -194,6 +211,7 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
+    V8CHECK(host->thread, "an async operation is inprogress")\
     \
     try{\
         int row = args[0]->Int32Value();\
@@ -216,8 +234,8 @@ static NAN_METHOD(NAME) {\
             cb->Call(Isolate::GetCurrent()->GetCurrentContext()->Global(), argc, argv);\
             NanReturnValue(count);\
         }\
-    } catch(...){\
-        NanThrowError("abort"); \
+    } catch (const char * s) {\
+        NanThrowError(s);\
     }\
 }
 
@@ -229,6 +247,7 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
+    V8CHECK(host->thread, "an async operation is inprogress")\
     \
     GLP_CATCH_RET(API(host->handle);)\
 }
@@ -248,6 +267,7 @@ static NAN_METHOD(NAME) {\
     for (int i = 0; i < count; i++) idx[i] = num->Get(i)->Int32Value();\
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
+    V8CHECK(host->thread, "an async operation is inprogress")\
     \
     count--;\
     GLP_CATCH_RET(API(host->handle, count, idx);)\
@@ -263,6 +283,7 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
+    V8CHECK(host->thread, "an async operation is inprogress")\
     \
     GLP_CATCH_RET(NanReturnValue(API(host->handle, V8TOCSTRING(args[0])));)\
 }
@@ -276,6 +297,7 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
+    V8CHECK(host->thread, "an async operation is inprogress")\
     \
     GLP_CATCH_RET(API(host->handle, args[0]->Int32Value(), args[1]->Int32Value());)\
 }
@@ -289,6 +311,7 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
+    V8CHECK(host->thread, "an async operation is inprogress")\
     \
     GLP_CATCH_RET(NanReturnValue(API(host->handle, args[0]->Int32Value(), V8TOCSTRING(args[1])));)\
 }
@@ -302,6 +325,7 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!host->handle, "object deleted");\
+    V8CHECK(host->thread, "an async operation is inprogress")\
     \
     GLP_CATCH_RET(args.GetReturnValue().Set(API(host->handle, V8TOCSTRING(args[0]), args[1]->Int32Value()));)\
 }
@@ -312,6 +336,7 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* obj = ObjectWrap::Unwrap<CLASS>(args.Holder());\
     V8CHECK(!obj->handle, "object already deleted");\
+    V8CHECK(obj->thread, "an async operation is inprogress")\
     \
     GLP_CATCH_RET(API(obj->handle);)\
     obj->handle = NULL;\
@@ -322,6 +347,139 @@ OBJ->Set(NanNew<String>(KEY), NanNew<Int32>(VALUE));
 
 #define GLP_SET_FIELD_DOUBLE(OBJ, KEY, VALUE)\
 OBJ->Set(NanNew<String>(KEY), NanNew<Number>(VALUE));
+
+
+#define GLP_ASYNC_INT32_STR(CLASS, NAME, API)\
+class NAME##Worker : public NanAsyncWorker {\
+public:\
+NAME##Worker(NanCallback *callback, CLASS *lp, std::string file)\
+: NanAsyncWorker(callback), lp(lp), file(file){\
+    \
+}\
+\
+void Execute () {\
+    try {\
+        ret = API(lp->handle, file.c_str());\
+    } catch (const char * s) {\
+        NanThrowError(s);\
+    }\
+}\
+void WorkComplete() {\
+    lp->thread = false;\
+    NanAsyncWorker::WorkComplete();\
+}\
+virtual void HandleOKCallback() {\
+    Local<Value> args[] = {NanNull(), NanNew<Int32>(ret)};\
+    callback->Call(2, args);\
+}\
+\
+public:\
+    int ret;\
+    CLASS *lp;\
+    std::string file;\
+};\
+\
+static NAN_METHOD(NAME) {\
+    NanScope();\
+    \
+    V8CHECK(args.Length() != 2, "Wrong number of arguments");\
+    V8CHECK(!args[0]->IsString() || !args[1]->IsFunction(), "Wrong arguments");\
+    \
+    CLASS* lp = ObjectWrap::Unwrap<CLASS>(args.Holder());\
+    V8CHECK(!lp->handle, "object deleted");\
+    V8CHECK(lp->thread, "an async operation is inprogress")\
+    \
+    NanCallback *callback = new NanCallback(args[1].As<Function>());\
+    NAME##Worker *worker = new NAME##Worker(callback, lp, V8TOCSTRING(args[0]));\
+    lp->thread = true;\
+    NanAsyncQueueWorker(worker);\
+    NanReturnUndefined();\
+}\
+
+#define GLP_ASYNC_INT32_INT32_STR(CLASS, NAME, API)\
+class NAME##Worker : public NanAsyncWorker {\
+public:\
+    NAME##Worker(NanCallback *callback, CLASS *lp, int flags, std::string file)\
+    : NanAsyncWorker(callback), flags(flags), lp(lp), file(file){\
+        \
+    }\
+    void WorkComplete() {\
+        lp->thread = false;\
+        NanAsyncWorker::WorkComplete();\
+    }\
+    void Execute () {\
+        try {\
+            ret = API(lp->handle, flags, file.c_str());\
+        } catch (const char * s) {\
+            NanThrowError(s);\
+        }\
+    }\
+    \
+    virtual void HandleOKCallback() {\
+        Local<Value> args[] = {NanNull(), NanNew<Int32>(ret)};\
+        callback->Call(2, args);\
+    }\
+    \
+public:\
+    int ret, flags;\
+    CLASS *lp;\
+    std::string file;\
+};\
+\
+static NAN_METHOD(NAME) {\
+    NanScope();\
+    \
+    V8CHECK(args.Length() != 3, "Wrong number of arguments");\
+    V8CHECK(!args[0]->IsInt32() || !args[1]->IsString() || !args[2]->IsFunction(), "Wrong arguments");\
+    \
+    CLASS* lp = ObjectWrap::Unwrap<CLASS>(args.Holder());\
+    V8CHECK(!lp->handle, "object deleted");\
+    V8CHECK(lp->thread, "an async operation is inprogress")\
+    \
+    NanCallback *callback = new NanCallback(args[2].As<Function>());\
+    NAME##Worker *worker = new NAME##Worker(callback, lp, args[0]->Int32Value(), V8TOCSTRING(args[1]));\
+    lp->thread = true;\
+    NanAsyncQueueWorker(worker);\
+    NanReturnUndefined();\
+}\
+
+#define GLP_ASYNC_VOID(CLASS, NAME, API)\
+class NAME##Worker : public NanAsyncWorker {\
+public:\
+    NAME##Worker(NanCallback *callback, CLASS *lp)\
+    : NanAsyncWorker(callback), lp(lp) {\
+    }\
+    void WorkComplete() {\
+        lp->thread = false;\
+        NanAsyncWorker::WorkComplete();\
+    }\
+    void Execute () {\
+        try {\
+            API(lp->handle);\
+        } catch (const char * s) {\
+            NanThrowError(s);\
+        }\
+    }\
+public:\
+    CLASS *lp;\
+};\
+\
+static NAN_METHOD(NAME) {\
+    NanScope();\
+    \
+    V8CHECK(args.Length() != 1, "Wrong number of arguments");\
+    V8CHECK(!args[0]->IsFunction(), "Wrong arguments");\
+    \
+    CLASS* lp = ObjectWrap::Unwrap<CLASS>(args.Holder());\
+    V8CHECK(!lp->handle, "object deleted");\
+    V8CHECK(lp->thread, "an async operation is inprogress")\
+    \
+    NanCallback *callback = new NanCallback(args[0].As<Function>());\
+    NAME##Worker *worker = new NAME##Worker(callback, lp);\
+    lp->thread = true;\
+    NanAsyncQueueWorker(worker);\
+    NanReturnUndefined();\
+}\
 
 
 #endif

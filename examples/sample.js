@@ -1,14 +1,6 @@
 
 var glp = require('..');
 
-// hook console output
-glp.termHook(
-    function (s){
-        process.stdout.write(s);
-        return true;
-    }
-);
-
 var lp = new glp.Problem();
 lp.setProbName("sample");
 lp.setObjDir(glp.MAX);
@@ -46,20 +38,24 @@ ia[8] = 2, ja[8] = 3, ar[8] =  5.0; /* a[2,3] =  5 */
 ia[9] = 3, ja[9] = 3, ar[9] =  6.0; /* a[3,3] =  6 */
 lp.loadMatrix(9, ia, ja, ar);
 
+//solve simplex asynchronously
 lp.simplex({
     msgLev: glp.MSG_ALL,
     meth: glp.DUAL,
     pricing: glp.PT_PSE,
     rTest: glp.RT_HAR,
     presolve: glp.OFF
+},function(err){
+  if (err){
+    console.log(err);
+    return;
+  }
+  var z = lp.getObjVal(),
+  x1 = lp.getColPrim(1),
+  x2 = lp.getColPrim(2),
+  x3 = lp.getColPrim(3);
+
+  console.log("\nz = " + z + "; x1 = " + x1 + "; x2 = " + x2 + "; x3 = " + x3 + "\n");
+  //console.log(lp.getItCnt());
+  lp.delete();
 });
-
-var z = lp.getObjVal(),
-   x1 = lp.getColPrim(1),
-   x2 = lp.getColPrim(2),
-   x3 = lp.getColPrim(3);
-
-console.log("\nz = " + z + "; x1 = " + x1 + "; x2 = " + x2 + "; x3 = " + x3 + "\n");
-
-//console.log(lp.getItCnt());
-lp.delete();
