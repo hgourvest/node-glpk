@@ -749,6 +749,7 @@ void glp_init_iocp(glp_iocp *parm)
       parm->out_dly = 10000;
       parm->cb_func = NULL;
       parm->cb_info = NULL;
+      parm->cb_reasons = 0xff;
       parm->cb_size = 0;
       parm->pp_tech = GLP_PP_ALL;
       parm->mip_gap = 0.0;

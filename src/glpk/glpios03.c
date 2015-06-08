@@ -959,7 +959,7 @@ loop: /* main loop starts here */
       /* select some active subproblem to continue the search */
       xassert(T->next_p == 0);
       /* let the application program select subproblem */
-      if (T->parm->cb_func != NULL)
+      if (T->parm->cb_func != NULL  && GLP_FSELECT & T->parm->cb_reasons)
       {  xassert(T->reason == 0);
          T->reason = GLP_ISELECT;
          return;
@@ -1078,7 +1078,7 @@ more: /* minor loop starts here */
          goto done;
       }
       /* let the application program preprocess the subproblem */
-      if (T->parm->cb_func != NULL)
+      if (T->parm->cb_func != NULL  && GLP_FPREPRO & T->parm->cb_reasons)
       {  xassert(T->reason == 0);
          T->reason = GLP_IPREPRO;
          return;
@@ -1196,7 +1196,7 @@ prepro:
          constraints) */
       xassert(T->reopt == 0);
       xassert(T->reinv == 0);
-      if (T->parm->cb_func != NULL)
+      if (T->parm->cb_func != NULL  && GLP_FROWGEN & T->parm->cb_reasons)
       {  xassert(T->reason == 0);
          T->reason = GLP_IROWGEN;
          return;
@@ -1235,7 +1235,7 @@ rowgen:
          ios_process_sol(T);
 #endif
          /* make the application program happy */
-         if (T->parm->cb_func != NULL)
+         if (T->parm->cb_func != NULL  && GLP_FBINGO & T->parm->cb_reasons)
          {  xassert(T->reason == 0);
             T->reason = GLP_IBINGO;
             return;
@@ -1259,7 +1259,7 @@ bingo:
          fix_by_red_cost(T);
       /* let the application program try to find some solution to the
          original MIP with a primal heuristic */
-      if (T->parm->cb_func != NULL)
+      if (T->parm->cb_func != NULL  && GLP_FHEUR & T->parm->cb_reasons)
       {  xassert(T->reason == 0);
          T->reason = GLP_IHEUR;
          return;
@@ -1329,7 +1329,7 @@ heur:
       /* let the application program generate some cuts; note that it
          can add cuts either to the local cut pool or directly to the
          current subproblem */
-      if (T->parm->cb_func != NULL)
+      if (T->parm->cb_func != NULL  && GLP_FCUTGEN & T->parm->cb_reasons)
       {  xassert(T->reason == 0);
          T->reason = GLP_ICUTGEN;
          return;
@@ -1389,7 +1389,7 @@ cutgen:
       xassert(T->br_var == 0);
       xassert(T->br_sel == 0);
       /* let the application program choose variable to branch on */
-      if (T->parm->cb_func != NULL)
+      if (T->parm->cb_func != NULL  && GLP_FBRANCH & T->parm->cb_reasons)
       {  xassert(T->reason == 0);
          xassert(T->br_var == 0);
          xassert(T->br_sel == 0);

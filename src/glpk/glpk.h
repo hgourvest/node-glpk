@@ -173,6 +173,14 @@ typedef struct
       void (*cb_func)(glp_tree *T, void *info);
                               /* mip.cb_func */
       void *cb_info;          /* mip.cb_info */
+      int cb_reasons;          /* tree.reason flags */
+#define GLP_FROWGEN        1 << GLP_IROWGEN
+#define GLP_FBINGO         1 << GLP_IBINGO
+#define GLP_FHEUR          1 << GLP_IHEUR
+#define GLP_FCUTGEN        1 << GLP_ICUTGEN
+#define GLP_FBRANCH        1 << GLP_IBRANCH
+#define GLP_FSELECT        1 << GLP_ISELECT
+#define GLP_FPREPRO        1 << GLP_IPREPRO
       int cb_size;            /* mip.cb_size */
       int pp_tech;            /* preprocessing technique: */
 #define GLP_PP_NONE        0  /* disable preprocessing */
