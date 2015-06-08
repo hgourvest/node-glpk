@@ -65,7 +65,8 @@ static void errfunc(const char *fmt, ...)
 
     if (_error_hook_){
         // remove annoying CR
-        for (int i = 0; i < TBUF_SIZE - 1; i++){
+        int i;
+        for (i = 0; i < TBUF_SIZE - 1; i++){
             if (term_buf[i] == '\n' && term_buf[i+1] == 0) {
                 term_buf[i] = 0;
                 break;
