@@ -483,8 +483,13 @@ void ios_process_sol(glp_tree *T);
 int ios_preprocess_node(glp_tree *tree, int max_pass);
 /* preprocess current subproblem */
 
+
+
 #define ios_driver _glp_ios_driver
 int ios_driver(glp_tree *tree);
+
+void ios_driver_run(glp_tree *tree, ios_driver_ctx *ctx);
+
 /* branch-and-bound driver */
 
 /**********************************************************************/

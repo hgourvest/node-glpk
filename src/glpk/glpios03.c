@@ -908,27 +908,36 @@ static void display_cut_info(glp_tree *T)
 *
 *  GLP_ESTOP
 *     The search was prematurely terminated by application. */
-
-int ios_driver(glp_tree *T)
-{     int p, curr_p, p_stat, d_stat, ret;
+   
+void ios_driver_run(glp_tree *T, ios_driver_ctx *ctx)
+{
+    switch (T->reason) {
+        case 0: break;
+        case GLP_IROWGEN: goto rowgen;
+        case GLP_IBINGO : goto bingo;
+        case GLP_IHEUR  : goto heur;
+        case GLP_ICUTGEN: goto cutgen;
+        case GLP_IBRANCH: goto branch;
+        case GLP_ISELECT: goto select;
+        case GLP_IPREPRO: goto prepro;
+        default:
+            xassert(0 != 0);
+    }
+  
+    ctx->done = 0;
 #if 1 /* carry out to glp_tree */
-      int pred_p = 0;
+      ctx->pred_p = 0;
       /* if the current subproblem has been just created due to
          branching, pred_p is the reference number of its parent
          subproblem, otherwise pred_p is zero */
 #endif
-#if 1 /* 18/VII-2013 */
-      int bad_cut;
-      double old_obj;
-#endif
-#if 0 /* 10/VI-2013 */
-      glp_long ttt = T->tm_beg;
-#else
-      double ttt = T->tm_beg;
-#endif
+      ctx->ttt = T->tm_beg;
 #if 0
       ((glp_iocp *)T->parm)->msg_lev = GLP_MSG_DBG;
 #endif
+    
+    
+    
       /* on entry to the B&B driver it is assumed that the active list
          contains the only active (i.e. root) subproblem, which is the
          original MIP problem to be solved */
@@ -944,7 +953,7 @@ loop: /* main loop starts here */
 #else
          xassert(dmp_in_use(T->pool) == 0);
 #endif
-         ret = 0;
+         ctx->ret = 0;
          goto done;
       }
       /* select some active subproblem to continue the search */
@@ -953,10 +962,12 @@ loop: /* main loop starts here */
       if (T->parm->cb_func != NULL)
       {  xassert(T->reason == 0);
          T->reason = GLP_ISELECT;
-         T->parm->cb_func(T, T->parm->cb_info);
+         return;
+select:
+         //T->parm->cb_func(T, T->parm->cb_info);
          T->reason = 0;
          if (T->stop)
-         {  ret = GLP_ESTOP;
+         {  ctx->ret = GLP_ESTOP;
             goto done;
          }
       }
@@ -984,20 +995,20 @@ loop: /* main loop starts here */
       T->next_p = T->child = 0;
       /* invalidate pred_p, if it is not the reference number of the
          parent of the current subproblem */
-      if (T->curr->up != NULL && T->curr->up->p != pred_p) pred_p = 0;
+      if (T->curr->up != NULL && T->curr->up->p != ctx->pred_p) ctx->pred_p = 0;
       /* determine the reference number of the current subproblem */
-      p = T->curr->p;
+      ctx->p = T->curr->p;
       if (T->parm->msg_lev >= GLP_MSG_DBG)
       {  xprintf("-----------------------------------------------------"
             "-------------------\n");
-         xprintf("Processing node %d at level %d\n", p, T->curr->level);
+         xprintf("Processing node %d at level %d\n", ctx->p, T->curr->level);
       }
 #if 0
-      if (p == 1)
+      if (ctx->p == 1)
          glp_write_lp(T->mip, NULL, "root.lp");
 #endif
       /* if it is the root subproblem, initialize cut generators */
-      if (p == 1)
+      if (ctx->p == 1)
       {  if (T->parm->gmi_cuts == GLP_ON)
          {  if (T->parm->msg_lev >= GLP_MSG_ALL)
                xprintf("Gomory's cuts enabled\n");
@@ -1020,7 +1031,7 @@ loop: /* main loop starts here */
          }
       }
 #if 1 /* 18/VII-2013 */
-      bad_cut = 0;
+      ctx->bad_cut = 0;
 #endif
 more: /* minor loop starts here */
       /* at this point the current subproblem needs either to be solved
@@ -1032,7 +1043,7 @@ more: /* minor loop starts here */
             1000.0 * xdifftime(xtime(), T->tm_lag))
          show_progress(T, 0);
       if (T->parm->msg_lev >= GLP_MSG_ALL &&
-            xdifftime(xtime(), ttt) >= 60.0)
+            xdifftime(xtime(), ctx->ttt) >= 60.0)
 #if 0 /* 16/II-2012 */
       {  glp_long total;
          glp_mem_usage(NULL, NULL, &total, NULL);
@@ -1045,7 +1056,7 @@ more: /* minor loop starts here */
          glp_mem_usage(NULL, NULL, &total, NULL);
          xprintf("Time used: %.1f secs.  Memory used: %.1f Mb.\n",
             xdifftime(xtime(), T->tm_beg), (double)total / 1048576.0);
-         ttt = xtime();
+         ctx->ttt = xtime();
       }
 #endif
       /* check the mip gap */
@@ -1054,7 +1065,7 @@ more: /* minor loop starts here */
       {  if (T->parm->msg_lev >= GLP_MSG_DBG)
             xprintf("Relative gap tolerance reached; search terminated "
                "\n");
-         ret = GLP_EMIPGAP;
+         ctx->ret = GLP_EMIPGAP;
          goto done;
       }
       /* check if the time limit has been exhausted */
@@ -1063,17 +1074,19 @@ more: /* minor loop starts here */
          1000.0 * xdifftime(xtime(), T->tm_beg))
       {  if (T->parm->msg_lev >= GLP_MSG_DBG)
             xprintf("Time limit exhausted; search terminated\n");
-         ret = GLP_ETMLIM;
+         ctx->ret = GLP_ETMLIM;
          goto done;
       }
       /* let the application program preprocess the subproblem */
       if (T->parm->cb_func != NULL)
       {  xassert(T->reason == 0);
          T->reason = GLP_IPREPRO;
-         T->parm->cb_func(T, T->parm->cb_info);
+         return;
+prepro:
+         //T->parm->cb_func(T, T->parm->cb_info);
          T->reason = 0;
          if (T->stop)
-         {  ret = GLP_ESTOP;
+         {  ctx->ret = GLP_ESTOP;
             goto done;
          }
       }
@@ -1093,40 +1106,40 @@ more: /* minor loop starts here */
       else
          xassert(T != T);
       /* preprocessing may improve the global bound */
-      if (!is_branch_hopeful(T, p))
+      if (!is_branch_hopeful(T, ctx->p))
       {  xprintf("*** not tested yet ***\n");
          goto fath;
       }
       /* solve LP relaxation of the current subproblem */
       if (T->parm->msg_lev >= GLP_MSG_DBG)
          xprintf("Solving LP relaxation...\n");
-      ret = ios_solve_node(T);
-      if (!(ret == 0 || ret == GLP_EOBJLL || ret == GLP_EOBJUL))
+      ctx->ret = ios_solve_node(T);
+      if (!(ctx->ret == 0 || ctx->ret == GLP_EOBJLL || ctx->ret == GLP_EOBJUL))
       {  if (T->parm->msg_lev >= GLP_MSG_ERR)
             xprintf("ios_driver: unable to solve current LP relaxation;"
-               " glp_simplex returned %d\n", ret);
-         ret = GLP_EFAIL;
+               " glp_simplex returned %d\n", ctx->ret);
+         ctx->ret = GLP_EFAIL;
          goto done;
       }
       /* analyze status of the basic solution to LP relaxation found */
-      p_stat = T->mip->pbs_stat;
-      d_stat = T->mip->dbs_stat;
-      if (p_stat == GLP_FEAS && d_stat == GLP_FEAS)
+      ctx->p_stat = T->mip->pbs_stat;
+      ctx->d_stat = T->mip->dbs_stat;
+      if (ctx->p_stat == GLP_FEAS && ctx->d_stat == GLP_FEAS)
       {  /* LP relaxation has optimal solution */
          if (T->parm->msg_lev >= GLP_MSG_DBG)
             xprintf("Found optimal solution to LP relaxation\n");
       }
-      else if (d_stat == GLP_NOFEAS)
+      else if (ctx->d_stat == GLP_NOFEAS)
       {  /* LP relaxation has no dual feasible solution */
          /* since the current subproblem cannot have a larger feasible
             region than its parent, there is something wrong */
          if (T->parm->msg_lev >= GLP_MSG_ERR)
             xprintf("ios_driver: current LP relaxation has no dual feas"
                "ible solution\n");
-         ret = GLP_EFAIL;
+         ctx->ret = GLP_EFAIL;
          goto done;
       }
-      else if (p_stat == GLP_INFEAS && d_stat == GLP_FEAS)
+      else if (ctx->p_stat == GLP_INFEAS && ctx->d_stat == GLP_FEAS)
       {  /* LP relaxation has no primal solution which is better than
             the incumbent objective value */
          xassert(T->mip->mip_stat == GLP_FEAS);
@@ -1136,7 +1149,7 @@ more: /* minor loop starts here */
          /* prune the branch */
          goto fath;
       }
-      else if (p_stat == GLP_NOFEAS)
+      else if (ctx->p_stat == GLP_NOFEAS)
       {  /* LP relaxation has no primal feasible solution */
          if (T->parm->msg_lev >= GLP_MSG_DBG)
             xprintf("LP relaxation has no feasible solution\n");
@@ -1149,7 +1162,7 @@ more: /* minor loop starts here */
       }
       /* at this point basic solution to LP relaxation of the current
          subproblem is optimal */
-      xassert(p_stat == GLP_FEAS && d_stat == GLP_FEAS);
+      xassert(ctx->p_stat == GLP_FEAS && ctx->d_stat == GLP_FEAS);
       xassert(T->curr != NULL);
       T->curr->lp_obj = T->mip->obj_val;
       /* thus, it defines a local bound to integer optimal solution of
@@ -1174,7 +1187,7 @@ more: /* minor loop starts here */
       /* if the local bound indicates that integer optimal solution of
          the current subproblem cannot be better than the global bound,
          prune the branch */
-      if (!is_branch_hopeful(T, p))
+      if (!is_branch_hopeful(T, ctx->p))
       {  if (T->parm->msg_lev >= GLP_MSG_DBG)
             xprintf("Current branch is hopeless and can be pruned\n");
          goto fath;
@@ -1186,10 +1199,12 @@ more: /* minor loop starts here */
       if (T->parm->cb_func != NULL)
       {  xassert(T->reason == 0);
          T->reason = GLP_IROWGEN;
-         T->parm->cb_func(T, T->parm->cb_info);
+         return;
+rowgen:
+         //T->parm->cb_func(T, T->parm->cb_info);
          T->reason = 0;
          if (T->stop)
-         {  ret = GLP_ESTOP;
+         {  ctx->ret = GLP_ESTOP;
             goto done;
          }
          if (T->reopt)
@@ -1223,10 +1238,12 @@ more: /* minor loop starts here */
          if (T->parm->cb_func != NULL)
          {  xassert(T->reason == 0);
             T->reason = GLP_IBINGO;
-            T->parm->cb_func(T, T->parm->cb_info);
+            return;
+bingo:
+            //T->parm->cb_func(T, T->parm->cb_info);
             T->reason = 0;
             if (T->stop)
-            {  ret = GLP_ESTOP;
+            {  ctx->ret = GLP_ESTOP;
                goto done;
             }
          }
@@ -1245,14 +1262,16 @@ more: /* minor loop starts here */
       if (T->parm->cb_func != NULL)
       {  xassert(T->reason == 0);
          T->reason = GLP_IHEUR;
-         T->parm->cb_func(T, T->parm->cb_info);
+         return;
+         //T->parm->cb_func(T, T->parm->cb_info);
+heur:
          T->reason = 0;
          if (T->stop)
-         {  ret = GLP_ESTOP;
+         {  ctx->ret = GLP_ESTOP;
             goto done;
          }
          /* check if the current branch became hopeless */
-         if (!is_branch_hopeful(T, p))
+         if (!is_branch_hopeful(T, ctx->p))
          {  if (T->parm->msg_lev >= GLP_MSG_DBG)
                xprintf("Current branch became hopeless and can be prune"
                   "d\n");
@@ -1266,7 +1285,7 @@ more: /* minor loop starts here */
          ios_feas_pump(T);
          T->reason = 0;
          /* check if the current branch became hopeless */
-         if (!is_branch_hopeful(T, p))
+         if (!is_branch_hopeful(T, ctx->p))
          {  if (T->parm->msg_lev >= GLP_MSG_DBG)
                xprintf("Current branch became hopeless and can be prune"
                   "d\n");
@@ -1281,7 +1300,7 @@ more: /* minor loop starts here */
          ios_proxy_heur(T);
          T->reason = 0;
          /* check if the current branch became hopeless */
-         if (!is_branch_hopeful(T, p))
+         if (!is_branch_hopeful(T, ctx->p))
          {  if (T->parm->msg_lev >= GLP_MSG_DBG)
                xprintf("Current branch became hopeless and can be prune"
                   "d\n");
@@ -1296,7 +1315,7 @@ more: /* minor loop starts here */
          round_heur(T);
          T->reason = 0;
          /* check if the current branch became hopeless */
-         if (!is_branch_hopeful(T, p))
+         if (!is_branch_hopeful(T, ctx->p))
          {  if (T->parm->msg_lev >= GLP_MSG_DBG)
                xprintf("Current branch became hopeless and can be prune"
                   "d\n");
@@ -1313,30 +1332,32 @@ more: /* minor loop starts here */
       if (T->parm->cb_func != NULL)
       {  xassert(T->reason == 0);
          T->reason = GLP_ICUTGEN;
-         T->parm->cb_func(T, T->parm->cb_info);
+         return;
+cutgen:
+         //T->parm->cb_func(T, T->parm->cb_info);
          T->reason = 0;
          if (T->stop)
-         {  ret = GLP_ESTOP;
+         {  ctx->ret = GLP_ESTOP;
             goto done;
          }
       }
 #if 1 /* 18/VII-2013 */
       if (T->curr->changed > 0)
-      {  double degrad = fabs(T->curr->lp_obj - old_obj);
-         if (degrad < 1e-4 * (1.0 + fabs(old_obj)))
-            bad_cut++;
+      {  double degrad = fabs(T->curr->lp_obj - ctx->old_obj);
+         if (degrad < 1e-4 * (1.0 + fabs(ctx->old_obj)))
+            ctx->bad_cut++;
          else
-            bad_cut = 0;
+            ctx->bad_cut = 0;
       }
-      old_obj = T->curr->lp_obj;
-      if (bad_cut == 0 || (T->curr->level == 0 && bad_cut <= 3))
+      ctx->old_obj = T->curr->lp_obj;
+      if (ctx->bad_cut == 0 || (T->curr->level == 0 && ctx->bad_cut <= 3))
 #endif
       /* try to generate generic cuts with built-in generators
          (as suggested by Prof. Fischetti et al. the built-in cuts are
          not generated at each branching node; an intense attempt of
          generating new cuts is only made at the root node, and then
          a moderate effort is spent after each backtracking step) */
-      if (T->curr->level == 0 || pred_p == 0)
+      if (T->curr->level == 0 || ctx->pred_p == 0)
       {  xassert(T->reason == 0);
          T->reason = GLP_ICUTGEN;
          generate_cuts(T);
@@ -1373,10 +1394,12 @@ more: /* minor loop starts here */
          xassert(T->br_var == 0);
          xassert(T->br_sel == 0);
          T->reason = GLP_IBRANCH;
-         T->parm->cb_func(T, T->parm->cb_info);
+         return;
+branch:
+         //T->parm->cb_func(T, T->parm->cb_info);
          T->reason = 0;
          if (T->stop)
-         {  ret = GLP_ESTOP;
+         {  ctx->ret = GLP_ESTOP;
             goto done;
          }
       }
@@ -1385,15 +1408,15 @@ more: /* minor loop starts here */
       if (T->br_var == 0)
          T->br_var = ios_choose_var(T, &T->br_sel);
       /* perform actual branching */
-      curr_p = T->curr->p;
-      ret = branch_on(T, T->br_var, T->br_sel);
+      ctx->curr_p = T->curr->p;
+      ctx->ret = branch_on(T, T->br_var, T->br_sel);
       T->br_var = T->br_sel = 0;
-      if (ret == 0)
+      if (ctx->ret == 0)
       {  /* both branches have been created */
-         pred_p = curr_p;
+         ctx->pred_p = ctx->curr_p;
          goto loop;
       }
-      else if (ret == 1)
+      else if (ctx->ret == 1)
       {  /* one branch is hopeless and has been pruned, so now the
             current subproblem is other branch */
          /* the current subproblem should be considered as a new one,
@@ -1404,25 +1427,25 @@ more: /* minor loop starts here */
 #endif
          goto more;
       }
-      else if (ret == 2)
+      else if (ctx->ret == 2)
       {  /* both branches are hopeless and have been pruned; new
             subproblem selection is needed to continue the search */
          goto fath;
       }
       else
-         xassert(ret != ret);
+         xassert(ctx->ret != ctx->ret);
 fath: /* the current subproblem has been fathomed */
       if (T->parm->msg_lev >= GLP_MSG_DBG)
-         xprintf("Node %d fathomed\n", p);
+         xprintf("Node %d fathomed\n", ctx->p);
       /* freeze the current subproblem */
       ios_freeze_node(T);
       /* and prune the corresponding branch of the tree */
-      ios_delete_node(T, p);
+      ios_delete_node(T, ctx->p);
       /* if a new integer feasible solution has just been found, other
          branches may become hopeless and therefore must be pruned */
       if (T->mip->mip_stat == GLP_FEAS) cleanup_the_tree(T);
       /* new subproblem selection is needed due to backtracking */
-      pred_p = 0;
+      ctx->pred_p = 0;
       goto loop;
 done: /* display progress of the search on exit from the solver */
       if (T->parm->msg_lev >= GLP_MSG_ON)
@@ -1432,7 +1455,19 @@ done: /* display progress of the search on exit from the solver */
       if (T->clq_gen != NULL)
          ios_clq_term(T->clq_gen), T->clq_gen = NULL;
       /* return to the calling program */
-      return ret;
+    ctx->done = 1;
 }
 
+int ios_driver(glp_tree *T)
+{
+    ios_driver_ctx ctx;
+    ios_driver_run(T, &ctx);
+    while (!ctx.done) {
+        T->parm->cb_func(T, T->parm->cb_info);
+        ios_driver_run(T, &ctx);
+    }
+    return ctx.ret;
+}
+
+    
 /* eof */

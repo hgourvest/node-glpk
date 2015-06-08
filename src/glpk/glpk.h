@@ -31,7 +31,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+    
 /* library version numbers: */
 #define GLP_MAJOR_VERSION  4
 #define GLP_MINOR_VERSION  55
@@ -289,6 +289,37 @@ typedef struct
       /* (reserved for use in the future) */
 } glp_cpxcp;
 
+typedef struct {
+    int ret, done;
+    int p, curr_p, p_stat, d_stat;
+    int pred_p;
+    int bad_cut;
+    double old_obj;
+    double ttt;
+} ios_driver_ctx;
+    
+typedef enum {
+    PRE_NONE  = 0,
+    PRE_CLEAN = 1,
+    PRE_POST  = 2,
+    PRE_DONE  = 3
+} glp_mip_ctx_presolve_state;
+
+typedef struct {
+    int ret, done;
+    const glp_iocp *parm;
+    // solve_mip
+    glp_tree *tree;
+    
+    //presolve
+    struct{
+        void *npp;
+        glp_prob *mip;
+        glp_mip_ctx_presolve_state state;
+    } presolve;
+    ios_driver_ctx ios;
+} glp_mip_ctx;
+    
 typedef struct glp_tran glp_tran;
 /* MathProg translator workspace */
 
@@ -544,6 +575,12 @@ int glp_get_num_int(glp_prob *P);
 int glp_get_num_bin(glp_prob *P);
 /* retrieve number of binary columns */
 
+void glp_init_mip_ctx(glp_mip_ctx *ctx);
+void glp_intopt_start(glp_prob *P, glp_mip_ctx *ctx);
+void glp_intopt_stop(glp_prob *P, glp_mip_ctx *ctx);
+void glp_intopt_run(glp_mip_ctx *ctx);
+/* Async API */
+    
 int glp_intopt(glp_prob *P, const glp_iocp *parm);
 /* solve MIP problem with the branch-and-bound method */
 
