@@ -23,6 +23,8 @@
 
 #include "glpenv.h"
 
+#ifdef HAVE_ENV
+
 #define ALIGN 16
 /* some processors need data to be properly aligned, so this macro
  * defines the alignment boundary, in bytes, provided by glpk memory
@@ -248,5 +250,24 @@ void glp_mem_usage(int *count, int *cpeak, size_t *total,
          *tpeak = env->mem_tpeak;
       return;
 }
+
+#else
+
+void *glp_alloc(int n, int size)
+{
+    return calloc((size_t)n, (size_t)size);
+}
+
+void *glp_realloc(void *ptr, int n, int size)
+{
+    return realloc(ptr, (size_t)n * (size_t)size);
+}
+
+void glp_free(void *ptr)
+{
+    free(ptr);
+}
+
+#endif
 
 /* eof */

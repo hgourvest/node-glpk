@@ -313,8 +313,10 @@ static void preprocess_and_solve_mip_start(glp_prob *P, glp_mip_ctx *ctx)
 {     ctx->presolve.state = PRE_CLEAN;
       /* solve MIP using the preprocessor */
       const glp_iocp *parm = ctx->parm;
+#ifdef HAVE_ENV
       ENV *env = get_env_ptr();
       int term_out = env->term_out;
+#endif
       NPP *npp;
       glp_prob *mip = NULL;
       glp_bfcp bfcp;
@@ -326,12 +328,16 @@ static void preprocess_and_solve_mip_start(glp_prob *P, glp_mip_ctx *ctx)
       /* load original problem into the preprocessor workspace */
       npp_load_prob(npp, P, GLP_OFF, GLP_MIP, GLP_OFF);
       /* process MIP prior to applying the branch-and-bound method */
+#ifdef HAVE_ENV
       if (!term_out || parm->msg_lev < GLP_MSG_ALL)
          env->term_out = GLP_OFF;
       else
          env->term_out = GLP_ON;
       ctx->ret = npp_integer(npp, parm);
       env->term_out = term_out;
+#else
+    ctx->ret = npp_integer(npp, parm);
+#endif
       if (ctx->ret == 0)
          ;
       else if (ctx->ret == GLP_ENOPFS)
@@ -391,6 +397,7 @@ static void preprocess_and_solve_mip_start(glp_prob *P, glp_mip_ctx *ctx)
       glp_get_bfcp(P, &bfcp);
       glp_set_bfcp(mip, &bfcp);
       /* scale the transformed problem */
+#ifdef HAVE_ENV
       if (!term_out || parm->msg_lev < GLP_MSG_ALL)
          env->term_out = GLP_OFF;
       else
@@ -405,6 +412,11 @@ static void preprocess_and_solve_mip_start(glp_prob *P, glp_mip_ctx *ctx)
          env->term_out = GLP_ON;
       glp_adv_basis(mip, 0);
       env->term_out = term_out;
+#else
+      glp_scale_prob(mip,
+        GLP_SF_GM | GLP_SF_EQ | GLP_SF_2N | GLP_SF_SKIP);
+      glp_adv_basis(mip, 0);
+#endif
       /* solve initial LP relaxation */
       if (parm->msg_lev >= GLP_MSG_ALL)
          xprintf("Solving LP relaxation...\n");
@@ -638,7 +650,7 @@ void glp_intopt_start(glp_prob *P, glp_mip_ctx *ctx)
       {  int ni = glp_get_num_int(P);
          int nb = glp_get_num_bin(P);
          char s[50];
-         xprintf("GLPK Integer Optimizer, v%s\n", glp_version());
+         xprintf("GLPK Integer Optimizer, v%d.%d\n", GLP_MAJOR_VERSION, GLP_MINOR_VERSION);
          xprintf("%d row%s, %d column%s, %d non-zero%s\n",
             P->m, P->m == 1 ? "" : "s", P->n, P->n == 1 ? "" : "s",
             P->nnz, P->nnz == 1 ? "" : "s");

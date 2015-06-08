@@ -829,15 +829,17 @@ int glp_minisat1(glp_prob *P);
 int glp_intfeas1(glp_prob *P, int use_bound, int obj_bound);
 /* solve integer feasibility problem */
 
+#ifdef HAVE_ENV
 int glp_init_env(void);
 /* initialize GLPK environment */
-
+    
 const char *glp_version(void);
 /* determine library version */
 
 int glp_free_env(void);
 /* free GLPK environment */
-
+#endif
+    
 void glp_puts(const char *s);
 /* write string on terminal */
 
@@ -850,7 +852,11 @@ void glp_vprintf(const char *fmt, va_list arg);
 int glp_term_out(int flag);
 /* enable/disable terminal output */
 
+#ifdef HAVE_ENV
 void glp_term_hook(int (*func)(void *info, const char *s), void *info);
+#else
+void glp_term_hook(void (*func)(const char *s));
+#endif
 /* install hook to intercept terminal output */
 
 int glp_open_tee(const char *name);
@@ -873,7 +879,11 @@ glp_errfunc glp_error_(const char *file, int line);
 void glp_assert_(const char *expr, const char *file, int line);
 /* check for logical condition */
 
+#ifdef HAVE_ENV
 void glp_error_hook(void (*func)(void *info), void *info);
+#else
+void glp_error_hook(void (*func)(const char *s));
+#endif
 /* install hook to intercept abnormal termination */
 
 #define glp_malloc(size) glp_alloc(1, size)
@@ -897,7 +907,7 @@ void glp_mem_limit(int limit);
 void glp_mem_usage(int *count, int *cpeak, size_t *total,
       size_t *tpeak);
 /* get memory usage information */
-
+    
 typedef struct glp_graph glp_graph;
 typedef struct glp_vertex glp_vertex;
 typedef struct glp_arc glp_arc;

@@ -26,13 +26,20 @@
 
 #include "stdc.h"
 
+#ifdef HAVE_ENV
 typedef struct ENV ENV;
 typedef struct MBD MBD;
+#endif
 
 #define SIZE_T_MAX (~(size_t)0)
 /* largest value of size_t type */
 
+
+#ifdef HAVE_ENV
 #define TBUF_SIZE 4096
+#else
+#define TBUF_SIZE 256
+#endif
 /* terminal output buffer size, in bytes */
 
 #define EBUF_SIZE 1024
@@ -42,6 +49,7 @@ typedef struct MBD MBD;
 #define GLP_ON  1
 #define GLP_OFF 0
 
+#ifdef HAVE_ENV
 struct ENV
 {     /* GLPK environment block */
       char version[7+1];
@@ -107,7 +115,9 @@ struct MBD
       MBD *next;
       /* pointer to next memory block descriptor */
 };
+#endif
 
+#ifdef HAVE_ENV
 #define get_env_ptr _glp_get_env_ptr
 ENV *get_env_ptr(void);
 /* retrieve pointer to environment block */
@@ -119,6 +129,7 @@ void tls_set_ptr(void *ptr);
 #define tls_get_ptr _glp_tls_get_ptr
 void *tls_get_ptr(void);
 /* retrieve global pointer from TLS */
+#endif
 
 #define xputs glp_puts
 void glp_puts(const char *s);
@@ -135,7 +146,11 @@ void glp_vprintf(const char *fmt, va_list arg);
 int glp_term_out(int flag);
 /* enable/disable terminal output */
 
+#ifdef HAVE_ENV
 void glp_term_hook(int (*func)(void *info, const char *s), void *info);
+#else
+void glp_term_hook(void (*func)(const char *s));
+#endif
 /* install hook to intercept terminal output */
 
 int glp_open_tee(const char *fname);
@@ -158,16 +173,25 @@ glp_errfunc glp_error_(const char *file, int line);
 void glp_assert_(const char *expr, const char *file, int line);
 /* check for logical condition */
 
+#ifdef HAVE_ENV
 void glp_error_hook(void (*func)(void *info), void *info);
+#else
+void glp_error_hook(void (*func)(const char *s));
+#endif
+
 /* install hook to intercept abnormal termination */
 
+#ifdef HAVE_ENV
 #define put_err_msg _glp_put_err_msg
 void put_err_msg(const char *msg);
 /* provide error message string */
+#endif
 
+#ifdef HAVE_ENV
 #define get_err_msg _glp_get_err_msg
 const char *get_err_msg(void);
 /* obtain error message string */
+#endif
 
 #define xmalloc(size) glp_alloc(1, size)
 /* allocate memory block (obsolete) */

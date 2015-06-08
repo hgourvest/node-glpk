@@ -305,6 +305,7 @@ static int preprocess_and_solve_lp(glp_prob *P, const glp_smcp *parm)
       glp_get_bfcp(P, &bfcp);
       glp_set_bfcp(lp, &bfcp);
       /* scale the transformed problem */
+#ifdef HAVE_ENV
       {  ENV *env = get_env_ptr();
          int term_out = env->term_out;
          if (!term_out || parm->msg_lev < GLP_MSG_ALL)
@@ -324,6 +325,10 @@ static int preprocess_and_solve_lp(glp_prob *P, const glp_smcp *parm)
          glp_adv_basis(lp, 0);
          env->term_out = term_out;
       }
+#else
+      glp_scale_prob(lp, GLP_SF_AUTO);
+      glp_adv_basis(lp, 0);
+#endif
       /* solve the transformed LP */
       lp->it_cnt = P->it_cnt;
       ret = solve_lp(lp, parm);
@@ -442,7 +447,7 @@ int glp_simplex(glp_prob *P, const glp_smcp *parm)
       }
       /* solve LP problem */
       if (parm->msg_lev >= GLP_MSG_ALL)
-      {  xprintf("GLPK Simplex Optimizer, v%s\n", glp_version());
+      {  xprintf("GLPK Simplex Optimizer, v%d.%d\n", GLP_MAJOR_VERSION, GLP_MINOR_VERSION);
          xprintf("%d row%s, %d column%s, %d non-zero%s\n",
             P->m, P->m == 1 ? "" : "s", P->n, P->n == 1 ? "" : "s",
             P->nnz, P->nnz == 1 ? "" : "s");

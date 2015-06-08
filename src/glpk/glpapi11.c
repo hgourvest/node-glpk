@@ -465,8 +465,8 @@ int glp_print_ranges(glp_prob *P, int len, const int list[],
          if (pass == 1 && k > m || pass == 2 && k <= m)
             continue;
          if (count == 0)
-         {  xfprintf(fp, "GLPK %-4s - SENSITIVITY ANALYSIS REPORT%73sPa"
-               "ge%4d\n", glp_version(), "", ++page);
+         {  xfprintf(fp, "GLPK %d.%d - SENSITIVITY ANALYSIS REPORT%73sPa"
+               "ge%4d\n", GLP_MAJOR_VERSION, GLP_MINOR_VERSION, "", ++page);
             xfprintf(fp, "\n");
             xfprintf(fp, "%-12s%s\n", "Problem:",
                P->name == NULL ? "" : P->name);

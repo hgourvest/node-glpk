@@ -185,12 +185,16 @@ int glp_interior(glp_prob *P, const glp_iptcp *parm)
       }
 #endif
       /* scale the resultant LP */
+#ifdef HAVE_ENV
       {  ENV *env = get_env_ptr();
          int term_out = env->term_out;
          env->term_out = GLP_OFF;
          glp_scale_prob(prob, GLP_SF_EQ);
          env->term_out = term_out;
       }
+#else
+      glp_scale_prob(prob, GLP_SF_EQ);
+#endif
       /* warn about dense columns */
       if (parm->msg_lev >= GLP_MSG_ON && prob->m >= 200)
       {  int len, cnt = 0;

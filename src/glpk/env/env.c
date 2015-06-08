@@ -47,7 +47,7 @@
 *  1 - environment has been already initialized;
 *  2 - initialization failed (insufficient memory);
 *  3 - initialization failed (unsupported programming model). */
-
+#ifdef HAVE_ENV
 int glp_init_env(void)
 {     ENV *env;
       int ok;
@@ -98,6 +98,7 @@ int glp_init_env(void)
       /* initialization successful */
       return 0;
 }
+#endif
 
 /***********************************************************************
 *  NAME
@@ -121,7 +122,7 @@ int glp_init_env(void)
 *  RETURNS
 *
 *  The routine returns a pointer to the environment block. */
-
+#ifdef HAVE_ENV
 ENV *get_env_ptr(void)
 {     ENV *env = tls_get_ptr();
       /* check if the environment has been initialized */
@@ -145,6 +146,7 @@ ENV *get_env_ptr(void)
       }
       return env;
 }
+#endif
 
 /***********************************************************************
 *  NAME
@@ -162,10 +164,12 @@ ENV *get_env_ptr(void)
 *  the form "X.Y", where X is the major version number, and Y is the
 *  minor version number, for example, "4.16". */
 
+#ifdef HAVE_ENV
 const char *glp_version(void)
 {     ENV *env = get_env_ptr();
       return env->version;
 }
+#endif
 
 /***********************************************************************
 *  NAME
@@ -196,6 +200,7 @@ const char *glp_version(void)
 *  0 - termination successful;
 *  1 - environment is inactive (was not initialized). */
 
+#ifdef HAVE_ENV
 int glp_free_env(void)
 {     ENV *env = tls_get_ptr();
       MBD *desc;
@@ -233,5 +238,6 @@ int glp_free_env(void)
       /* termination successful */
       return 0;
 }
+#endif
 
 /* eof */

@@ -25,6 +25,10 @@
 #include <assert.h>
 #include "glpenv.h"
 
+#ifndef HAVE_ENV
+static void (*_term_hook_)(const char *) = NULL;
+#endif;
+
 /***********************************************************************
 *  NAME
 *
@@ -37,7 +41,9 @@
 *  The routine glp_puts writes the string s on the terminal. */
 
 void glp_puts(const char *s)
-{     ENV *env = get_env_ptr();
+{
+#ifdef HAVE_ENV
+      ENV *env = get_env_ptr();
       /* if terminal output is disabled, do nothing */
       if (!env->term_out)
          goto skip;
@@ -55,6 +61,11 @@ void glp_puts(const char *s)
          fflush(env->tee_file);
       }
 skip: return;
+#else
+    /* write the string on the terminal */
+    if (_term_hook_)
+        _term_hook_(s);
+#endif
 }
 
 /***********************************************************************
@@ -72,7 +83,9 @@ skip: return;
 *  its parameters and writes the formatted output on the terminal. */
 
 void glp_printf(const char *fmt, ...)
-{     ENV *env = get_env_ptr();
+{
+#ifdef HAVE_ENV
+      ENV *env = get_env_ptr();
       va_list arg;
       /* if terminal output is disabled, do nothing */
       if (!env->term_out)
@@ -86,6 +99,20 @@ void glp_printf(const char *fmt, ...)
       /* write the formatted output on the terminal */
       glp_puts(env->term_buf);
 skip: return;
+#else
+    // if terminal output is disabled, do nothing
+    if (!_term_hook_) return;
+    char term_buf[TBUF_SIZE];
+    va_list arg;
+    // format the output
+    va_start(arg, fmt);
+    vsprintf(term_buf, fmt, arg);
+    // (do not use xassert)
+    assert(strlen(term_buf) < TBUF_SIZE);
+    va_end(arg);
+    // write the formatted output on the terminal
+    glp_puts(term_buf);
+#endif
 }
 
 /***********************************************************************
@@ -104,7 +131,9 @@ skip: return;
 *  output on the terminal. */
 
 void glp_vprintf(const char *fmt, va_list arg)
-{     ENV *env = get_env_ptr();
+{
+#ifdef HAVE_ENV
+      ENV *env = get_env_ptr();
       /* if terminal output is disabled, do nothing */
       if (!env->term_out)
          goto skip;
@@ -114,7 +143,17 @@ void glp_vprintf(const char *fmt, va_list arg)
       assert(strlen(env->term_buf) < TBUF_SIZE);
       /* write the formatted output on the terminal */
       glp_puts(env->term_buf);
-skip: return;
+#else
+    // if terminal output is disabled, do nothing
+    if (!_term_hook_) return;
+    char term_buf[TBUF_SIZE];
+    // format the output
+    vsprintf(term_buf, fmt, arg);
+    // (do not use xassert)
+    assert(strlen(term_buf) < TBUF_SIZE);
+    // write the formatted output on the terminal
+    glp_puts(term_buf);
+#endif
 }
 
 /***********************************************************************
@@ -140,12 +179,17 @@ skip: return;
 *  output flag. */
 
 int glp_term_out(int flag)
-{     ENV *env = get_env_ptr();
+{
+#ifdef HAVE_ENV
+      ENV *env = get_env_ptr();
       int old = env->term_out;
       if (!(flag == GLP_ON || flag == GLP_OFF))
          xerror("glp_term_out: flag = %d; invalid parameter\n", flag);
       env->term_out = flag;
       return old;
+#else
+    return GLP_OFF;
+#endif
 }
 
 /***********************************************************************
@@ -180,8 +224,10 @@ int glp_term_out(int flag)
 *  To uninstall the hook routine the parameters func and info should be
 *  specified as NULL. */
 
+#ifdef HAVE_ENV
 void glp_term_hook(int (*func)(void *info, const char *s), void *info)
-{     ENV *env = get_env_ptr();
+{
+      ENV *env = get_env_ptr();
       if (func == NULL)
       {  env->term_hook = NULL;
          env->term_info = NULL;
@@ -192,6 +238,14 @@ void glp_term_hook(int (*func)(void *info, const char *s), void *info)
       }
       return;
 }
+#else
+void glp_term_hook(void (*func)(const char *s))
+{
+    _term_hook_ = func;
+}
+#endif
+
+
 
 /***********************************************************************
 *  NAME
@@ -214,6 +268,7 @@ void glp_term_hook(int (*func)(void *info, const char *s), void *info)
 *  1 - copying terminal output is already active
 *  2 - unable to create output file */
 
+#ifdef HAVE_ENV
 int glp_open_tee(const char *name)
 {     ENV *env = get_env_ptr();
       if (env->tee_file != NULL)
@@ -227,6 +282,7 @@ int glp_open_tee(const char *name)
       }
       return 0;
 }
+#endif
 
 /***********************************************************************
 *  NAME
@@ -248,6 +304,7 @@ int glp_open_tee(const char *name)
 *  0 - operation successful
 *  1 - copying terminal output was not started */
 
+#ifdef HAVE_ENV
 int glp_close_tee(void)
 {     ENV *env = get_env_ptr();
       if (env->tee_file == NULL)
@@ -258,5 +315,6 @@ int glp_close_tee(void)
       env->tee_file = NULL;
       return 0;
 }
+#endif
 
 /* eof */
