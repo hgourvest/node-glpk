@@ -9,26 +9,37 @@ function cleanup(){
     lp.delete();
 };
 
-function postsolve(err){
-    if (err){
-        console.log(err);
-        cleanup();
-        return;
+
+function CB(func){
+    return function(err, code){
+        if (err) {
+            console.log(err);
+            cleanup();
+        } else
+            func(code);
     }
-    
-    mpl.postsolve(lp, kind, function(err){
+}
+
+function postsolve() {
+    mpl.postsolve(lp, kind, CB(function(){
         if (kind == glp.SOL)
             console.log(lp.getObjVal());
         else
             console.log(lp.mipObjVal());
         cleanup();
-    });
+    }));
 }
 
-mpl.readModel("gap.mod", glp.OFF, function(err, ret){
+mpl.readModel("examples/gap.mod", glp.OFF, CB(function(ret){
     mpl.generate(null, function(err, ret){
-        mpl.buildProb(lp, function(err){
-            lp.simplex({presolve: glp.ON}, function(err){
+        if (err) {
+            console.log(err);
+            console.log("line: " + mpl.getLine());
+            cleanup();
+            return;
+        }
+        mpl.buildProb(lp, CB(function(err){
+            lp.simplex({presolve: glp.ON}, CB(function(err){
                 if (lp.getNumInt() > 0){
                     function callback(tree){
                         if (tree.reason() == glp.IBINGO){
@@ -37,11 +48,11 @@ mpl.readModel("gap.mod", glp.OFF, function(err, ret){
                         }
                     }
                     kind = glp.MIP;
-                    lp.intopt({cbFunc: callback}, postsolve);
+                    lp.intopt({cbFunc: callback}, CB(postsolve));
                 } else
                     postsolve()
-            });
-        });
+            }));
+        }));
     });
-});
+}));
     

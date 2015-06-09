@@ -25,7 +25,7 @@
 
 #ifndef HAVE_ENV
 static void (*_error_hook_)(const char *s) = NULL;
-#endif;
+#endif
 
 /***********************************************************************
 *  NAME
@@ -179,9 +179,10 @@ void glp_error_hook(void (*func)())
 *  The routine put_err_msg stores an error message string pointed to by
 *  msg to the environment block. */
 
-#ifdef HAVE_ENV
 void put_err_msg(const char *msg)
-{     ENV *env = get_env_ptr();
+{
+#ifdef HAVE_ENV
+      ENV *env = get_env_ptr();
       int len;
       len = strlen(msg);
       if (len >= EBUF_SIZE)
@@ -191,8 +192,8 @@ void put_err_msg(const char *msg)
          len--;
       env->err_buf[len] = '\0';
       return;
-}
 #endif
+}
 
 /***********************************************************************
 *  NAME
@@ -209,10 +210,13 @@ void put_err_msg(const char *msg)
 *  The routine get_err_msg returns a pointer to an error message string
 *  previously stored by the routine put_err_msg. */
 
-#ifdef HAVE_ENV
 const char *get_err_msg(void)
-{     ENV *env = get_env_ptr();
+{
+#ifdef HAVE_ENV
+      ENV *env = get_env_ptr();
       return env->err_buf;
-}
+#else
+    return "";
 #endif
+}
 /* eof */

@@ -14,7 +14,7 @@ using namespace NodeGLPK;
 extern "C" {
     
     void _ErrorHook(const char *s){
-        throw s;
+        throw std::string(s);
     }
 /*
     void _TermHook(const char *s){

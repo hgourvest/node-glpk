@@ -295,8 +295,8 @@ namespace NodeGLPK {
             void Execute () {
                 try {
                     glp_simplex(lp->handle, &smcp);
-                } catch (const char * s){
-                    SetErrorMessage(s);
+                } catch (std::string s){
+                    SetErrorMessage(s.c_str());
                 }
             }
         public:
@@ -359,8 +359,8 @@ namespace NodeGLPK {
             void Execute () {
                 try {
                     glp_exact(lp->handle, &smcp);
-                } catch (const char * s){
-                    SetErrorMessage(s);
+                } catch (std::string s){
+                    SetErrorMessage(s.c_str());
                 }
             }
         public:
@@ -444,8 +444,8 @@ namespace NodeGLPK {
             void Execute () {
                 try {
                     glp_interior(lp->handle, &iptcp);
-                } catch (const char * s){
-                    SetErrorMessage(s);
+                } catch (std::string s){
+                    SetErrorMessage(s.c_str());
                 }
             }
         public:
@@ -543,8 +543,8 @@ namespace NodeGLPK {
             void Execute () {
                 try {
                     ret = glp_read_mps(lp->handle, fmt, &mpscp, file.c_str());
-                } catch (const char * s){
-                    SetErrorMessage(s);
+                } catch (std::string s){
+                    SetErrorMessage(s.c_str());
                 }
             }
             void HandleOKCallback() {
@@ -619,8 +619,8 @@ namespace NodeGLPK {
             void Execute () {
                 try {
                     ret = glp_write_mps(lp->handle, fmt, &mpscp, file.c_str());
-                } catch (const char * s){
-                    SetErrorMessage(s);
+                } catch (std::string s){
+                    SetErrorMessage(s.c_str());
                 }
             }
             void HandleOKCallback() {
@@ -807,9 +807,9 @@ namespace NodeGLPK {
                     } else {
                         glp_intopt_run(&ctx);
                     }
-                } catch (const char * s){
+                } catch (std::string s){
                     ctx.done = 1;
-                    SetErrorMessage(s);
+                    SetErrorMessage(s.c_str());
                 }
             }
             void WorkComplete() {
@@ -892,8 +892,8 @@ namespace NodeGLPK {
             void Execute () {
                 try {
                     ret = glp_read_lp(lp->handle, NULL, file.c_str());
-                } catch (const char * s){
-                    SetErrorMessage(s);
+                } catch (std::string s){
+                    SetErrorMessage(s.c_str());
                 }
             }
             void HandleOKCallback() {
@@ -950,8 +950,8 @@ namespace NodeGLPK {
             void Execute () {
                 try {
                     ret = glp_write_lp(lp->handle, NULL, file.c_str());
-                } catch (const char * s){
-                    SetErrorMessage(s);
+                } catch (std::string s){
+                    SetErrorMessage(s.c_str());
                 }
             }
             void HandleOKCallback() {
@@ -1064,8 +1064,8 @@ namespace NodeGLPK {
             void Execute () {
                 try {
                     ret = glp_print_ranges(lp->handle, len, list, flags, file.c_str());
-                } catch (const char * s){
-                    SetErrorMessage(s);
+                } catch (std::string s){
+                    SetErrorMessage(s.c_str());
                 }
             }
         public:
@@ -1195,8 +1195,8 @@ namespace NodeGLPK {
             void Execute () {
                 try {
                     glp_scale_prob(lp->handle, param);
-                } catch (const char * s){
-                    SetErrorMessage(s);
+                } catch (std::string s){
+                    SetErrorMessage(s.c_str());
                 }
             }
         public:
@@ -1234,8 +1234,8 @@ namespace NodeGLPK {
             void Execute () {
                 try {
                     ret = glp_factorize(lp->handle);
-                } catch (const char * s){
-                    SetErrorMessage(s);
+                } catch (std::string s){
+                    SetErrorMessage(s.c_str());
                 }
             }
             void HandleOKCallback() {

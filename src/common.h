@@ -23,11 +23,11 @@
     return false; \
 }
 
-//catch (const char * s){NanThrowError(s);return;}
+//catch (std::string s){NanThrowError(s.c_str());return;}
 
-#define GLP_CATCH_RET(X) try{X}catch (const char * s) {NanThrowError(s);return;}
+#define GLP_CATCH_RET(X) try{X}catch (std::string s) {NanThrowError(s.c_str());return;}
 
-#define GLP_CATCH(X) try{X}catch (const char * s) {NanThrowError(s);}
+#define GLP_CATCH(X) try{X}catch (std::string s) {NanThrowError(s.c_str());}
 
 #define GLP_DEFINE_CONSTANT(target, constant, name)\
 do {\
@@ -234,8 +234,8 @@ static NAN_METHOD(NAME) {\
             cb->Call(Isolate::GetCurrent()->GetCurrentContext()->Global(), argc, argv);\
             NanReturnValue(count);\
         }\
-    } catch (const char * s) {\
-        NanThrowError(s);\
+    } catch (std::string s) {\
+        NanThrowError(s.c_str());\
     }\
 }
 
@@ -360,8 +360,8 @@ NAME##Worker(NanCallback *callback, CLASS *lp, std::string file)\
 void Execute () {\
     try {\
         ret = API(lp->handle, file.c_str());\
-    } catch (const char * s) {\
-        NanThrowError(s);\
+    } catch (std::string s) {\
+        NanThrowError(s.c_str());\
     }\
 }\
 void WorkComplete() {\
@@ -410,8 +410,8 @@ public:\
     void Execute () {\
         try {\
             ret = API(lp->handle, flags, file.c_str());\
-        } catch (const char * s) {\
-            NanThrowError(s);\
+        } catch (std::string s) {\
+            NanThrowError(s.c_str());\
         }\
     }\
     \
@@ -456,8 +456,8 @@ public:\
     void Execute () {\
         try {\
             API(lp->handle);\
-        } catch (const char * s) {\
-            NanThrowError(s);\
+        } catch (std::string s) {\
+            NanThrowError(s.c_str());\
         }\
     }\
 public:\

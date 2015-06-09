@@ -8,7 +8,7 @@
 namespace NodeGLPK {
     
     using namespace v8;
-    
+
     class Mathprog : public node::ObjectWrap {
     public:
         static void Init(Handle<Object> exports){
@@ -29,6 +29,7 @@ namespace NodeGLPK {
             NODE_SET_PROTOTYPE_METHOD(tpl, "buildProb", BuildProb);
             NODE_SET_PROTOTYPE_METHOD(tpl, "postsolveSync", PostsolveSync);
             NODE_SET_PROTOTYPE_METHOD(tpl, "postsolve", Postsolve);
+            NODE_SET_PROTOTYPE_METHOD(tpl, "getLine", getLine);
             
             NanAssignPersistent(constructor, tpl);
             exports->Set(NanNew<String>("Mathprog"), tpl->GetFunction());
@@ -68,8 +69,8 @@ namespace NodeGLPK {
             void Execute () {
                 try {
                     ret = glp_mpl_read_model(mp->handle, file.c_str(), parm);
-                } catch (const char * s){
-                    SetErrorMessage(s);
+                } catch (std::string s){
+                    SetErrorMessage(s.c_str());
                 }
             }
             virtual void HandleOKCallback() {
@@ -114,8 +115,8 @@ namespace NodeGLPK {
             void Execute () {
                 try {
                     ret = glp_mpl_read_data(mp->handle, file.c_str());
-                } catch (const char * s){
-                    SetErrorMessage(s);
+                } catch (std::string s){
+                    SetErrorMessage(s.c_str());
                 }
             }
             virtual void HandleOKCallback() {
@@ -163,8 +164,8 @@ namespace NodeGLPK {
                         ret = glp_mpl_generate(mp->handle, file.c_str());
                     else
                         ret = glp_mpl_generate(mp->handle, NULL);
-                } catch (const char * s){
-                    SetErrorMessage(s);
+                } catch (std::string s){
+                    SetErrorMessage(s.c_str());
                 }
             }
             virtual void HandleOKCallback() {
@@ -230,8 +231,8 @@ namespace NodeGLPK {
             void Execute () {
                 try {
                     glp_mpl_build_prob(mp->handle, lp->handle);
-                } catch (const char * s){
-                    SetErrorMessage(s);
+                } catch (std::string s){
+                    SetErrorMessage(s.c_str());
                 }
             }
         public:
@@ -292,8 +293,8 @@ namespace NodeGLPK {
             void Execute () {
                 try {
                     ret = glp_mpl_postsolve(mp->handle, lp->handle, parm);
-                } catch (const char * s){
-                    SetErrorMessage(s);
+                } catch (std::string s){
+                    SetErrorMessage(s.c_str());
                 }
             }
             virtual void HandleOKCallback() {
@@ -342,6 +343,25 @@ namespace NodeGLPK {
             
             GLP_CATCH_RET(NanReturnValue(glp_mpl_postsolve(mp->handle, lp->handle, args[1]->Int32Value()));)
         }
+        
+        typedef struct {
+            int line;
+            int c;
+        } mpl_internal;
+
+        static NAN_METHOD(getLine){
+            NanScope();
+            
+            V8CHECK(args.Length() != 0, "Wrong number of arguments");
+            
+            Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(args.Holder());
+            V8CHECK(!mp->handle, "object deleted");
+            V8CHECK(mp->thread, "an async operation is inprogress");
+            
+            NanReturnValue(*(int*)mp->handle);
+        }
+        
+        
         
         GLP_BIND_DELETE(Mathprog, Delete, glp_mpl_free_wksp);
         

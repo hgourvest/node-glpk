@@ -181,17 +181,13 @@ void glp_error_hook(void (*func)(const char *s));
 
 /* install hook to intercept abnormal termination */
 
-#ifdef HAVE_ENV
 #define put_err_msg _glp_put_err_msg
 void put_err_msg(const char *msg);
 /* provide error message string */
-#endif
 
-#ifdef HAVE_ENV
 #define get_err_msg _glp_get_err_msg
 const char *get_err_msg(void);
 /* obtain error message string */
-#endif
 
 #define xmalloc(size) glp_alloc(1, size)
 /* allocate memory block (obsolete) */
