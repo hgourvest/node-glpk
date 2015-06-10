@@ -269,4 +269,8 @@ void glp_mpl_free_wksp(glp_tran *tran)
       return;
 }
 
+char* glp_mpl_getlasterror(glp_tran *tran){
+    return mpl_getlasterror(tran);
+}
+
 /* eof */

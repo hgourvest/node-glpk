@@ -819,6 +819,9 @@ int glp_mpl_postsolve(glp_tran *tran, glp_prob *prob, int sol);
 void glp_mpl_free_wksp(glp_tran *tran);
 /* free the MathProg translator workspace */
 
+char* glp_mpl_getlasterror(glp_tran *tran);
+/* get last error message */
+    
 int glp_main(int argc, const char *argv[]);
 /* stand-alone LP/MIP solver */
 

@@ -422,6 +422,8 @@ void error(MPL *mpl, char *fmt, ...)
       vsprintf(msg, fmt, arg);
       xassert(strlen(msg) < sizeof(msg));
       va_end(arg);
+      if (mpl->error_msg) xfree(mpl->error_msg);
+      mpl->error_msg = strdup(msg);
       switch (mpl->phase)
       {  case 1:
          case 2:
@@ -569,6 +571,7 @@ MPL *mpl_initialize(void)
       mpl->mod_file = NULL;
       mpl->mpl_buf = xcalloc(255+1, sizeof(char));
       mpl->mpl_buf[0] = '\0';
+      mpl->error_msg = NULL;
       return mpl;
 }
 
@@ -1420,8 +1423,13 @@ void mpl_terminate(MPL *mpl)
       if (mpl->prt_file != NULL) xfree(mpl->prt_file);
       if (mpl->mod_file != NULL) xfree(mpl->mod_file);
       xfree(mpl->mpl_buf);
+      if (mpl->error_msg != NULL) xfree(mpl->error_msg);
       xfree(mpl);
       return;
 }
 
+char* mpl_getlasterror(MPL *mpl){
+    return mpl->error_msg;
+}
+    
 /* eof */

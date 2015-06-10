@@ -332,6 +332,8 @@ struct glp_tran
       /* name of the input text file, which contains model section */
       char *mpl_buf; /* char mpl_buf[255+1]; */
       /* working buffer used by some interface routines */
+      char *error_msg;
+      /* last error message */
 };
 
 /**********************************************************************/
@@ -2589,6 +2591,10 @@ int mpl_postsolve(MPL *mpl);
 void mpl_terminate(MPL *mpl);
 /* free all resources used by translator */
 
+#define mpl_getlasterror _mpl_getlasterror
+char* mpl_getlasterror(MPL *mpl);
+/* get last error message */
+    
 #endif
 
 /* eof */

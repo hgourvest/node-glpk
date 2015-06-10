@@ -14,6 +14,8 @@ function CB(func){
     return function(err, code){
         if (err) {
             console.log(err);
+            var msg = mpl.getLastError();
+            if (msg) console.log("error at line: " + mpl.getLine() + ", " + msg);
             cleanup();
         } else
             func(code);
@@ -30,14 +32,8 @@ function postsolve() {
     }));
 }
 
-mpl.readModel("examples/gap.mod", glp.OFF, CB(function(ret){
-    mpl.generate(null, function(err, ret){
-        if (err) {
-            console.log(err);
-            console.log("line: " + mpl.getLine());
-            cleanup();
-            return;
-        }
+mpl.readModel("gap.mod", glp.OFF, CB(function(ret){
+    mpl.generate(null, CB(function(err, ret){
         mpl.buildProb(lp, CB(function(err){
             lp.simplex({presolve: glp.ON}, CB(function(err){
                 if (lp.getNumInt() > 0){
@@ -53,6 +49,6 @@ mpl.readModel("examples/gap.mod", glp.OFF, CB(function(ret){
                     postsolve()
             }));
         }));
-    });
+    }));
 }));
     
