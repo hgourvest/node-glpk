@@ -365,8 +365,11 @@ namespace NodeGLPK {
             Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(args.Holder());
             V8CHECK(!mp->handle, "object deleted");
             V8CHECK(mp->thread, "an async operation is inprogress");
-            
-            NanReturnValue(glp_mpl_getlasterror(mp->handle));
+            char * msg = glp_mpl_getlasterror(mp->handle);
+            if (msg)
+                NanReturnValue(NanNew<String>(msg));
+            else
+                NanReturnValue(NanNull());
         }
         
         GLP_BIND_DELETE(Mathprog, Delete, glp_mpl_free_wksp);
