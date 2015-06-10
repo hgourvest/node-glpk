@@ -268,6 +268,25 @@ void glp_free(void *ptr)
     free(ptr);
 }
 
+void glp_mem_limit(int limit)
+{
+    
+}
+
+void glp_mem_usage(int *count, int *cpeak, size_t *total,
+                   size_t *tpeak)
+{
+    if (count != NULL)
+        *count = 0;
+    if (cpeak != NULL)
+        *cpeak = 0;
+    if (total != NULL)
+        *total = 0;
+    if (tpeak != NULL)
+        *tpeak = 0;
+    return;
+}
+
 #endif
 
 /* eof */
