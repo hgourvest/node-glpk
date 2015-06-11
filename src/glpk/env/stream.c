@@ -423,10 +423,10 @@ int glp_format(glp_file *f, const char *fmt, ...)
 #else
     va_list arg;
     int nnn;
+    char term_buf[TBUF_SIZE];
     if (!(f->flag & IOWRT))
         xerror("glp_format: attempt to write to input stream\n");
     va_start(arg, fmt);
-    char term_buf[TBUF_SIZE];
     nnn = vsprintf(term_buf, fmt, arg);
     xassert(0 <= nnn && nnn < TBUF_SIZE);
     va_end(arg);

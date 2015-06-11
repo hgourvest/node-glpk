@@ -100,10 +100,10 @@ void glp_printf(const char *fmt, ...)
       glp_puts(env->term_buf);
 skip: return;
 #else
-    // if terminal output is disabled, do nothing
-    if (!_term_hook_) return;
     char term_buf[TBUF_SIZE];
     va_list arg;
+    // if terminal output is disabled, do nothing
+    if (!_term_hook_) return;
     // format the output
     va_start(arg, fmt);
     vsprintf(term_buf, fmt, arg);
@@ -144,9 +144,9 @@ void glp_vprintf(const char *fmt, va_list arg)
       /* write the formatted output on the terminal */
       glp_puts(env->term_buf);
 #else
+    char term_buf[TBUF_SIZE];
     // if terminal output is disabled, do nothing
     if (!_term_hook_) return;
-    char term_buf[TBUF_SIZE];
     // format the output
     vsprintf(term_buf, fmt, arg);
     // (do not use xassert)

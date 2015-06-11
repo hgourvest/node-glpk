@@ -268,14 +268,14 @@ static void solve_mip_stop(glp_prob *P, glp_mip_ctx *ctx,
     glp_prob *P0 /* problem passed to glp_intopt */,
     NPP *npp /* preprocessor workspace or NULL */)
 {
+      int ret = ctx->ret;
+      const glp_iocp *parm = ctx->parm;
       glp_tree *T = ctx->tree;
       if (!T) return;
 
-      const glp_iocp *parm = ctx->parm;
       /* delete the branch-and-bound tree */
       ios_delete_tree(T);
       /* analyze exit code reported by the mip driver */
-      int ret = ctx->ret;
       if (ret == 0)
       {  if (P->mip_stat == GLP_FEAS)
          {  if (parm->msg_lev >= GLP_MSG_ALL)
@@ -310,7 +310,7 @@ static void solve_mip_stop(glp_prob *P, glp_mip_ctx *ctx,
 }
 
 static void preprocess_and_solve_mip_start(glp_prob *P, glp_mip_ctx *ctx)
-{     ctx->presolve.state = PRE_CLEAN;
+{     
       /* solve MIP using the preprocessor */
       const glp_iocp *parm = ctx->parm;
 #ifdef HAVE_ENV
@@ -321,7 +321,10 @@ static void preprocess_and_solve_mip_start(glp_prob *P, glp_mip_ctx *ctx)
       glp_prob *mip = NULL;
       glp_bfcp bfcp;
       glp_smcp smcp;
-      if (parm->msg_lev >= GLP_MSG_ALL)
+      
+	  ctx->presolve.state = PRE_CLEAN;
+
+	  if (parm->msg_lev >= GLP_MSG_ALL)
          xprintf("Preprocessing...\n");
       /* create preprocessor workspace */
       ctx->presolve.npp = npp = npp_create_wksp();
