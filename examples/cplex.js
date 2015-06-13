@@ -1,6 +1,8 @@
 var glp = require('..');
 var lp = new glp.Problem();
 
+glp.termOutput(true);
+
 lp.readLp("todd.lpt", function(err, ret){
     if (err) return;
     lp.scale(glp.SF_AUTO, function(err){

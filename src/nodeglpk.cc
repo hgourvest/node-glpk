@@ -1,11 +1,9 @@
 
 #include <node.h>
-
 #include "tree.hpp"
 #include "problem.hpp"
 #include "mathprog.hpp"
 #include "common.h"
-
 #include "glpk/glpk.h"
 
 using namespace v8;
@@ -16,15 +14,28 @@ extern "C" {
     void _ErrorHook(const char *s){
         throw std::string(s);
     }
-/*
+
     void _TermHook(const char *s){
         fputs(s, stdout);
         fflush(stdout);
     }
-*/    
+
+    NAN_METHOD(TermOutput) {
+        NanScope();
+        V8CHECK(args.Length() != 1, "Wrong number of arguments");
+        V8CHECK(!args[0]->IsBoolean(), "Wrong arguments");
+        
+        if (args[0]->BooleanValue()) {
+            GLP_CATCH_RET(glp_term_hook(_TermHook);)
+        } else {
+            GLP_CATCH_RET(glp_term_hook(NULL);)
+        }
+    }
+    
     void Init(Handle<Object> exports) {
         glp_error_hook(_ErrorHook);
-        //glp_term_hook(_TermHook);
+
+        exports->Set(NanNew<String>("termOutput"), NanNew<FunctionTemplate>(TermOutput)->GetFunction());
         
         GLP_DEFINE_CONSTANT(exports, GLP_MAJOR_VERSION, MAJOR_VERSION);
         GLP_DEFINE_CONSTANT(exports, GLP_MINOR_VERSION, MINOR_VERSION);

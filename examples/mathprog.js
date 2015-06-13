@@ -1,5 +1,7 @@
 var glp = require('..');
 
+glp.termOutput(true);
+
 var lp = new glp.Problem();
 var mpl = new glp.Mathprog();
 var kind = glp.SOL;
@@ -51,4 +53,4 @@ mpl.readModel("gap.mod", glp.OFF, CB(function(ret){
         }));
     }));
 }));
-    
+
