@@ -791,7 +791,7 @@ namespace NodeGLPK {
                 glp_init_iocp(&parm);
                 glp_init_mip_ctx(&ctx);
                 ctx.parm = &parm;
-                init = true;
+                state = 0;
             }
             
             ~IntoptWorker(){
@@ -801,11 +801,11 @@ namespace NodeGLPK {
             
             void Execute () {
                 try {
-                    if (init) {
-                        init = false;
-                        glp_intopt_start(lp->handle, &ctx);
-                    } else {
+                    if (state) {
                         glp_intopt_run(&ctx);
+                    } else {
+                        state = 1;
+                        glp_intopt_start(lp->handle, &ctx);
                     }
                 } catch (std::string s){
                     ctx.done = 1;
@@ -816,6 +816,7 @@ namespace NodeGLPK {
                 lp->thread = false;
                 NanScope();
                 if (ctx.done) {
+                    state = 2;
                     glp_intopt_stop(lp->handle, &ctx);
                     if (ErrorMessage() == NULL)
                         HandleOKCallback();
@@ -837,10 +838,10 @@ namespace NodeGLPK {
             }
             
             void Destroy() {
-                if (ctx.done) delete this;
+                if (state == 2) delete this;
             }
         public:
-            bool init;
+            int state;
             Problem *lp;
             glp_iocp parm;
             glp_mip_ctx ctx;
