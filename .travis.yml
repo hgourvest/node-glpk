@@ -1,7 +1,17 @@
+sudo: false
 language: node_js
 node_js:
   - "0.12"
   - "0.11"
   - "4.2"
   - "iojs"
-  
+install:
+- if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - gcc-4.8
+    - g++-4.8
+    - clang  
