@@ -15,143 +15,143 @@ namespace NodeGLPK {
     public:
         static void Init(Handle<Object> exports){
             // Prepare constructor template
-            Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(New);
-            tpl->SetClassName(NanNew<String>("Problem"));
+            Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
+            tpl->SetClassName(Nan::New<String>("Problem").ToLocalChecked());
             tpl->InstanceTemplate()->SetInternalFieldCount(1);
             
             // Prototype
-            NODE_SET_PROTOTYPE_METHOD(tpl, "setProbName", SetProbName);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getProbName", GetProbName);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "setObjDir", SetObjDir);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getObjDir", GetObjDir);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "addRows", AddRows);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "setRowName", SetRowName);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getRowName", GetRowName);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "setRowBnds", SetRowBnds);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "addCols", AddCols);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "setColName", SetColName);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getColName", GetColName);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "setColBnds", SetColBnds);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "setObjCoef", SetObjCoef);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getObjCoef", GetObjCoef);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "loadMatrix", LoadMatrix);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "simplexSync", SimplexSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "simplex", Simplex);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getObjVal", GetObjVal);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getColPrim", GetColPrim);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "setObjName", SetObjName);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getObjName", GetObjName);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "setMatRow", SetMatRow);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getMatRow", GetMatRow);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "setMatCol", SetMatCol);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getMatCol", GetMatCol);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "sortMatrix", SortMatrix);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "delRows", DelRows);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "delCols", DelCols);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "erase", Erase);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "delete", Delete);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getNumRows", GetNumRows);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getNumCols", GetNumCols);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getRowType", GetRowType);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getRowLb", GetRowLb);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getRowUb", GetRowUb);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getColType", GetColType);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getColLb", GetColLb);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getColUb", GetColUb);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getNumNz", GetNumNz);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "createIndex", CreateIndex);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "findRow", FindRow);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "findCol", FindCol);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "deleteIndex", DeleteIndex);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "setRii", SetRii);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "setSjj", SetSjj);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getRii", GetRii);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getSjj", GetSjj);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "scaleSync", ScaleSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "scale", Scale);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "unscaleSync", UnscaleSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "unscale", Unscale);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "setRowStat", SetRowStat);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "setColStat", SetColStat);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getRowStat", GetRowStat);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getColStat", GetColStat);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "stdBasis", StdBasis);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "advBasis", AdvBasis);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "cpxBasis", CpxBasis);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "exactSync", ExactSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "exact", Exact);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getStatus", GetStatus);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getPrimStat", GetPrimStat);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getDualStat", GetDualStat);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getRowPrim", GetRowPrim);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getRowDual", GetRowDual);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getColDual", GetColDual);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getUnbndRay", GetUnbndRay);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getItCnt", GetItCnt);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "setItCnt", SetItCnt);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "interiorSync", InteriorSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "interior", Interior);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "iptStatus", IptStatus);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "readMpsSync", ReadMpsSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "readMps", ReadMps);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "writeMpsSync", WriteMpsSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "writeMps", WriteMps);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "iptObjVal", IptObjVal);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "iptRowPrim", IptRowPrim);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "iptRowDual", IptRowDual);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "iptColPrim", IptColPrim);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "iptColDual", IptColDual);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "setColKind", SetColKind);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getColKind", GetColKind);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getNumInt", GetNumInt);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getNumBin", GetNumBin);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "intoptSync", IntoptSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "intopt", Intopt);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "readProbSync", ReadProbSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "readProb", ReadProb);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "writeProbSync", WriteProbSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "writeProb", WriteProb);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "readLp", ReadLp);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "readLpSync", ReadLpSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "writeLpSync", WriteLpSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "writeLp", WriteLp);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "mipStatus", MipStatus);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "mipObjVal", MipObjVal);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "mipRowVal", MipRowVal);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "mipColVal", MipColVal);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "checkKkt", CheckKkt);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "printSolSync", PrintSolSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "printSol", PrintSol);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "readSolSync", ReadSolSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "readSol", ReadSol);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "writeSolSync", WriteSolSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "writeSol", WriteSol);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "printRangesSync", PrintRangesSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "printRanges", PrintRanges);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "printIptSync", PrintIptSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "printIpt", PrintIpt);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "readIptSync", ReadIptSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "readIpt", ReadIpt);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "writeIptSync", WriteIptSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "writeIpt", WriteIpt);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "printMipSync", PrintMipSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "printMip", PrintMip);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "readMipSync", ReadMipSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "readMip", ReadMip);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "writeMipSync", WriteMipSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "writeMip", WriteMip);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "bfExists", BfExists);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "factorize", Factorize);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "bfUpdated", BfUpdated);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getBfcp", GetBfcp);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "setBfcp", SetBfcp);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getBhead", GetBhead);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getRowBind", GetRowBind);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getColBind", GetColBind);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "warmUp", WarmUp);
+            Nan::SetPrototypeMethod(tpl, "setProbName", SetProbName);
+            Nan::SetPrototypeMethod(tpl, "getProbName", GetProbName);
+            Nan::SetPrototypeMethod(tpl, "setObjDir", SetObjDir);
+            Nan::SetPrototypeMethod(tpl, "getObjDir", GetObjDir);
+            Nan::SetPrototypeMethod(tpl, "addRows", AddRows);
+            Nan::SetPrototypeMethod(tpl, "setRowName", SetRowName);
+            Nan::SetPrototypeMethod(tpl, "getRowName", GetRowName);
+            Nan::SetPrototypeMethod(tpl, "setRowBnds", SetRowBnds);
+            Nan::SetPrototypeMethod(tpl, "addCols", AddCols);
+            Nan::SetPrototypeMethod(tpl, "setColName", SetColName);
+            Nan::SetPrototypeMethod(tpl, "getColName", GetColName);
+            Nan::SetPrototypeMethod(tpl, "setColBnds", SetColBnds);
+            Nan::SetPrototypeMethod(tpl, "setObjCoef", SetObjCoef);
+            Nan::SetPrototypeMethod(tpl, "getObjCoef", GetObjCoef);
+            Nan::SetPrototypeMethod(tpl, "loadMatrix", LoadMatrix);
+            Nan::SetPrototypeMethod(tpl, "simplexSync", SimplexSync);
+            Nan::SetPrototypeMethod(tpl, "simplex", Simplex);
+            Nan::SetPrototypeMethod(tpl, "getObjVal", GetObjVal);
+            Nan::SetPrototypeMethod(tpl, "getColPrim", GetColPrim);
+            Nan::SetPrototypeMethod(tpl, "setObjName", SetObjName);
+            Nan::SetPrototypeMethod(tpl, "getObjName", GetObjName);
+            Nan::SetPrototypeMethod(tpl, "setMatRow", SetMatRow);
+            Nan::SetPrototypeMethod(tpl, "getMatRow", GetMatRow);
+            Nan::SetPrototypeMethod(tpl, "setMatCol", SetMatCol);
+            Nan::SetPrototypeMethod(tpl, "getMatCol", GetMatCol);
+            Nan::SetPrototypeMethod(tpl, "sortMatrix", SortMatrix);
+            Nan::SetPrototypeMethod(tpl, "delRows", DelRows);
+            Nan::SetPrototypeMethod(tpl, "delCols", DelCols);
+            Nan::SetPrototypeMethod(tpl, "erase", Erase);
+            Nan::SetPrototypeMethod(tpl, "delete", Delete);
+            Nan::SetPrototypeMethod(tpl, "getNumRows", GetNumRows);
+            Nan::SetPrototypeMethod(tpl, "getNumCols", GetNumCols);
+            Nan::SetPrototypeMethod(tpl, "getRowType", GetRowType);
+            Nan::SetPrototypeMethod(tpl, "getRowLb", GetRowLb);
+            Nan::SetPrototypeMethod(tpl, "getRowUb", GetRowUb);
+            Nan::SetPrototypeMethod(tpl, "getColType", GetColType);
+            Nan::SetPrototypeMethod(tpl, "getColLb", GetColLb);
+            Nan::SetPrototypeMethod(tpl, "getColUb", GetColUb);
+            Nan::SetPrototypeMethod(tpl, "getNumNz", GetNumNz);
+            Nan::SetPrototypeMethod(tpl, "createIndex", CreateIndex);
+            Nan::SetPrototypeMethod(tpl, "findRow", FindRow);
+            Nan::SetPrototypeMethod(tpl, "findCol", FindCol);
+            Nan::SetPrototypeMethod(tpl, "deleteIndex", DeleteIndex);
+            Nan::SetPrototypeMethod(tpl, "setRii", SetRii);
+            Nan::SetPrototypeMethod(tpl, "setSjj", SetSjj);
+            Nan::SetPrototypeMethod(tpl, "getRii", GetRii);
+            Nan::SetPrototypeMethod(tpl, "getSjj", GetSjj);
+            Nan::SetPrototypeMethod(tpl, "scaleSync", ScaleSync);
+            Nan::SetPrototypeMethod(tpl, "scale", Scale);
+            Nan::SetPrototypeMethod(tpl, "unscaleSync", UnscaleSync);
+            Nan::SetPrototypeMethod(tpl, "unscale", Unscale);
+            Nan::SetPrototypeMethod(tpl, "setRowStat", SetRowStat);
+            Nan::SetPrototypeMethod(tpl, "setColStat", SetColStat);
+            Nan::SetPrototypeMethod(tpl, "getRowStat", GetRowStat);
+            Nan::SetPrototypeMethod(tpl, "getColStat", GetColStat);
+            Nan::SetPrototypeMethod(tpl, "stdBasis", StdBasis);
+            Nan::SetPrototypeMethod(tpl, "advBasis", AdvBasis);
+            Nan::SetPrototypeMethod(tpl, "cpxBasis", CpxBasis);
+            Nan::SetPrototypeMethod(tpl, "exactSync", ExactSync);
+            Nan::SetPrototypeMethod(tpl, "exact", Exact);
+            Nan::SetPrototypeMethod(tpl, "getStatus", GetStatus);
+            Nan::SetPrototypeMethod(tpl, "getPrimStat", GetPrimStat);
+            Nan::SetPrototypeMethod(tpl, "getDualStat", GetDualStat);
+            Nan::SetPrototypeMethod(tpl, "getRowPrim", GetRowPrim);
+            Nan::SetPrototypeMethod(tpl, "getRowDual", GetRowDual);
+            Nan::SetPrototypeMethod(tpl, "getColDual", GetColDual);
+            Nan::SetPrototypeMethod(tpl, "getUnbndRay", GetUnbndRay);
+            Nan::SetPrototypeMethod(tpl, "getItCnt", GetItCnt);
+            Nan::SetPrototypeMethod(tpl, "setItCnt", SetItCnt);
+            Nan::SetPrototypeMethod(tpl, "interiorSync", InteriorSync);
+            Nan::SetPrototypeMethod(tpl, "interior", Interior);
+            Nan::SetPrototypeMethod(tpl, "iptStatus", IptStatus);
+            Nan::SetPrototypeMethod(tpl, "readMpsSync", ReadMpsSync);
+            Nan::SetPrototypeMethod(tpl, "readMps", ReadMps);
+            Nan::SetPrototypeMethod(tpl, "writeMpsSync", WriteMpsSync);
+            Nan::SetPrototypeMethod(tpl, "writeMps", WriteMps);
+            Nan::SetPrototypeMethod(tpl, "iptObjVal", IptObjVal);
+            Nan::SetPrototypeMethod(tpl, "iptRowPrim", IptRowPrim);
+            Nan::SetPrototypeMethod(tpl, "iptRowDual", IptRowDual);
+            Nan::SetPrototypeMethod(tpl, "iptColPrim", IptColPrim);
+            Nan::SetPrototypeMethod(tpl, "iptColDual", IptColDual);
+            Nan::SetPrototypeMethod(tpl, "setColKind", SetColKind);
+            Nan::SetPrototypeMethod(tpl, "getColKind", GetColKind);
+            Nan::SetPrototypeMethod(tpl, "getNumInt", GetNumInt);
+            Nan::SetPrototypeMethod(tpl, "getNumBin", GetNumBin);
+            Nan::SetPrototypeMethod(tpl, "intoptSync", IntoptSync);
+            Nan::SetPrototypeMethod(tpl, "intopt", Intopt);
+            Nan::SetPrototypeMethod(tpl, "readProbSync", ReadProbSync);
+            Nan::SetPrototypeMethod(tpl, "readProb", ReadProb);
+            Nan::SetPrototypeMethod(tpl, "writeProbSync", WriteProbSync);
+            Nan::SetPrototypeMethod(tpl, "writeProb", WriteProb);
+            Nan::SetPrototypeMethod(tpl, "readLp", ReadLp);
+            Nan::SetPrototypeMethod(tpl, "readLpSync", ReadLpSync);
+            Nan::SetPrototypeMethod(tpl, "writeLpSync", WriteLpSync);
+            Nan::SetPrototypeMethod(tpl, "writeLp", WriteLp);
+            Nan::SetPrototypeMethod(tpl, "mipStatus", MipStatus);
+            Nan::SetPrototypeMethod(tpl, "mipObjVal", MipObjVal);
+            Nan::SetPrototypeMethod(tpl, "mipRowVal", MipRowVal);
+            Nan::SetPrototypeMethod(tpl, "mipColVal", MipColVal);
+            Nan::SetPrototypeMethod(tpl, "checkKkt", CheckKkt);
+            Nan::SetPrototypeMethod(tpl, "printSolSync", PrintSolSync);
+            Nan::SetPrototypeMethod(tpl, "printSol", PrintSol);
+            Nan::SetPrototypeMethod(tpl, "readSolSync", ReadSolSync);
+            Nan::SetPrototypeMethod(tpl, "readSol", ReadSol);
+            Nan::SetPrototypeMethod(tpl, "writeSolSync", WriteSolSync);
+            Nan::SetPrototypeMethod(tpl, "writeSol", WriteSol);
+            Nan::SetPrototypeMethod(tpl, "printRangesSync", PrintRangesSync);
+            Nan::SetPrototypeMethod(tpl, "printRanges", PrintRanges);
+            Nan::SetPrototypeMethod(tpl, "printIptSync", PrintIptSync);
+            Nan::SetPrototypeMethod(tpl, "printIpt", PrintIpt);
+            Nan::SetPrototypeMethod(tpl, "readIptSync", ReadIptSync);
+            Nan::SetPrototypeMethod(tpl, "readIpt", ReadIpt);
+            Nan::SetPrototypeMethod(tpl, "writeIptSync", WriteIptSync);
+            Nan::SetPrototypeMethod(tpl, "writeIpt", WriteIpt);
+            Nan::SetPrototypeMethod(tpl, "printMipSync", PrintMipSync);
+            Nan::SetPrototypeMethod(tpl, "printMip", PrintMip);
+            Nan::SetPrototypeMethod(tpl, "readMipSync", ReadMipSync);
+            Nan::SetPrototypeMethod(tpl, "readMip", ReadMip);
+            Nan::SetPrototypeMethod(tpl, "writeMipSync", WriteMipSync);
+            Nan::SetPrototypeMethod(tpl, "writeMip", WriteMip);
+            Nan::SetPrototypeMethod(tpl, "bfExists", BfExists);
+            Nan::SetPrototypeMethod(tpl, "factorize", Factorize);
+            Nan::SetPrototypeMethod(tpl, "bfUpdated", BfUpdated);
+            Nan::SetPrototypeMethod(tpl, "getBfcp", GetBfcp);
+            Nan::SetPrototypeMethod(tpl, "setBfcp", SetBfcp);
+            Nan::SetPrototypeMethod(tpl, "getBhead", GetBhead);
+            Nan::SetPrototypeMethod(tpl, "getRowBind", GetRowBind);
+            Nan::SetPrototypeMethod(tpl, "getColBind", GetColBind);
+            Nan::SetPrototypeMethod(tpl, "warmUp", WarmUp);
             
-            NanAssignPersistent(constructor, tpl);
-            exports->Set(NanNew<String>("Problem"), tpl->GetFunction());
+            constructor.Reset(tpl);
+            exports->Set(Nan::New<String>("Problem").ToLocalChecked(), tpl->GetFunction());
         }
         
         static bool SmcpInit(glp_smcp* scmp, Local<Value> value){
@@ -223,26 +223,22 @@ namespace NodeGLPK {
         }
         
         static NAN_METHOD(New) {
-            NanScope();
-            
-            V8CHECK(!args.IsConstructCall(), "Constructor Problem requires 'new'");
+            V8CHECK(!info.IsConstructCall(), "Constructor Problem requires 'new'");
             
             GLP_CATCH_RET(Problem* obj = new Problem();
-                      obj->Wrap(args.This());
-                      NanReturnValue(args.This());
+                      obj->Wrap(info.This());
+                      info.GetReturnValue().Set(info.This());
             )
         }
 
         static NAN_METHOD(LoadMatrix) {
-            NanScope();
+            V8CHECK(info.Length() != 4, "Wrong number of arguments");
+            V8CHECK(!info[0]->IsInt32() || !info[1]->IsInt32Array()
+                    || !info[2]->IsInt32Array() || !info[3]->IsFloat64Array(), "Wrong arguments");
             
-            V8CHECK(args.Length() != 4, "Wrong number of arguments");
-            V8CHECK(!args[0]->IsInt32() || !args[1]->IsInt32Array()
-                    || !args[2]->IsInt32Array() || !args[3]->IsFloat64Array(), "Wrong arguments");
-            
-            Local<Int32Array> ia = Local<Int32Array>::Cast(args[1]);
-            Local<Int32Array> ja = Local<Int32Array>::Cast(args[2]);
-            Local<Float64Array> ar = Local<Float64Array>::Cast(args[3]);
+            Local<Int32Array> ia = Local<Int32Array>::Cast(info[1]);
+            Local<Int32Array> ja = Local<Int32Array>::Cast(info[2]);
+            Local<Float64Array> ar = Local<Float64Array>::Cast(info[3]);
             
             int* pia = new int[ia->Length()];
             int* pja = new int[ja->Length()];
@@ -252,11 +248,11 @@ namespace NodeGLPK {
             for (size_t i = 0; i < ja->Length(); i++) pja[i] = ja->Get(i)->Int32Value();
             for (size_t i = 0; i < ar->Length(); i++) par[i] = ar->Get(i)->NumberValue();
             
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
-            GLP_CATCH(glp_load_matrix(lp->handle, args[0]->Int32Value(), pia, pja, par);)
+            GLP_CATCH(glp_load_matrix(lp->handle, info[0]->Int32Value(), pia, pja, par);)
             
             delete[] pia;
             delete[] pja;
@@ -264,17 +260,15 @@ namespace NodeGLPK {
         }
 
         static NAN_METHOD(SimplexSync) {
-            NanScope();
-            
-            V8CHECK(args.Length() > 1, "Wrong number of arguments");
+            V8CHECK(info.Length() > 1, "Wrong number of arguments");
             
             GLP_CATCH_RET(
                       glp_smcp scmp;
                       glp_init_smcp(&scmp);
-                      if (args.Length() == 1)
-                          if (!SmcpInit(&scmp, args[0])) return;
+                      if (info.Length() == 1)
+                          if (!SmcpInit(&scmp, info[0])) return;
                       
-                      Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+                      Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
                       V8CHECK(!lp->handle, "object deleted");
                       V8CHECK(lp->thread, "an async operation is inprogress");
                       
@@ -282,15 +276,15 @@ namespace NodeGLPK {
             )
         }
         
-        class SimplexWorker : public NanAsyncWorker {
+        class SimplexWorker : public Nan::AsyncWorker {
         public:
-            SimplexWorker(NanCallback *callback, Problem *lp)
-            : NanAsyncWorker(callback), lp(lp){
+            SimplexWorker(Nan::Callback *callback, Problem *lp)
+            : Nan::AsyncWorker(callback), lp(lp){
                 glp_init_smcp(&smcp);
             }
             void WorkComplete() {
                 lp->thread = false;
-                NanAsyncWorker::WorkComplete();
+                Nan::AsyncWorker::WorkComplete();
             }
             void Execute () {
                 try {
@@ -305,40 +299,35 @@ namespace NodeGLPK {
         };
         
         static NAN_METHOD(Simplex) {
-            NanScope();
+            V8CHECK(info.Length() > 2, "Wrong number of arguments");
+            V8CHECK(!(info[0]->IsObject() || info[0]->IsNull()) || !info[1]->IsFunction(), "Wrong arguments");
             
-            V8CHECK(args.Length() > 2, "Wrong number of arguments");
-            V8CHECK(!(args[0]->IsObject() || args[0]->IsNull()) || !args[1]->IsFunction(), "Wrong arguments");
-            
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
-            NanCallback *callback = new NanCallback(args[1].As<Function>());
+            Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
             SimplexWorker *worker = new SimplexWorker(callback, lp);
-            if (!SmcpInit(&worker->smcp, args[0])){
+            if (!SmcpInit(&worker->smcp, info[0])){
                 worker->Destroy();
                 return;
             }
             lp->thread = true;
-            NanAsyncQueueWorker(worker);
-            NanReturnUndefined();
+            Nan::AsyncQueueWorker(worker);
         }
         
         static NAN_METHOD(ExactSync) {
-            NanScope();
-            
-            V8CHECK(args.Length() > 1, "Wrong number of arguments");
+            V8CHECK(info.Length() > 1, "Wrong number of arguments");
             
             GLP_CATCH_RET(
                       glp_smcp scmp;
                       glp_init_smcp(&scmp);
-                      if (args.Length() == 1) {
-                          if (args[0]->IsObject())
-                              if(!SmcpInit(&scmp, args[0])) return;
+                      if (info.Length() == 1) {
+                          if (info[0]->IsObject())
+                              if(!SmcpInit(&scmp, info[0])) return;
                       }
                       
-                      Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+                      Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
                       V8CHECK(!lp->handle, "object deleted");
                       V8CHECK(lp->thread, "an async operation is inprogress");
                           
@@ -346,15 +335,15 @@ namespace NodeGLPK {
             )
         }
         
-        class ExactWorker : public NanAsyncWorker {
+        class ExactWorker : public Nan::AsyncWorker {
         public:
-            ExactWorker(NanCallback *callback, Problem *lp)
-            : NanAsyncWorker(callback), lp(lp){
+            ExactWorker(Nan::Callback *callback, Problem *lp)
+            : Nan::AsyncWorker(callback), lp(lp){
                 glp_init_smcp(&smcp);
             }
             void WorkComplete() {
                 lp->thread = false;
-                NanAsyncWorker::WorkComplete();
+                Nan::AsyncWorker::WorkComplete();
             }
             void Execute () {
                 try {
@@ -369,24 +358,21 @@ namespace NodeGLPK {
         };
         
         static NAN_METHOD(Exact) {
-            NanScope();
+            V8CHECK(info.Length() > 2, "Wrong number of arguments");
+            V8CHECK(!(info[0]->IsObject() || info[0]->IsNull()) || !info[1]->IsFunction(), "Wrong arguments");
             
-            V8CHECK(args.Length() > 2, "Wrong number of arguments");
-            V8CHECK(!(args[0]->IsObject() || args[0]->IsNull()) || !args[1]->IsFunction(), "Wrong arguments");
-            
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
-            NanCallback *callback = new NanCallback(args[1].As<Function>());
+            Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
             ExactWorker *worker = new ExactWorker(callback, lp);
-            if (!SmcpInit(&worker->smcp, args[0])){
+            if (!SmcpInit(&worker->smcp, info[0])){
                 worker->Destroy();
                 return;
             }
             lp->thread = true;
-            NanAsyncQueueWorker(worker);
-            NanReturnUndefined();
+            Nan::AsyncQueueWorker(worker);
         }
         
         static bool IptcpInit(glp_iptcp* iptcp, Local<Value> value){
@@ -413,17 +399,16 @@ namespace NodeGLPK {
         }
         
         static NAN_METHOD(InteriorSync) {
-            NanScope();
             
-            V8CHECK(args.Length() > 1, "Wrong number of arguments");
+            V8CHECK(info.Length() > 1, "Wrong number of arguments");
             
             GLP_CATCH_RET(
                       glp_iptcp iptcp;
                       glp_init_iptcp(&iptcp);
-                      if (args.Length() == 1)
-                         if (!IptcpInit(&iptcp, args[0])) return;
+                      if (info.Length() == 1)
+                         if (!IptcpInit(&iptcp, info[0])) return;
                       
-                      Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+                      Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
                       V8CHECK(!lp->handle, "object deleted");
                       V8CHECK(lp->thread, "an async operation is inprogress");
                           
@@ -431,15 +416,15 @@ namespace NodeGLPK {
             )
         }
         
-        class InteriorWorker : public NanAsyncWorker {
+        class InteriorWorker : public Nan::AsyncWorker {
         public:
-            InteriorWorker(NanCallback *callback, Problem *lp)
-            : NanAsyncWorker(callback), lp(lp){
+            InteriorWorker(Nan::Callback *callback, Problem *lp)
+            : Nan::AsyncWorker(callback), lp(lp){
                 glp_init_iptcp(&iptcp);
             }
             void WorkComplete() {
                 lp->thread = false;
-                NanAsyncWorker::WorkComplete();
+                Nan::AsyncWorker::WorkComplete();
             }
             void Execute () {
                 try {
@@ -455,24 +440,21 @@ namespace NodeGLPK {
         };
         
         static NAN_METHOD(Interior) {
-            NanScope();
+            V8CHECK(info.Length() > 2, "Wrong number of arguments");
+            V8CHECK(!(info[0]->IsObject() || info[0]->IsNull()) || !info[1]->IsFunction(), "Wrong arguments");
             
-            V8CHECK(args.Length() > 2, "Wrong number of arguments");
-            V8CHECK(!(args[0]->IsObject() || args[0]->IsNull()) || !args[1]->IsFunction(), "Wrong arguments");
-            
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
-            NanCallback *callback = new NanCallback(args[1].As<Function>());
+            Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
             InteriorWorker *worker = new InteriorWorker(callback, lp);
-            if (!IptcpInit(&worker->iptcp, args[0])){
+            if (!IptcpInit(&worker->iptcp, info[0])){
                 worker->Destroy();
                 return;
             }
             lp->thread = true;
-            NanAsyncQueueWorker(worker);
-            NanReturnUndefined();
+            Nan::AsyncQueueWorker(worker);
         }
         
         static bool MpscpInit(glp_mpscp *mpscp, Local<Value> value){
@@ -505,31 +487,29 @@ namespace NodeGLPK {
         }
         
         static NAN_METHOD(ReadMpsSync) {
-            NanScope();
-            
-            V8CHECK(args.Length() != 3, "Wrong number of arguments");
-            V8CHECK(!args[0]->IsInt32() || !(args[1]->IsObject() || args[1]->IsNull() || args[1]->IsUndefined()) || !args[2]->IsString(), "Wrong arguments");
+            V8CHECK(info.Length() != 3, "Wrong number of arguments");
+            V8CHECK(!info[0]->IsInt32() || !(info[1]->IsObject() || info[1]->IsNull() || info[1]->IsUndefined()) || !info[2]->IsString(), "Wrong arguments");
             
             GLP_CATCH_RET(
                 glp_mpscp mpscp;
                 glp_init_mpscp(&mpscp);
-                if (args.Length() == 1)
-                    if (!MpscpInit(&mpscp, args[0])) return;
+                if (info.Length() == 1)
+                    if (!MpscpInit(&mpscp, info[0])) return;
                       
-                Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+                Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
                 V8CHECK(!lp->handle, "object deleted");
                 V8CHECK(lp->thread, "an async operation is inprogress");
                           
-                int ret = glp_read_mps(lp->handle, args[0]->Int32Value(), &mpscp, V8TOCSTRING(args[2]));
+                int ret = glp_read_mps(lp->handle, info[0]->Int32Value(), &mpscp, V8TOCSTRING(info[2]));
                 if (mpscp.obj_name) delete[] mpscp.obj_name;
-                NanReturnValue(ret);
+                info.GetReturnValue().Set(ret);
             )
         }
         
-        class ReadMpsWorker : public NanAsyncWorker {
+        class ReadMpsWorker : public Nan::AsyncWorker {
         public:
-            ReadMpsWorker(NanCallback *callback, Problem *lp, int fmt, std::string file)
-            : NanAsyncWorker(callback), fmt(fmt), lp(lp), file(file){
+            ReadMpsWorker(Nan::Callback *callback, Problem *lp, int fmt, std::string file)
+            : Nan::AsyncWorker(callback), fmt(fmt), lp(lp), file(file){
                 glp_init_mpscp(&mpscp);
             }
             
@@ -538,7 +518,7 @@ namespace NodeGLPK {
             }
             void WorkComplete() {
                 lp->thread = false;
-                NanAsyncWorker::WorkComplete();
+                Nan::AsyncWorker::WorkComplete();
             }
             void Execute () {
                 try {
@@ -548,8 +528,8 @@ namespace NodeGLPK {
                 }
             }
             void HandleOKCallback() {
-                Local<Value> args[] = {NanNull(), NanNew<Int32>(ret)};
-                callback->Call(2, args);
+                Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
+                callback->Call(2, info);
             }
             
         public:
@@ -560,52 +540,48 @@ namespace NodeGLPK {
         };
         
         static NAN_METHOD(ReadMps) {
-            NanScope();
+            V8CHECK(info.Length() != 4, "Wrong number of arguments");
+            V8CHECK(!info[0]->IsInt32() || !(info[1]->IsObject() || info[1]->IsNull())
+                    || !info[2]->IsString() || !info[3]->IsFunction(), "Wrong arguments");
             
-            V8CHECK(args.Length() != 4, "Wrong number of arguments");
-            V8CHECK(!args[0]->IsInt32() || !(args[1]->IsObject() || args[1]->IsNull())
-                    || !args[2]->IsString() || !args[3]->IsFunction(), "Wrong arguments");
-            
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
-            NanCallback *callback = new NanCallback(args[3].As<Function>());
-            ReadMpsWorker *worker = new ReadMpsWorker(callback, lp, args[0]->Int32Value(), V8TOCSTRING(args[2]));
-            if (!MpscpInit(&worker->mpscp, args[1])){
+            Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
+            ReadMpsWorker *worker = new ReadMpsWorker(callback, lp, info[0]->Int32Value(), V8TOCSTRING(info[2]));
+            if (!MpscpInit(&worker->mpscp, info[1])){
                 worker->Destroy();
                 return;
             }
             lp->thread = true;
-            NanAsyncQueueWorker(worker);
-            NanReturnUndefined();
+            Nan::AsyncQueueWorker(worker);
         }
         
         static NAN_METHOD(WriteMpsSync) {
-            NanScope();
             std::string objname;
             
-            V8CHECK(args.Length() != 3, "Wrong number of arguments");
-            V8CHECK(!args[0]->IsInt32() || !(args[1]->IsObject() || args[1]->IsNull() || args[1]->IsUndefined()) || !args[2]->IsString(), "Wrong arguments");
+            V8CHECK(info.Length() != 3, "Wrong number of arguments");
+            V8CHECK(!info[0]->IsInt32() || !(info[1]->IsObject() || info[1]->IsNull() || info[1]->IsUndefined()) || !info[2]->IsString(), "Wrong arguments");
             
             GLP_CATCH_RET(
               glp_mpscp mpscp;
               glp_init_mpscp(&mpscp);
-              if (args.Length() == 1)
-                if (!MpscpInit(&mpscp, args[0])) return;
+              if (info.Length() == 1)
+                if (!MpscpInit(&mpscp, info[0])) return;
               
-              Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+              Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
               V8CHECK(!lp->handle, "object deleted");
               V8CHECK(lp->thread, "an async operation is inprogress");
                           
-              NanReturnValue(glp_write_mps(lp->handle, args[0]->Int32Value(), &mpscp, V8TOCSTRING(args[2])));
+              info.GetReturnValue().Set(glp_write_mps(lp->handle, info[0]->Int32Value(), &mpscp, V8TOCSTRING(info[2])));
             )
         }
         
-        class WriteMpsWorker : public NanAsyncWorker {
+        class WriteMpsWorker : public Nan::AsyncWorker {
         public:
-            WriteMpsWorker(NanCallback *callback, Problem *lp, int fmt, std::string file)
-            : NanAsyncWorker(callback), fmt(fmt), lp(lp), file(file){
+            WriteMpsWorker(Nan::Callback *callback, Problem *lp, int fmt, std::string file)
+            : Nan::AsyncWorker(callback), fmt(fmt), lp(lp), file(file){
                 glp_init_mpscp(&mpscp);
             }
             
@@ -614,7 +590,7 @@ namespace NodeGLPK {
             }
             void WorkComplete() {
                 lp->thread = false;
-                NanAsyncWorker::WorkComplete();
+                Nan::AsyncWorker::WorkComplete();
             }
             void Execute () {
                 try {
@@ -624,8 +600,8 @@ namespace NodeGLPK {
                 }
             }
             void HandleOKCallback() {
-                Local<Value> args[] = {NanNull(), NanNew<Int32>(ret)};
-                callback->Call(2, args);
+                Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
+                callback->Call(2, info);
             }
             
         public:
@@ -636,34 +612,31 @@ namespace NodeGLPK {
         };
         
         static NAN_METHOD(WriteMps) {
-            NanScope();
+            V8CHECK(info.Length() != 4, "Wrong number of arguments");
+            V8CHECK(!info[0]->IsInt32() || !(info[1]->IsObject() || info[1]->IsNull())
+                    || !info[2]->IsString() || !info[3]->IsFunction(), "Wrong arguments");
             
-            V8CHECK(args.Length() != 4, "Wrong number of arguments");
-            V8CHECK(!args[0]->IsInt32() || !(args[1]->IsObject() || args[1]->IsNull())
-                    || !args[2]->IsString() || !args[3]->IsFunction(), "Wrong arguments");
-            
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
-            NanCallback *callback = new NanCallback(args[3].As<Function>());
-            WriteMpsWorker *worker = new WriteMpsWorker(callback, lp, args[0]->Int32Value(), V8TOCSTRING(args[2]));
-            if (!MpscpInit(&worker->mpscp, args[1])){
+            Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
+            WriteMpsWorker *worker = new WriteMpsWorker(callback, lp, info[0]->Int32Value(), V8TOCSTRING(info[2]));
+            if (!MpscpInit(&worker->mpscp, info[1])){
                 worker->Destroy();
                 return;
             }
             lp->thread = true;
-            NanAsyncQueueWorker(worker);
-            NanReturnUndefined();
+            Nan::AsyncQueueWorker(worker);
         }
         
         
         
         static void IocpCallback(glp_tree *T, void *info){
-            NanCallback* cb = (NanCallback*)info;
+            Nan::Callback* cb = (Nan::Callback*)info;
             const unsigned argc = 1;
             Local<Value> t = Tree::Instantiate(T);
-            Local<Value> argv[argc] = {NanNew<Value>(t)};
+            Local<Value> argv[argc] = {Nan::New<Value>(t)};
             cb->Call(argc, argv);
             Tree* host = ObjectWrap::Unwrap<Tree>(t->ToObject());
             host->thread = true;
@@ -750,7 +723,7 @@ namespace NodeGLPK {
                     } else if (keystr == "cbFunc"){
                         V8CHECKBOOL(!val->IsFunction(), "cbFunc: should be a function");
                         iocp->cb_func = IocpCallback;
-                        iocp->cb_info = new NanCallback(Local<Function>::Cast(val));
+                        iocp->cb_info = new Nan::Callback(Local<Function>::Cast(val));
                     } else if (keystr == "cbReasons"){
                         V8CHECKBOOL(!val->IsInt32(), "cbReason: should be int32");
                         iocp->cb_reasons = val->Int32Value();
@@ -765,29 +738,28 @@ namespace NodeGLPK {
         }
         
         static NAN_METHOD(IntoptSync) {
-            NanScope();
-            V8CHECK(args.Length() > 1, "Wrong number of arguments");
+            V8CHECK(info.Length() > 1, "Wrong number of arguments");
             
             GLP_CATCH_RET(
                       glp_iocp iocp;
                       glp_init_iocp(&iocp);
-                      if (args.Length() == 1)
-                          if (!IocpInit(&iocp, args[0])) return;
+                      if (info.Length() == 1)
+                          if (!IocpInit(&iocp, info[0])) return;
                       
-                      Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+                      Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
                       V8CHECK(!lp->handle, "object deleted");
                       V8CHECK(lp->thread, "an async operation is inprogress");
                           
                       glp_intopt(lp->handle, &iocp);
-                      if (iocp.cb_info) delete (NanCallback*)iocp.cb_info;
+                      if (iocp.cb_info) delete (Nan::Callback*)iocp.cb_info;
                       if (iocp.save_sol) delete[] iocp.save_sol;
             )
         }
         
-        class IntoptWorker : public NanAsyncWorker {
+        class IntoptWorker : public Nan::AsyncWorker {
         public:
-            IntoptWorker(NanCallback *callback, Problem *lp)
-            : NanAsyncWorker(callback), lp(lp){
+            IntoptWorker(Nan::Callback *callback, Problem *lp)
+            : Nan::AsyncWorker(callback), lp(lp){
                 glp_init_iocp(&parm);
                 glp_init_mip_ctx(&ctx);
                 ctx.parm = &parm;
@@ -795,7 +767,7 @@ namespace NodeGLPK {
             }
             
             ~IntoptWorker(){
-                if (parm.cb_info) delete (NanCallback*)parm.cb_info;
+                if (parm.cb_info) delete (Nan::Callback*)parm.cb_info;
                 if (parm.save_sol) delete[] parm.save_sol;
             }
             
@@ -814,7 +786,7 @@ namespace NodeGLPK {
             }
             void WorkComplete() {
                 lp->thread = false;
-                NanScope();
+                Nan::HandleScope scope;
                 if (ctx.done) {
                     state = 2;
                     glp_intopt_stop(lp->handle, &ctx);
@@ -828,13 +800,13 @@ namespace NodeGLPK {
                 } else {
                     parm.cb_func(ctx.tree, parm.cb_info);
                     lp->thread = true;
-                    NanAsyncQueueWorker(this);
+                    Nan::AsyncQueueWorker(this);
                 }
             }
             
             void HandleOKCallback(){
-                Local<Value> args[] = {NanNull(), NanNew<Int32>(ctx.ret)};
-                callback->Call(2, args);
+                Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ctx.ret)};
+                callback->Call(2, info);
             }
             
             void Destroy() {
@@ -848,47 +820,43 @@ namespace NodeGLPK {
         };
         
         static NAN_METHOD(Intopt) {
-            NanScope();
-            V8CHECK(args.Length() != 2, "Wrong number of arguments");
-            V8CHECK(!(args[0]->IsObject() || args[0]->IsNull()) || !args[1]->IsFunction(), "Wrong arguments");
+            V8CHECK(info.Length() != 2, "Wrong number of arguments");
+            V8CHECK(!(info[0]->IsObject() || info[0]->IsNull()) || !info[1]->IsFunction(), "Wrong arguments");
             
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
-            NanCallback *callback = new NanCallback(args[1].As<Function>());
+            Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
             IntoptWorker *worker = new IntoptWorker(callback, lp);
-            if (!IocpInit(&worker->parm, args[0])){
+            if (!IocpInit(&worker->parm, info[0])){
                 worker->Destroy();
                 return;
             }
             lp->thread = true;
-            NanAsyncQueueWorker(worker);
-            NanReturnUndefined();
+            Nan::AsyncQueueWorker(worker);
         }
         
         static NAN_METHOD(ReadLpSync) {
-            NanScope();
+            V8CHECK(info.Length() != 1, "Wrong number of arguments");
+            V8CHECK(!info[0]->IsString(), "Wrong arguments");
             
-            V8CHECK(args.Length() != 1, "Wrong number of arguments");
-            V8CHECK(!args[0]->IsString(), "Wrong arguments");
-            
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
-            NanReturnValue(glp_read_lp(lp->handle, NULL, V8TOCSTRING(args[0])));
+            info.GetReturnValue().Set(glp_read_lp(lp->handle, NULL, V8TOCSTRING(info[0])));
         }
         
-        class ReadLpWorker : public NanAsyncWorker {
+        class ReadLpWorker : public Nan::AsyncWorker {
         public:
-            ReadLpWorker(NanCallback *callback, Problem *lp, std::string file)
-            : NanAsyncWorker(callback), lp(lp), file(file){
+            ReadLpWorker(Nan::Callback *callback, Problem *lp, std::string file)
+            : Nan::AsyncWorker(callback), lp(lp), file(file){
                 
             }
             void WorkComplete() {
                 lp->thread = false;
-                NanAsyncWorker::WorkComplete();
+                Nan::AsyncWorker::WorkComplete();
             }
             void Execute () {
                 try {
@@ -898,8 +866,8 @@ namespace NodeGLPK {
                 }
             }
             void HandleOKCallback() {
-                Local<Value> args[] = {NanNull(), NanNew<Int32>(ret)};
-                callback->Call(2, args);
+                Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
+                callback->Call(2, info);
             }
             
         public:
@@ -909,44 +877,39 @@ namespace NodeGLPK {
         };
         
         static NAN_METHOD(ReadLp) {
-            NanScope();
+            V8CHECK(info.Length() != 2, "Wrong number of arguments");
+            V8CHECK(!info[0]->IsString() || !info[1]->IsFunction(), "Wrong arguments");
             
-            V8CHECK(args.Length() != 2, "Wrong number of arguments");
-            V8CHECK(!args[0]->IsString() || !args[1]->IsFunction(), "Wrong arguments");
-            
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
-            NanCallback *callback = new NanCallback(args[1].As<Function>());
-            ReadLpWorker *worker = new ReadLpWorker(callback, lp, V8TOCSTRING(args[0]));
+            Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
+            ReadLpWorker *worker = new ReadLpWorker(callback, lp, V8TOCSTRING(info[0]));
             lp->thread = true;
-            NanAsyncQueueWorker(worker);
-            NanReturnUndefined();
+            Nan::AsyncQueueWorker(worker);
         }
         
         static NAN_METHOD(WriteLpSync) {
-            NanScope();
+            V8CHECK(info.Length() != 1, "Wrong number of arguments");
+            V8CHECK(!info[0]->IsString(), "Wrong arguments");
             
-            V8CHECK(args.Length() != 1, "Wrong number of arguments");
-            V8CHECK(!args[0]->IsString(), "Wrong arguments");
-            
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
-            GLP_CATCH_RET(NanReturnValue(glp_write_lp(lp->handle, NULL, V8TOCSTRING(args[0])));)
+            GLP_CATCH_RET(info.GetReturnValue().Set(glp_write_lp(lp->handle, NULL, V8TOCSTRING(info[0])));)
         }
         
-        class WriteLpWorker : public NanAsyncWorker {
+        class WriteLpWorker : public Nan::AsyncWorker {
         public:
-            WriteLpWorker(NanCallback *callback, Problem *lp, std::string file)
-            : NanAsyncWorker(callback), lp(lp), file(file){
+            WriteLpWorker(Nan::Callback *callback, Problem *lp, std::string file)
+            : Nan::AsyncWorker(callback), lp(lp), file(file){
                 
             }
             void WorkComplete() {
                 lp->thread = false;
-                NanAsyncWorker::WorkComplete();
+                Nan::AsyncWorker::WorkComplete();
             }
             void Execute () {
                 try {
@@ -956,8 +919,8 @@ namespace NodeGLPK {
                 }
             }
             void HandleOKCallback() {
-                Local<Value> args[] = {NanNull(), NanNew<Int32>(ret)};
-                callback->Call(2, args);
+                Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
+                callback->Call(2, info);
             }
         public:
             int ret;
@@ -966,56 +929,49 @@ namespace NodeGLPK {
         };
         
         static NAN_METHOD(WriteLp) {
-            NanScope();
+            V8CHECK(info.Length() != 2, "Wrong number of arguments");
+            V8CHECK(!info[0]->IsString() || !info[1]->IsFunction(), "Wrong arguments");
             
-            V8CHECK(args.Length() != 2, "Wrong number of arguments");
-            V8CHECK(!args[0]->IsString() || !args[1]->IsFunction(), "Wrong arguments");
-            
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
-            NanCallback *callback = new NanCallback(args[1].As<Function>());
-            WriteLpWorker *worker = new WriteLpWorker(callback, lp, V8TOCSTRING(args[0]));
+            Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
+            WriteLpWorker *worker = new WriteLpWorker(callback, lp, V8TOCSTRING(info[0]));
             lp->thread = true;
-            NanAsyncQueueWorker(worker);
-            NanReturnUndefined();
+            Nan::AsyncQueueWorker(worker);
         }
         
         static NAN_METHOD(CheckKkt) {
-            NanScope();
+            V8CHECK(info.Length() != 3, "Wrong number of arguments");
+            V8CHECK(!info[0]->IsInt32() || !info[1]->IsInt32() || !info[2]->IsFunction(), "Wrong arguments");
             
-            V8CHECK(args.Length() != 3, "Wrong number of arguments");
-            V8CHECK(!args[0]->IsInt32() || !args[1]->IsInt32() || !args[2]->IsFunction(), "Wrong arguments");
-            
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
             double ae_max, re_max;
             int ae_ind, re_ind;
-            GLP_CATCH_RET(glp_check_kkt(lp->handle, args[0]->Int32Value(), args[1]->Int32Value(), &ae_max, &ae_ind, &re_max, &re_ind);)
+            GLP_CATCH_RET(glp_check_kkt(lp->handle, info[0]->Int32Value(), info[1]->Int32Value(), &ae_max, &ae_ind, &re_max, &re_ind);)
             
-            NanCallback* cb = new NanCallback(Local<Function>::Cast(args[2]));
+            Nan::Callback* cb = new Nan::Callback(Local<Function>::Cast(info[2]));
             const unsigned argc = 4;
             Local<Value> argv[argc] = {
-                NanNew<Number>(ae_max),
-                NanNew<Int32>(ae_ind),
-                NanNew<Number>(re_max),
-                NanNew<Int32>(re_ind)
+                Nan::New<Number>(ae_max),
+                Nan::New<Int32>(ae_ind),
+                Nan::New<Number>(re_max),
+                Nan::New<Int32>(re_ind)
             };
             GLP_CATCH(cb->Call(argc, argv);)
             delete cb;
         }
         
         static NAN_METHOD(PrintRangesSync) {
-            NanScope();
+            V8CHECK(info.Length() != 3, "Wrong number of arguments");
+            V8CHECK(!(info[0]->IsInt32Array() || info[0]->IsNull() || info[0]->IsUndefined()) ||
+                !info[1]->IsInt32() || !info[2]->IsString(), "Wrong arguments");
             
-            V8CHECK(args.Length() != 3, "Wrong number of arguments");
-            V8CHECK(!(args[0]->IsInt32Array() || args[0]->IsNull() || args[0]->IsUndefined()) ||
-                !args[1]->IsInt32() || !args[2]->IsString(), "Wrong arguments");
-            
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
@@ -1023,8 +979,8 @@ namespace NodeGLPK {
             int* plist = NULL;
             int ret = 0;
             GLP_CATCH(
-                if (args[0]->IsInt32Array()) {
-                    Local<Int32Array> list = Local<Int32Array>::Cast(args[0]);
+                if (info[0]->IsInt32Array()) {
+                    Local<Int32Array> list = Local<Int32Array>::Cast(info[0]);
                     count = list->Length();
                     if (count > 1) {
                         plist = new int[count];
@@ -1033,18 +989,18 @@ namespace NodeGLPK {
                     }
                 }
                       
-                ret = glp_print_ranges(lp->handle, count, plist, args[1]->Int32Value(), V8TOCSTRING(args[2]));
+                ret = glp_print_ranges(lp->handle, count, plist, info[1]->Int32Value(), V8TOCSTRING(info[2]));
                       
             )
             if (plist) delete[] plist;
-            NanReturnValue(ret);
+            info.GetReturnValue().Set(ret);
         }
         
         
-        class PrintRangesWorker : public NanAsyncWorker {
+        class PrintRangesWorker : public Nan::AsyncWorker {
         public:
-            PrintRangesWorker(NanCallback *callback, Problem *lp, int len, int flags, char *file)
-            : NanAsyncWorker(callback), lp(lp), len(len), flags(flags), file(file){
+            PrintRangesWorker(Nan::Callback *callback, Problem *lp, int len, int flags, char *file)
+            : Nan::AsyncWorker(callback), lp(lp), len(len), flags(flags), file(file){
                 if (len > 0)
                     list = new int[len];
                 else
@@ -1055,12 +1011,12 @@ namespace NodeGLPK {
             }
             
             void HandleOKCallback() {
-                Local<Value> args[] = {NanNull(), NanNew<Int32>(ret)};
-                callback->Call(2, args);
+                Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
+                callback->Call(2, info);
             }
             void WorkComplete() {
                 lp->thread = false;
-                NanAsyncWorker::WorkComplete();
+                Nan::AsyncWorker::WorkComplete();
             }
             void Execute () {
                 try {
@@ -1078,46 +1034,41 @@ namespace NodeGLPK {
         };
         
         static NAN_METHOD(PrintRanges) {
-            NanScope();
+            V8CHECK(info.Length() != 4, "Wrong number of arguments");
+            V8CHECK(!(info[0]->IsInt32Array() || info[0]->IsNull() || info[0]->IsUndefined()) ||
+                !info[1]->IsInt32() || !info[2]->IsString() || !info[3]->IsFunction(), "Wrong arguments");
             
-            V8CHECK(args.Length() != 4, "Wrong number of arguments");
-            V8CHECK(!(args[0]->IsInt32Array() || args[0]->IsNull() || args[0]->IsUndefined()) ||
-                !args[1]->IsInt32() || !args[2]->IsString() || !args[3]->IsFunction(), "Wrong arguments");
-            
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
             size_t len = 0;
             Local<Int32Array> list;
-            if (args[0]->IsInt32Array()) {
-                list = Local<Int32Array>::Cast(args[0]);
+            if (info[0]->IsInt32Array()) {
+                list = Local<Int32Array>::Cast(info[0]);
                 len = list->Length();
             }
             
-            NanCallback *callback = new NanCallback(args[3].As<Function>());
-            PrintRangesWorker *worker = new PrintRangesWorker(callback, lp, len, args[1]->Int32Value(), V8TOCSTRING(args[2]));
+            Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
+            PrintRangesWorker *worker = new PrintRangesWorker(callback, lp, len, info[1]->Int32Value(), V8TOCSTRING(info[2]));
             if (len > 0) {
                 for (size_t i = 0; i < len; i++) worker->list[i] = list->Get(i)->Int32Value();
                 worker->len--;
             }
             
             lp->thread = true;
-            NanAsyncQueueWorker(worker);
-            NanReturnUndefined();
+            Nan::AsyncQueueWorker(worker);
         }
         
         static NAN_METHOD(GetBfcp) {
-            NanScope();
-            
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
             GLP_CATCH_RET(
                 glp_bfcp bfcp;
                 glp_get_bfcp(lp->handle, &bfcp);
-                Local<Object> ret = NanNew<Object>();
+                Local<Object> ret = Nan::New<Object>();
                 GLP_SET_FIELD_INT32(ret, "type", bfcp.type);
                 GLP_SET_FIELD_DOUBLE(ret, "pivTol", bfcp.piv_tol);
                 GLP_SET_FIELD_INT32(ret, "pivLim", bfcp.piv_lim);
@@ -1126,17 +1077,15 @@ namespace NodeGLPK {
                 GLP_SET_FIELD_INT32(ret, "nfsMax", bfcp.nfs_max);
                 GLP_SET_FIELD_INT32(ret, "nrsMax", bfcp.nrs_max);
                       
-                NanReturnValue(ret);
+                info.GetReturnValue().Set(ret);
             )
         }
         
         static NAN_METHOD(SetBfcp) {
-            NanScope();
+            V8CHECK(info.Length() != 1, "Wrong number of arguments");
+            V8CHECK(!(info[0]->IsObject() || info[0]->IsNull() || info[0]->IsUndefined()), "Wrong arguments");
             
-            V8CHECK(args.Length() != 1, "Wrong number of arguments");
-            V8CHECK(!(args[0]->IsObject() || args[0]->IsNull() || args[0]->IsUndefined()), "Wrong arguments");
-            
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
@@ -1144,8 +1093,8 @@ namespace NodeGLPK {
                       glp_bfcp bfcp;
                       glp_get_bfcp(lp->handle, &bfcp);
                       
-                      if (args[0]->IsObject()){
-                          Local<Object> obj = args[0]->ToObject();
+                      if (info[0]->IsObject()){
+                          Local<Object> obj = info[0]->ToObject();
                           Local<Array> props = obj->GetPropertyNames();
                           for(uint32_t i = 0; i < props->Length(); i++){
                               Local<Value> key = props->Get(i);
@@ -1184,14 +1133,14 @@ namespace NodeGLPK {
             )
         }
         
-        class ScaleWorker : public NanAsyncWorker {
+        class ScaleWorker : public Nan::AsyncWorker {
         public:
-            ScaleWorker(NanCallback *callback, Problem *lp, int param)
-            : NanAsyncWorker(callback), lp(lp), param(param){
+            ScaleWorker(Nan::Callback *callback, Problem *lp, int param)
+            : Nan::AsyncWorker(callback), lp(lp), param(param){
             }
             void WorkComplete() {
                 lp->thread = false;
-                NanAsyncWorker::WorkComplete();
+                Nan::AsyncWorker::WorkComplete();
             }
             void Execute () {
                 try {
@@ -1206,31 +1155,28 @@ namespace NodeGLPK {
         };
         
         static NAN_METHOD(Scale) {
-            NanScope();
+            V8CHECK(info.Length() != 2, "Wrong number of arguments");
+            V8CHECK(!info[0]->IsInt32() || !info[1]->IsFunction(), "Wrong arguments");
             
-            V8CHECK(args.Length() != 2, "Wrong number of arguments");
-            V8CHECK(!args[0]->IsInt32() || !args[1]->IsFunction(), "Wrong arguments");
-            
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
-            NanCallback *callback = new NanCallback(args[1].As<Function>());
-            ScaleWorker *worker = new ScaleWorker(callback, lp, args[0]->Int32Value());
+            Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
+            ScaleWorker *worker = new ScaleWorker(callback, lp, info[0]->Int32Value());
             lp->thread = true;
-            NanAsyncQueueWorker(worker);
-            NanReturnUndefined();
+            Nan::AsyncQueueWorker(worker);
         }
         
 
-        class FactorizeWorker : public NanAsyncWorker {
+        class FactorizeWorker : public Nan::AsyncWorker {
         public:
-            FactorizeWorker(NanCallback *callback, Problem *lp)
-            : NanAsyncWorker(callback), lp(lp) {
+            FactorizeWorker(Nan::Callback *callback, Problem *lp)
+            : Nan::AsyncWorker(callback), lp(lp) {
             }
             void WorkComplete() {
                 lp->thread = false;
-                NanAsyncWorker::WorkComplete();
+                Nan::AsyncWorker::WorkComplete();
             }
             void Execute () {
                 try {
@@ -1240,8 +1186,8 @@ namespace NodeGLPK {
                 }
             }
             void HandleOKCallback() {
-                Local<Value> args[] = {NanNull(), NanNew<Int32>(ret)};
-                callback->Call(2, args);
+                Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
+                callback->Call(2, info);
             }
         public:
             Problem *lp;
@@ -1249,20 +1195,17 @@ namespace NodeGLPK {
         };
         
         static NAN_METHOD(Factorize) {
-            NanScope();
+            V8CHECK(info.Length() != 1, "Wrong number of arguments");
+            V8CHECK(!info[0]->IsFunction(), "Wrong arguments");
             
-            V8CHECK(args.Length() != 1, "Wrong number of arguments");
-            V8CHECK(!args[0]->IsFunction(), "Wrong arguments");
-            
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args.Holder());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
-            NanCallback *callback = new NanCallback(args[0].As<Function>());
+            Nan::Callback *callback = new Nan::Callback(info[0].As<Function>());
             FactorizeWorker *worker = new FactorizeWorker(callback, lp);
             lp->thread = true;
-            NanAsyncQueueWorker(worker);
-            NanReturnUndefined();
+            Nan::AsyncQueueWorker(worker);
         }
         
         
@@ -1492,13 +1435,13 @@ namespace NodeGLPK {
         //                      double *value1, double *coef2, int *var2, double *value2);
         
         
-        static Persistent<FunctionTemplate> constructor;
+        static Nan::Persistent<FunctionTemplate> constructor;
     public:
         glp_prob *handle;
         bool thread;
     };
     
-    Persistent<FunctionTemplate> Problem::constructor;
+    Nan::Persistent<FunctionTemplate> Problem::constructor;
 }
     
     

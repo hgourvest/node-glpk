@@ -13,37 +13,38 @@ namespace NodeGLPK {
     public:
         static void Init(Handle<Object> exports){
             // Prepare constructor template
-            Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(New);
-            tpl->SetClassName(NanNew<String>("Tree"));
+            Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
+            tpl->SetClassName(Nan::New("Tree").ToLocalChecked());
             tpl->InstanceTemplate()->SetInternalFieldCount(1);
             
             // prototypes
-            NODE_SET_PROTOTYPE_METHOD(tpl, "reason", Reason);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "terminate", Terminate);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "treeSize", TreeSize);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "currNode", CurrNode);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "nextNode", NextNode);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "prevNode", PrevNode);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "upNode", UpNode);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "nodeLevel", NodeLevel);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "nodeBound", NodeBound);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "bestNode", BestNode);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "mipGap", MipGap);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "rowAttrib", RowAttrib);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "poolSize", PoolSize);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "delRow", DelRow);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "clearPool", ClearPool);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "canBranch", CanBranch);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "branchUpon", BranchUpon);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "selectNode", SelectNode);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "addRow", AddRow);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "heurSol", HeurSol);
+            Nan::SetPrototypeMethod(tpl, "reason", Reason);
+            Nan::SetPrototypeMethod(tpl, "terminate", Terminate);
+            Nan::SetPrototypeMethod(tpl, "treeSize", TreeSize);
+            Nan::SetPrototypeMethod(tpl, "currNode", CurrNode);
+            Nan::SetPrototypeMethod(tpl, "nextNode", NextNode);
+            Nan::SetPrototypeMethod(tpl, "prevNode", PrevNode);
+            Nan::SetPrototypeMethod(tpl, "upNode", UpNode);
+            Nan::SetPrototypeMethod(tpl, "nodeLevel", NodeLevel);
+            Nan::SetPrototypeMethod(tpl, "nodeBound", NodeBound);
+            Nan::SetPrototypeMethod(tpl, "bestNode", BestNode);
+            Nan::SetPrototypeMethod(tpl, "mipGap", MipGap);
+            Nan::SetPrototypeMethod(tpl, "rowAttrib", RowAttrib);
+            Nan::SetPrototypeMethod(tpl, "poolSize", PoolSize);
+            Nan::SetPrototypeMethod(tpl, "delRow", DelRow);
+            Nan::SetPrototypeMethod(tpl, "clearPool", ClearPool);
+            Nan::SetPrototypeMethod(tpl, "canBranch", CanBranch);
+            Nan::SetPrototypeMethod(tpl, "branchUpon", BranchUpon);
+            Nan::SetPrototypeMethod(tpl, "selectNode", SelectNode);
+            Nan::SetPrototypeMethod(tpl, "addRow", AddRow);
+            Nan::SetPrototypeMethod(tpl, "heurSol", HeurSol);
             
-            NanAssignPersistent(constructor, tpl);
+            //NanAssignPersistent(constructor, tpl);
+            constructor.Reset(tpl);
         }
 
         static Local<Value> Instantiate(glp_tree* tree){
-            Local<Function> cons = NanNew<FunctionTemplate>(constructor)->GetFunction();
+            Local<Function> cons = Nan::New<FunctionTemplate>(constructor)->GetFunction();
             Local<Value> ret = cons->NewInstance();
             Tree* host = ObjectWrap::Unwrap<Tree>(ret->ToObject());
             host->handle = tree;
@@ -55,14 +56,12 @@ namespace NodeGLPK {
         ~Tree(){};
         
         static NAN_METHOD(New) {
-            NanScope();
-            
-            V8CHECK(!args.IsConstructCall(), "Constructor Tree requires 'new'");
+            V8CHECK(!info.IsConstructCall(), "Constructor Tree requires 'new'");
             
             GLP_CATCH_RET(
                       Tree* obj = new Tree();
-                      obj->Wrap(args.This());
-                      NanReturnValue(args.This());
+                      obj->Wrap(info.This());
+                      info.GetReturnValue().Set(info.This());
             )
         }
         
@@ -71,20 +70,18 @@ namespace NodeGLPK {
         GLP_BIND_VOID(Tree, Terminate, glp_ios_terminate);
         
         static NAN_METHOD(TreeSize) {
-            NanScope();
-            
-            Tree* host = ObjectWrap::Unwrap<Tree>(args.Holder());
+            Tree* host = ObjectWrap::Unwrap<Tree>(info.Holder());
             V8CHECK(!host->handle, "object deleted");
             V8CHECK(host->thread, "an async operation is inprogress");
             
             int a_cnt, n_cnt, t_cnt;
             GLP_CATCH_RET(glp_ios_tree_size(host->handle, &a_cnt, &n_cnt, &t_cnt);)
-            Local<Object> ret = NanNew<Object>();
+            Local<Object> ret = Nan::New<Object>();
             GLP_SET_FIELD_INT32(ret, "a", a_cnt);
             GLP_SET_FIELD_INT32(ret, "n", n_cnt);
             GLP_SET_FIELD_INT32(ret, "t", t_cnt);
             
-            NanReturnValue(ret);
+            info.GetReturnValue().Set(ret);
         }
         
         GLP_BIND_VALUE(Tree, CurrNode, glp_ios_curr_node);
@@ -104,41 +101,37 @@ namespace NodeGLPK {
         GLP_BIND_VALUE(Tree, MipGap, glp_ios_mip_gap);
         
         static NAN_METHOD(RowAttrib) {
-            NanScope();
+            V8CHECK(info.Length() != 1, "Wrong number of arguments");
+            V8CHECK(!info[0]->IsInt32(), "Wrong arguments");
             
-            V8CHECK(args.Length() != 1, "Wrong number of arguments");
-            V8CHECK(!args[0]->IsInt32(), "Wrong arguments");
-            
-            Tree* host = ObjectWrap::Unwrap<Tree>(args.Holder());
+            Tree* host = ObjectWrap::Unwrap<Tree>(info.Holder());
             V8CHECK(!host->handle, "object deleted");
             V8CHECK(host->thread, "an async operation is inprogress");
             
             glp_attr attr;
-            GLP_CATCH_RET(glp_ios_row_attr(host->handle, args[0]->Int32Value(), &attr);)
+            GLP_CATCH_RET(glp_ios_row_attr(host->handle, info[0]->Int32Value(), &attr);)
             
-            Local<Object> ret = NanNew<Object>();
+            Local<Object> ret = Nan::New<Object>();
             GLP_SET_FIELD_INT32(ret, "level", attr.level);
             GLP_SET_FIELD_INT32(ret, "origin", attr.origin);
             GLP_SET_FIELD_INT32(ret, "klass", attr.klass);
             
-            NanReturnValue(ret);
+            info.GetReturnValue().Set(ret);
         }
         
         GLP_BIND_VALUE(Tree, PoolSize, glp_ios_pool_size);
         
         static NAN_METHOD(AddRow) {
-            NanScope();
+            V8CHECK(info.Length() != 7, "Wrong number of arguments");
+            V8CHECK(!info[0]->IsString() || !info[1]->IsInt32() || !info[2]->IsInt32() || !info[3]->IsInt32Array()
+                    || !info[4]->IsFloat64Array() || !info[5]->IsInt32() || !info[6]->IsNumber(), "Wrong arguments");
             
-            V8CHECK(args.Length() != 7, "Wrong number of arguments");
-            V8CHECK(!args[0]->IsString() || !args[1]->IsInt32() || !args[2]->IsInt32() || !args[3]->IsInt32Array()
-                    || !args[4]->IsFloat64Array() || !args[5]->IsInt32() || !args[6]->IsNumber(), "Wrong arguments");
-            
-            Tree* tree = ObjectWrap::Unwrap<Tree>(args.Holder());
+            Tree* tree = ObjectWrap::Unwrap<Tree>(info.Holder());
             V8CHECK(!tree->handle, "object deleted");
             V8CHECK(tree->thread, "an async operation is inprogress");
             
-            Local<Int32Array> ind = Local<Int32Array>::Cast(args[3]);
-            Local<Float64Array> val = Local<Float64Array>::Cast(args[4]);
+            Local<Int32Array> ind = Local<Int32Array>::Cast(info[3]);
+            Local<Float64Array> val = Local<Float64Array>::Cast(info[4]);
             
             unsigned int count = ind->Length();
             V8CHECK((count < 1) || (count != val->Length()), "Invalid arrays length");
@@ -152,8 +145,8 @@ namespace NodeGLPK {
             }
             
             count--;
-            GLP_CATCH(NanReturnValue(glp_ios_add_row(tree->handle, V8TOCSTRING(args[0]), args[1]->Int32Value(),
-                args[2]->Int32Value(), count, pind, pval, args[5]->Int32Value(), args[6]->NumberValue()));)
+            GLP_CATCH(info.GetReturnValue().Set(glp_ios_add_row(tree->handle, V8TOCSTRING(info[0]), info[1]->Int32Value(),
+                info[2]->Int32Value(), count, pind, pval, info[5]->Int32Value(), info[6]->NumberValue()));)
             
             free(pind);
             free(pval);
@@ -170,31 +163,29 @@ namespace NodeGLPK {
         GLP_BIND_VOID_INT32(Tree, SelectNode, glp_ios_select_node);
         
         static NAN_METHOD(HeurSol) {
-            NanScope();
-            
-            V8CHECK(args.Length() != 1, "Wrong number of arguments");
-            V8CHECK(!args[0]->IsFloat64Array(), "Wrong arguments");
+            V8CHECK(info.Length() != 1, "Wrong number of arguments");
+            V8CHECK(!info[0]->IsFloat64Array(), "Wrong arguments");
         
-            Tree* tree = ObjectWrap::Unwrap<Tree>(args.Holder());
+            Tree* tree = ObjectWrap::Unwrap<Tree>(info.Holder());
             V8CHECK(!tree->handle, "object deleted");
             V8CHECK(tree->thread, "an async operation is inprogress");
             
-            Local<Float64Array> x = Local<Float64Array>::Cast(args[0]);
+            Local<Float64Array> x = Local<Float64Array>::Cast(info[0]);
             
             int count = (int)x->Length();
             GLP_CATCH_RET(V8CHECK(count != (glp_get_num_cols(glp_ios_get_prob(tree->handle)) + 1), "Invalid arrays length");)
             
             double* px = (double*)malloc(count * sizeof(double));
             for (int i = 0; i < count; i++) px[i] = x->NumberValue();
-            GLP_CATCH(NanReturnValue(glp_ios_heur_sol(tree->handle, px));)
+            GLP_CATCH(info.GetReturnValue().Set(glp_ios_heur_sol(tree->handle, px));)
             free(px);
         }
     public:
-        static Persistent<FunctionTemplate> constructor;
+        static Nan::Persistent<FunctionTemplate> constructor;
         glp_tree *handle;
         bool thread;
     };
     
-    Persistent<FunctionTemplate> Tree::constructor;
+    Nan::Persistent<FunctionTemplate> Tree::constructor;
 }
  

@@ -14,20 +14,20 @@
 #define V8TOCSTRING(S) (*String::Utf8Value(S->ToString()))
 
 #define V8CHECK(T, E) if (T) { \
-    NanThrowTypeError(E);\
+    Nan::ThrowTypeError(E);\
     return; \
  }
 
 #define V8CHECKBOOL(T, E) if (T) { \
-    NanThrowTypeError(E);\
+    Nan::ThrowTypeError(E);\
     return false; \
 }
 
-//catch (std::string s){NanThrowError(s.c_str());return;}
+//catch (std::string s){Nan::ThrowError(s.c_str());return;}
 
-#define GLP_CATCH_RET(X) try{X}catch (std::string s) {NanThrowError(s.c_str());return;}
+#define GLP_CATCH_RET(X) try{X}catch (std::string s) {Nan::ThrowError(s.c_str());return;}
 
-#define GLP_CATCH(X) try{X}catch (std::string s) {NanThrowError(s.c_str());}
+#define GLP_CATCH(X) try{X}catch (std::string s) {Nan::ThrowError(s.c_str());}
 
 #define GLP_DEFINE_CONSTANT(target, constant, name)\
 do {\
@@ -44,149 +44,129 @@ while (0)
 
 #define GLP_BIND_VOID_STR(CLASS, NAME, API)\
 static NAN_METHOD(NAME) {\
-    NanScope();\
+    V8CHECK(info.Length() != 1, "Wrong number of arguments");\
+    V8CHECK(!info[0]->IsString(), "Wrong arguments");\
     \
-    V8CHECK(args.Length() != 1, "Wrong number of arguments");\
-    V8CHECK(!args[0]->IsString(), "Wrong arguments");\
-    \
-    CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
+    CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread, "an async operation is inprogress")\
     \
-    GLP_CATCH_RET(API(host->handle, V8TOCSTRING(args[0]));)\
+    GLP_CATCH_RET(API(host->handle, V8TOCSTRING(info[0]));)\
 }
 
 #define GLP_BIND_STR(CLASS, NAME, API)\
 static NAN_METHOD(NAME) {\
-    NanScope();\
-    \
-    CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
+    CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread, "an async operation is inprogress")\
     \
     GLP_CATCH_RET(const char* name = API(host->handle);\
     if (name)\
-        NanReturnValue(name);\
+        info.GetReturnValue().Set(Nan::New<String>(name).ToLocalChecked());\
     else\
-        NanReturnValue("");)\
+        info.GetReturnValue().Set(Nan::New<String>("").ToLocalChecked());)\
 }
 
 #define GLP_BIND_VOID_INT32(CLASS, NAME, API)\
 static NAN_METHOD(NAME) {\
-    NanScope();\
+    V8CHECK(info.Length() != 1, "Wrong number of arguments");\
+    V8CHECK(!info[0]->IsInt32(), "Wrong arguments");\
     \
-    V8CHECK(args.Length() != 1, "Wrong number of arguments");\
-    V8CHECK(!args[0]->IsInt32(), "Wrong arguments");\
-    \
-    CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
+    CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread, "an async operation is inprogress")\
     \
-    GLP_CATCH_RET(API(host->handle, args[0]->Int32Value());)\
+    GLP_CATCH_RET(API(host->handle, info[0]->Int32Value());)\
 }
 
 #define GLP_BIND_VALUE(CLASS, NAME, API)\
 static NAN_METHOD(NAME) {\
-    NanScope();\
-    \
-    CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
+    CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread, "an async operation is inprogress")\
     \
-    GLP_CATCH_RET(NanReturnValue(API(host->handle));)\
+    GLP_CATCH_RET(info.GetReturnValue().Set(API(host->handle));)\
 }
 
 #define GLP_BIND_VOID_INT32_STR(CLASS, NAME, API)\
 static NAN_METHOD(NAME) {\
-    NanScope();\
+    V8CHECK(info.Length() != 2, "Wrong number of arguments");\
+    V8CHECK(!info[0]->IsInt32() || !info[1]->IsString(), "Wrong arguments");\
     \
-    V8CHECK(args.Length() != 2, "Wrong number of arguments");\
-    V8CHECK(!args[0]->IsInt32() || !args[1]->IsString(), "Wrong arguments");\
-    \
-    CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
+    CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread, "an async operation is inprogress")\
     \
-    GLP_CATCH_RET(API(host->handle, args[0]->Int32Value(), V8TOCSTRING(args[1]));)\
+    GLP_CATCH_RET(API(host->handle, info[0]->Int32Value(), V8TOCSTRING(info[1]));)\
 }
 
 #define GLP_BIND_STR_INT32(CLASS, NAME, API);\
 static NAN_METHOD(NAME) {\
-    NanScope();\
+    V8CHECK(info.Length() != 1, "Wrong number of arguments");\
+    V8CHECK(!info[0]->IsInt32(), "Wrong arguments");\
     \
-    V8CHECK(args.Length() != 1, "Wrong number of arguments");\
-    V8CHECK(!args[0]->IsInt32(), "Wrong arguments");\
-    \
-    CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
+    CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread, "an async operation is inprogress")\
     \
-    GLP_CATCH_RET(const char* name = API(host->handle, args[0]->Int32Value());\
+    GLP_CATCH_RET(const char* name = API(host->handle, info[0]->Int32Value());\
     if (name)\
-        NanReturnValue(name);\
+        info.GetReturnValue().Set(Nan::New<String>(name).ToLocalChecked());\
     else\
-        NanReturnValue("");)\
+        info.GetReturnValue().Set(Nan::New<String>("").ToLocalChecked());)\
 }
 
 #define GLP_BIND_VOID_INT32_INT32_DOUBLE_DOUBLE(CLASS, NAME, API)\
 static NAN_METHOD(NAME) {\
-    NanScope();\
+    V8CHECK(info.Length() != 4, "Wrong number of arguments");\
+    V8CHECK(!info[0]->IsInt32() || !info[1]->IsInt32()\
+            || !info[2]->IsNumber() || !info[3]->IsNumber(), "Wrong arguments");\
     \
-    V8CHECK(args.Length() != 4, "Wrong number of arguments");\
-    V8CHECK(!args[0]->IsInt32() || !args[1]->IsInt32()\
-            || !args[2]->IsNumber() || !args[3]->IsNumber(), "Wrong arguments");\
-    \
-    CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
+    CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread, "an async operation is inprogress")\
     \
-    GLP_CATCH_RET(API(host->handle, args[0]->Int32Value(), args[1]->Int32Value(),\
-                     args[2]->NumberValue(), args[3]->NumberValue());)\
+    GLP_CATCH_RET(API(host->handle, info[0]->Int32Value(), info[1]->Int32Value(),\
+                     info[2]->NumberValue(), info[3]->NumberValue());)\
 }
 
 #define GLP_BIND_VOID_INT32_DOUBLE(CLASS, NAME, API)\
 static NAN_METHOD(NAME) {\
-    NanScope();\
+    V8CHECK(info.Length() != 2, "Wrong number of arguments");\
+    V8CHECK(!info[0]->IsInt32() || !info[1]->IsNumber(), "Wrong arguments");\
     \
-    V8CHECK(args.Length() != 2, "Wrong number of arguments");\
-    V8CHECK(!args[0]->IsInt32() || !args[1]->IsNumber(), "Wrong arguments");\
-    \
-    CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
+    CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread, "an async operation is inprogress")\
     \
-    GLP_CATCH_RET(API(host->handle, args[0]->Int32Value(), args[1]->NumberValue());)\
+    GLP_CATCH_RET(API(host->handle, info[0]->Int32Value(), info[1]->NumberValue());)\
 }
 
 #define GLP_BIND_VALUE_INT32(CLASS, NAME, API)\
 static NAN_METHOD(NAME) {\
-    NanScope();\
+    V8CHECK(info.Length() != 1, "Wrong number of arguments");\
+    V8CHECK(!info[0]->IsInt32(), "Wrong arguments");\
     \
-    V8CHECK(args.Length() != 1, "Wrong number of arguments");\
-    V8CHECK(!args[0]->IsInt32(), "Wrong arguments");\
-    \
-    CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
+    CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread, "an async operation is inprogress")\
     \
-    GLP_CATCH_RET(NanReturnValue(API(host->handle, args[0]->Int32Value()));)\
+    GLP_CATCH_RET(info.GetReturnValue().Set(API(host->handle, info[0]->Int32Value()));)\
 }
 
 #define GLP_BIND_VOID_INT32_INT32ARRAY_FLOAT64ARRAY(CLASS, NAME, API)\
 static NAN_METHOD(NAME) {\
-    NanScope();\
+    V8CHECK(info.Length() != 3, "Wrong number of arguments");\
+    V8CHECK(!info[0]->IsUint32() || !info[1]->IsInt32Array() || !info[2]->IsFloat64Array(), "Wrong arguments");\
     \
-    V8CHECK(args.Length() != 3, "Wrong number of arguments");\
-    V8CHECK(!args[0]->IsUint32() || !args[1]->IsInt32Array() || !args[2]->IsFloat64Array(), "Wrong arguments");\
-    \
-    Local<Int32Array> ja = Local<Int32Array>::Cast(args[1]);\
-    Local<Float64Array> ar = Local<Float64Array>::Cast(args[2]);\
+    Local<Int32Array> ja = Local<Int32Array>::Cast(info[1]);\
+    Local<Float64Array> ar = Local<Float64Array>::Cast(info[2]);\
     \
     uint32_t count = ja->Length();\
     V8CHECK(ar->Length() != count, "the tow arrays must have the same length");\
     count--;\
     \
-    CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
+    CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread, "an async operation is inprogress")\
     \
@@ -196,7 +176,7 @@ static NAN_METHOD(NAME) {\
     for (size_t i = 0; i < ja->Length(); i++) pja[i] = ja->Get(i)->Int32Value();\
     for (size_t i = 0; i < ar->Length(); i++) par[i] = ar->Get(i)->NumberValue();\
     \
-    GLP_CATCH_RET(API(host->handle, args[0]->Int32Value(), count, pja, par);)\
+    GLP_CATCH_RET(API(host->handle, info[0]->Int32Value(), count, pja, par);)\
     \
     free(pja);\
     free(par);\
@@ -204,20 +184,18 @@ static NAN_METHOD(NAME) {\
 
 #define GLP_BIND_VALUE_INT32_CALLBACK(CLASS, NAME, API)\
 static NAN_METHOD(NAME) {\
-    NanScope();\
+    V8CHECK((info.Length() < 1) || (info.Length() > 2), "Wrong number of arguments");\
+    V8CHECK(!info[0]->IsInt32(), "Wrong arguments");\
     \
-    V8CHECK((args.Length() < 1) || (args.Length() > 2), "Wrong number of arguments");\
-    V8CHECK(!args[0]->IsInt32(), "Wrong arguments");\
-    \
-    CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
+    CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread, "an async operation is inprogress")\
     \
     try{\
-        int row = args[0]->Int32Value();\
+        int row = info[0]->Int32Value();\
         int count = API(host->handle, row, NULL, NULL);\
         \
-        if ((args.Length() == 2) && (args[1]->IsFunction())) {\
+        if ((info.Length() == 2) && (info[1]->IsFunction())) {\
             int* idx = (int*)malloc((count + 1) * sizeof(int));\
             double* val = (double*)malloc((count + 1) * sizeof(double));\
             API(host->handle, row, idx, val);\
@@ -228,24 +206,22 @@ static NAN_METHOD(NAME) {\
         	free(idx);\
         	free(val);\
             \
-            Local<Function> cb = Local<Function>::Cast(args[1]);\
+            Local<Function> cb = Local<Function>::Cast(info[1]);\
             const unsigned argc = 2;\
             Local<Value> argv[argc] = {ja, ar};\
             cb->Call(Isolate::GetCurrent()->GetCurrentContext()->Global(), argc, argv);\
-            NanReturnValue(count);\
+            info.GetReturnValue().Set(count);\
         }\
     } catch (std::string s) {\
-        NanThrowError(s.c_str());\
+        Nan::ThrowError(s.c_str());\
     }\
 }
 
 #define GLP_BIND_VOID(CLASS, NAME, API)\
 static NAN_METHOD(NAME) {\
-    NanScope();\
+    V8CHECK(info.Length() != 0, "Wrong number of arguments");\
     \
-    V8CHECK(args.Length() != 0, "Wrong number of arguments");\
-    \
-    CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
+    CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread, "an async operation is inprogress")\
     \
@@ -254,18 +230,16 @@ static NAN_METHOD(NAME) {\
 
 #define GLP_BIND_VOID_INT32ARRAY(CLASS, NAME, API)\
 static NAN_METHOD(NAME) {\
-    NanScope();\
-    \
-    V8CHECK(args.Length() != 1, "Wrong number of arguments");\
-    V8CHECK(!args[0]->IsInt32Array(), "Wrong arguments");\
-    Local<Int32Array> num = Local<Int32Array>::Cast(args[0]);\
+    V8CHECK(info.Length() != 1, "Wrong number of arguments");\
+    V8CHECK(!info[0]->IsInt32Array(), "Wrong arguments");\
+    Local<Int32Array> num = Local<Int32Array>::Cast(info[0]);\
     \
     int count = num->Length();\
     V8CHECK(count <= 1, "Invalid Array size");\
     \
     int* idx = (int*)malloc(count * sizeof(int));\
     for (int i = 0; i < count; i++) idx[i] = num->Get(i)->Int32Value();\
-    CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
+    CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread, "an async operation is inprogress")\
     \
@@ -276,65 +250,55 @@ static NAN_METHOD(NAME) {\
 
 #define GLP_BIND_VALUE_STR(CLASS, NAME, API)\
 static NAN_METHOD(NAME) {\
-    NanScope();\
+    V8CHECK(info.Length() != 1, "Wrong number of arguments");\
+    V8CHECK(!info[0]->IsString(), "Wrong arguments");\
     \
-    V8CHECK(args.Length() != 1, "Wrong number of arguments");\
-    V8CHECK(!args[0]->IsString(), "Wrong arguments");\
-    \
-    CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
+    CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread, "an async operation is inprogress")\
     \
-    GLP_CATCH_RET(NanReturnValue(API(host->handle, V8TOCSTRING(args[0])));)\
+    GLP_CATCH_RET(info.GetReturnValue().Set(API(host->handle, V8TOCSTRING(info[0])));)\
 }
 
 #define GLP_BIND_VOID_INT32_INT32(CLASS, NAME, API)\
 static NAN_METHOD(NAME) {\
-    NanScope();\
+    V8CHECK(info.Length() != 2, "Wrong number of arguments");\
+    V8CHECK(!info[0]->IsInt32() || !info[1]->IsInt32(), "Wrong arguments");\
     \
-    V8CHECK(args.Length() != 2, "Wrong number of arguments");\
-    V8CHECK(!args[0]->IsInt32() || !args[1]->IsInt32(), "Wrong arguments");\
-    \
-    CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
+    CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread, "an async operation is inprogress")\
     \
-    GLP_CATCH_RET(API(host->handle, args[0]->Int32Value(), args[1]->Int32Value());)\
+    GLP_CATCH_RET(API(host->handle, info[0]->Int32Value(), info[1]->Int32Value());)\
 }
 
 #define GLP_BIND_VALUE_INT32_STR(CLASS, NAME, API)\
 static NAN_METHOD(NAME) {\
-    NanScope();\
+    V8CHECK(info.Length() != 2, "Wrong number of arguments");\
+    V8CHECK(!info[0]->IsInt32() || !info[1]->IsString(), "Wrong arguments");\
     \
-    V8CHECK(args.Length() != 2, "Wrong number of arguments");\
-    V8CHECK(!args[0]->IsInt32() || !args[1]->IsString(), "Wrong arguments");\
-    \
-    CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
+    CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread, "an async operation is inprogress")\
     \
-    GLP_CATCH_RET(NanReturnValue(API(host->handle, args[0]->Int32Value(), V8TOCSTRING(args[1])));)\
+    GLP_CATCH_RET(info.GetReturnValue().Set(API(host->handle, info[0]->Int32Value(), V8TOCSTRING(info[1])));)\
 }
 
 #define GLP_BIND_VALUE_STR_INT32(CLASS, NAME, API)\
 static NAN_METHOD(NAME) {\
-    NanScope();\
+    V8CHECK(info.Length() != 2, "Wrong number of arguments");\
+    V8CHECK(!info[0]->IsString() || !info[1]->IsInt32(), "Wrong arguments");\
     \
-    V8CHECK(args.Length() != 2, "Wrong number of arguments");\
-    V8CHECK(!args[0]->IsString() || !args[1]->IsInt32(), "Wrong arguments");\
-    \
-    CLASS* host = ObjectWrap::Unwrap<CLASS>(args.Holder());\
+    CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread, "an async operation is inprogress")\
     \
-    GLP_CATCH_RET(args.GetReturnValue().Set(API(host->handle, V8TOCSTRING(args[0]), args[1]->Int32Value()));)\
+    GLP_CATCH_RET(info.GetReturnValue().Set(API(host->handle, V8TOCSTRING(info[0]), info[1]->Int32Value()));)\
 }
 
 #define GLP_BIND_DELETE(CLASS, NAME, API)\
 static NAN_METHOD(NAME) {\
-    NanScope();\
-    \
-    CLASS* obj = ObjectWrap::Unwrap<CLASS>(args.Holder());\
+    CLASS* obj = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!obj->handle, "object already deleted");\
     V8CHECK(obj->thread, "an async operation is inprogress")\
     \
@@ -343,17 +307,17 @@ static NAN_METHOD(NAME) {\
 }
 
 #define GLP_SET_FIELD_INT32(OBJ, KEY, VALUE)\
-OBJ->Set(NanNew<String>(KEY), NanNew<Int32>(VALUE));
+OBJ->Set(Nan::New<String>(KEY).ToLocalChecked(), Nan::New<Int32>(VALUE));
 
 #define GLP_SET_FIELD_DOUBLE(OBJ, KEY, VALUE)\
-OBJ->Set(NanNew<String>(KEY), NanNew<Number>(VALUE));
+OBJ->Set(Nan::New<String>(KEY).ToLocalChecked(), Nan::New<Number>(VALUE));
 
 
 #define GLP_ASYNC_INT32_STR(CLASS, NAME, API)\
-class NAME##Worker : public NanAsyncWorker {\
+class NAME##Worker : public Nan::AsyncWorker {\
 public:\
-NAME##Worker(NanCallback *callback, CLASS *lp, std::string file)\
-: NanAsyncWorker(callback), lp(lp), file(file){\
+NAME##Worker(Nan::Callback *callback, CLASS *lp, std::string file)\
+: Nan::AsyncWorker(callback), lp(lp), file(file){\
     \
 }\
 \
@@ -361,16 +325,16 @@ void Execute () {\
     try {\
         ret = API(lp->handle, file.c_str());\
     } catch (std::string s) {\
-        NanThrowError(s.c_str());\
+        Nan::ThrowError(s.c_str());\
     }\
 }\
 void WorkComplete() {\
     lp->thread = false;\
-    NanAsyncWorker::WorkComplete();\
+    Nan::AsyncWorker::WorkComplete();\
 }\
 virtual void HandleOKCallback() {\
-    Local<Value> args[] = {NanNull(), NanNew<Int32>(ret)};\
-    callback->Call(2, args);\
+    Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};\
+    callback->Call(2, info);\
 }\
 \
 public:\
@@ -380,44 +344,41 @@ public:\
 };\
 \
 static NAN_METHOD(NAME) {\
-    NanScope();\
+    V8CHECK(info.Length() != 2, "Wrong number of arguments");\
+    V8CHECK(!info[0]->IsString() || !info[1]->IsFunction(), "Wrong arguments");\
     \
-    V8CHECK(args.Length() != 2, "Wrong number of arguments");\
-    V8CHECK(!args[0]->IsString() || !args[1]->IsFunction(), "Wrong arguments");\
-    \
-    CLASS* lp = ObjectWrap::Unwrap<CLASS>(args.Holder());\
+    CLASS* lp = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!lp->handle, "object deleted");\
     V8CHECK(lp->thread, "an async operation is inprogress")\
     \
-    NanCallback *callback = new NanCallback(args[1].As<Function>());\
-    NAME##Worker *worker = new NAME##Worker(callback, lp, V8TOCSTRING(args[0]));\
+    Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());\
+    NAME##Worker *worker = new NAME##Worker(callback, lp, V8TOCSTRING(info[0]));\
     lp->thread = true;\
-    NanAsyncQueueWorker(worker);\
-    NanReturnUndefined();\
+    Nan::AsyncQueueWorker(worker);\
 }\
 
 #define GLP_ASYNC_INT32_INT32_STR(CLASS, NAME, API)\
-class NAME##Worker : public NanAsyncWorker {\
+class NAME##Worker : public Nan::AsyncWorker {\
 public:\
-    NAME##Worker(NanCallback *callback, CLASS *lp, int flags, std::string file)\
-    : NanAsyncWorker(callback), flags(flags), lp(lp), file(file){\
+    NAME##Worker(Nan::Callback *callback, CLASS *lp, int flags, std::string file)\
+    : Nan::AsyncWorker(callback), flags(flags), lp(lp), file(file){\
         \
     }\
     void WorkComplete() {\
         lp->thread = false;\
-        NanAsyncWorker::WorkComplete();\
+        Nan::AsyncWorker::WorkComplete();\
     }\
     void Execute () {\
         try {\
             ret = API(lp->handle, flags, file.c_str());\
         } catch (std::string s) {\
-            NanThrowError(s.c_str());\
+            Nan::ThrowError(s.c_str());\
         }\
     }\
     \
     virtual void HandleOKCallback() {\
-        Local<Value> args[] = {NanNull(), NanNew<Int32>(ret)};\
-        callback->Call(2, args);\
+        Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};\
+        callback->Call(2, info);\
     }\
     \
 public:\
@@ -427,37 +388,34 @@ public:\
 };\
 \
 static NAN_METHOD(NAME) {\
-    NanScope();\
+    V8CHECK(info.Length() != 3, "Wrong number of arguments");\
+    V8CHECK(!info[0]->IsInt32() || !info[1]->IsString() || !info[2]->IsFunction(), "Wrong arguments");\
     \
-    V8CHECK(args.Length() != 3, "Wrong number of arguments");\
-    V8CHECK(!args[0]->IsInt32() || !args[1]->IsString() || !args[2]->IsFunction(), "Wrong arguments");\
-    \
-    CLASS* lp = ObjectWrap::Unwrap<CLASS>(args.Holder());\
+    CLASS* lp = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!lp->handle, "object deleted");\
     V8CHECK(lp->thread, "an async operation is inprogress")\
     \
-    NanCallback *callback = new NanCallback(args[2].As<Function>());\
-    NAME##Worker *worker = new NAME##Worker(callback, lp, args[0]->Int32Value(), V8TOCSTRING(args[1]));\
+    Nan::Callback *callback = new Nan::Callback(info[2].As<Function>());\
+    NAME##Worker *worker = new NAME##Worker(callback, lp, info[0]->Int32Value(), V8TOCSTRING(info[1]));\
     lp->thread = true;\
-    NanAsyncQueueWorker(worker);\
-    NanReturnUndefined();\
+    Nan::AsyncQueueWorker(worker);\
 }\
 
 #define GLP_ASYNC_VOID(CLASS, NAME, API)\
-class NAME##Worker : public NanAsyncWorker {\
+class NAME##Worker : public Nan::AsyncWorker {\
 public:\
-    NAME##Worker(NanCallback *callback, CLASS *lp)\
-    : NanAsyncWorker(callback), lp(lp) {\
+    NAME##Worker(Nan::Callback *callback, CLASS *lp)\
+    : Nan::AsyncWorker(callback), lp(lp) {\
     }\
     void WorkComplete() {\
         lp->thread = false;\
-        NanAsyncWorker::WorkComplete();\
+        Nan::AsyncWorker::WorkComplete();\
     }\
     void Execute () {\
         try {\
             API(lp->handle);\
         } catch (std::string s) {\
-            NanThrowError(s.c_str());\
+            Nan::ThrowError(s.c_str());\
         }\
     }\
 public:\
@@ -465,20 +423,17 @@ public:\
 };\
 \
 static NAN_METHOD(NAME) {\
-    NanScope();\
+    V8CHECK(info.Length() != 1, "Wrong number of arguments");\
+    V8CHECK(!info[0]->IsFunction(), "Wrong arguments");\
     \
-    V8CHECK(args.Length() != 1, "Wrong number of arguments");\
-    V8CHECK(!args[0]->IsFunction(), "Wrong arguments");\
-    \
-    CLASS* lp = ObjectWrap::Unwrap<CLASS>(args.Holder());\
+    CLASS* lp = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!lp->handle, "object deleted");\
     V8CHECK(lp->thread, "an async operation is inprogress")\
     \
-    NanCallback *callback = new NanCallback(args[0].As<Function>());\
+    Nan::Callback *callback = new Nan::Callback(info[0].As<Function>());\
     NAME##Worker *worker = new NAME##Worker(callback, lp);\
     lp->thread = true;\
-    NanAsyncQueueWorker(worker);\
-    NanReturnUndefined();\
+    Nan::AsyncQueueWorker(worker);\
 }\
 
 

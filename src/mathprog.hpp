@@ -13,27 +13,27 @@ namespace NodeGLPK {
     public:
         static void Init(Handle<Object> exports){
             // Prepare constructor template
-            Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(New);
-            tpl->SetClassName(NanNew<String>("Mathprog"));
+            Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
+            tpl->SetClassName(Nan::New<String>("Mathprog").ToLocalChecked());
             tpl->InstanceTemplate()->SetInternalFieldCount(1);
  
             // prototypes
-            NODE_SET_PROTOTYPE_METHOD(tpl, "readModelSync", ReadModelSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "readModel", ReadModel);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "readDataSync", ReadDataSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "readData", ReadData);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "generateSync", GenerateSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "generate", Generate);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "delete", Delete);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "buildProbSync", BuildProbSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "buildProb", BuildProb);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "postsolveSync", PostsolveSync);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "postsolve", Postsolve);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getLine", getLine);
-            NODE_SET_PROTOTYPE_METHOD(tpl, "getLastError", getLastError);
+            Nan::SetPrototypeMethod(tpl, "readModelSync", ReadModelSync);
+            Nan::SetPrototypeMethod(tpl, "readModel", ReadModel);
+            Nan::SetPrototypeMethod(tpl, "readDataSync", ReadDataSync);
+            Nan::SetPrototypeMethod(tpl, "readData", ReadData);
+            Nan::SetPrototypeMethod(tpl, "generateSync", GenerateSync);
+            Nan::SetPrototypeMethod(tpl, "generate", Generate);
+            Nan::SetPrototypeMethod(tpl, "delete", Delete);
+            Nan::SetPrototypeMethod(tpl, "buildProbSync", BuildProbSync);
+            Nan::SetPrototypeMethod(tpl, "buildProb", BuildProb);
+            Nan::SetPrototypeMethod(tpl, "postsolveSync", PostsolveSync);
+            Nan::SetPrototypeMethod(tpl, "postsolve", Postsolve);
+            Nan::SetPrototypeMethod(tpl, "getLine", getLine);
+            Nan::SetPrototypeMethod(tpl, "getLastError", getLastError);
             
-            NanAssignPersistent(constructor, tpl);
-            exports->Set(NanNew<String>("Mathprog"), tpl->GetFunction());
+            constructor.Reset(tpl);
+            exports->Set(Nan::New<String>("Mathprog").ToLocalChecked(), tpl->GetFunction());
         }
     private:
         explicit Mathprog(): node::ObjectWrap(){
@@ -45,27 +45,25 @@ namespace NodeGLPK {
         };
         
         static NAN_METHOD(New){
-            NanScope();
-            
-            V8CHECK(!args.IsConstructCall(), "Constructor Mathprog requires 'new'");
+            V8CHECK(!info.IsConstructCall(), "Constructor Mathprog requires 'new'");
             
             GLP_CATCH_RET(
                 Mathprog* obj = new Mathprog();
-                obj->Wrap(args.This());
-                      NanReturnValue(args.This());
+                obj->Wrap(info.This());
+                      info.GetReturnValue().Set(info.This());
             );
         }
         
         
-        class ReadModelWorker : public NanAsyncWorker {
+        class ReadModelWorker : public Nan::AsyncWorker {
         public:
-            ReadModelWorker(NanCallback *callback, Mathprog *mp, char *file, int parm)
-            : NanAsyncWorker(callback), mp(mp), file(file), parm(parm){
+            ReadModelWorker(Nan::Callback *callback, Mathprog *mp, char *file, int parm)
+            : Nan::AsyncWorker(callback), mp(mp), file(file), parm(parm){
                 
             }
             void WorkComplete() {
                 mp->thread = false;
-                NanAsyncWorker::WorkComplete();
+                Nan::AsyncWorker::WorkComplete();
             }
             void Execute () {
                 try {
@@ -75,8 +73,8 @@ namespace NodeGLPK {
                 }
             }
             virtual void HandleOKCallback() {
-                Local<Value> args[] = {NanNull(), NanNew<Int32>(ret)};
-                callback->Call(2, args);
+                Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
+                callback->Call(2, info);
             }
             public:
                 Mathprog *mp;
@@ -85,33 +83,30 @@ namespace NodeGLPK {
             };
 
         static NAN_METHOD(ReadModel) {
-            NanScope();
-            
-            V8CHECK(args.Length() != 3, "Wrong number of arguments");
-            V8CHECK(!args[0]->IsString() || !args[1]->IsInt32() || !args[2]->IsFunction(), "Wrong arguments");
+            V8CHECK(info.Length() != 3, "Wrong number of arguments");
+            V8CHECK(!info[0]->IsString() || !info[1]->IsInt32() || !info[2]->IsFunction(), "Wrong arguments");
         
-            Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(args.Holder());
+            Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(info.Holder());
             V8CHECK(!mp->handle, "object deleted");
             V8CHECK(mp->thread, "an async operation is inprogress");
             
-            NanCallback *callback = new NanCallback(args[2].As<Function>());
-            ReadModelWorker *worker = new ReadModelWorker(callback, mp, V8TOCSTRING(args[0]), args[1]->Int32Value());
+            Nan::Callback *callback = new Nan::Callback(info[2].As<Function>());
+            ReadModelWorker *worker = new ReadModelWorker(callback, mp, V8TOCSTRING(info[0]), info[1]->Int32Value());
             mp->thread = true;
-            NanAsyncQueueWorker(worker);
-            NanReturnUndefined();
+            Nan::AsyncQueueWorker(worker);
         }
   
         GLP_BIND_VALUE_STR_INT32(Mathprog, ReadModelSync, glp_mpl_read_model);
         
-        class ReadDataWorker : public NanAsyncWorker {
+        class ReadDataWorker : public Nan::AsyncWorker {
         public:
-            ReadDataWorker(NanCallback *callback, Mathprog *mp, char *file)
-            : NanAsyncWorker(callback), mp(mp), file(file){
+            ReadDataWorker(Nan::Callback *callback, Mathprog *mp, char *file)
+            : Nan::AsyncWorker(callback), mp(mp), file(file){
                 
             }
             void WorkComplete() {
                 mp->thread = false;
-                NanAsyncWorker::WorkComplete();
+                Nan::AsyncWorker::WorkComplete();
             }
             void Execute () {
                 try {
@@ -121,8 +116,8 @@ namespace NodeGLPK {
                 }
             }
             virtual void HandleOKCallback() {
-                Local<Value> args[] = {NanNull(), NanNew<Int32>(ret)};
-                callback->Call(2, args);
+                Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
+                callback->Call(2, info);
             }
         public:
             Mathprog *mp;
@@ -131,33 +126,30 @@ namespace NodeGLPK {
         };
         
         static NAN_METHOD(ReadData) {
-            NanScope();
+            V8CHECK(info.Length() != 2, "Wrong number of arguments");
+            V8CHECK(!info[0]->IsString() || !info[1]->IsFunction(), "Wrong arguments");
             
-            V8CHECK(args.Length() != 2, "Wrong number of arguments");
-            V8CHECK(!args[0]->IsString() || !args[1]->IsFunction(), "Wrong arguments");
-            
-            Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(args.Holder());
+            Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(info.Holder());
             V8CHECK(!mp->handle, "object deleted");
             V8CHECK(mp->thread, "an async operation is inprogress");
             
-            NanCallback *callback = new NanCallback(args[1].As<Function>());
-            ReadDataWorker *worker = new ReadDataWorker(callback, mp, V8TOCSTRING(args[0]));
+            Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
+            ReadDataWorker *worker = new ReadDataWorker(callback, mp, V8TOCSTRING(info[0]));
             mp->thread = true;
-            NanAsyncQueueWorker(worker);
-            NanReturnUndefined();
+            Nan::AsyncQueueWorker(worker);
         }
         
         GLP_BIND_VALUE_STR(Mathprog, ReadDataSync, glp_mpl_read_data);
         
-        class GenerateWorker : public NanAsyncWorker {
+        class GenerateWorker : public Nan::AsyncWorker {
         public:
-            GenerateWorker(NanCallback *callback, Mathprog *mp, char *file)
-            : NanAsyncWorker(callback), mp(mp){
+            GenerateWorker(Nan::Callback *callback, Mathprog *mp, char *file)
+            : Nan::AsyncWorker(callback), mp(mp){
                 if (file) this->file = file;
             }
             void WorkComplete() {
                 mp->thread = false;
-                NanAsyncWorker::WorkComplete();
+                Nan::AsyncWorker::WorkComplete();
             }
             void Execute () {
                 try {
@@ -170,8 +162,8 @@ namespace NodeGLPK {
                 }
             }
             virtual void HandleOKCallback() {
-                Local<Value> args[] = {NanNull(), NanNew<Int32>(ret)};
-                callback->Call(2, args);
+                Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
+                callback->Call(2, info);
             }
             
         public:
@@ -181,53 +173,48 @@ namespace NodeGLPK {
         };
         
         static NAN_METHOD(Generate) {
-            NanScope();
+            V8CHECK(info.Length() != 2, "Wrong number of arguments");
+            V8CHECK(!(info[0]->IsString() || info[0]->IsNull()) || !info[1]->IsFunction(), "Wrong arguments");
             
-            V8CHECK(args.Length() != 2, "Wrong number of arguments");
-            V8CHECK(!(args[0]->IsString() || args[0]->IsNull()) || !args[1]->IsFunction(), "Wrong arguments");
-            
-            Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(args.Holder());
+            Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(info.Holder());
             V8CHECK(!mp->handle, "object deleted");
             V8CHECK(mp->thread, "an async operation is inprogress");
             
-            NanCallback *callback = new NanCallback(args[1].As<Function>());
+            Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
             GenerateWorker *worker = NULL;
-            if (args[0]->IsString())
-                worker = new GenerateWorker(callback, mp, V8TOCSTRING(args[0]));
+            if (info[0]->IsString())
+                worker = new GenerateWorker(callback, mp, V8TOCSTRING(info[0]));
             else
                 worker = new GenerateWorker(callback, mp, NULL);
             mp->thread = true;
-            NanAsyncQueueWorker(worker);
-            NanReturnUndefined();
+            Nan::AsyncQueueWorker(worker);
         }
         
         static NAN_METHOD(GenerateSync) {
-            NanScope();
-            
-            V8CHECK(args.Length() > 1, "Wrong number of arguments");
+            V8CHECK(info.Length() > 1, "Wrong number of arguments");
 
-            Mathprog* host = ObjectWrap::Unwrap<Mathprog>(args.Holder());
+            Mathprog* host = ObjectWrap::Unwrap<Mathprog>(info.Holder());
             V8CHECK(!host->handle, "object deleted");
             V8CHECK(host->thread, "an async operation is inprogress");
             
             GLP_CATCH_RET(
-                if ((args.Length() == 1) && (!args[0]->IsString()))
-                    NanReturnValue(glp_mpl_generate(host->handle, V8TOCSTRING(args[0])));
+                if ((info.Length() == 1) && (!info[0]->IsString()))
+                    info.GetReturnValue().Set(glp_mpl_generate(host->handle, V8TOCSTRING(info[0])));
                 else
-                    NanReturnValue(glp_mpl_generate(host->handle, NULL));
+                    info.GetReturnValue().Set(glp_mpl_generate(host->handle, NULL));
             )
         }
         
-        class BuildProbWorker : public NanAsyncWorker {
+        class BuildProbWorker : public Nan::AsyncWorker {
         public:
-            BuildProbWorker(NanCallback *callback, Mathprog *mp, Problem *lp)
-            : NanAsyncWorker(callback), mp(mp), lp(lp){
+            BuildProbWorker(Nan::Callback *callback, Mathprog *mp, Problem *lp)
+            : Nan::AsyncWorker(callback), mp(mp), lp(lp){
                 
             }
             void WorkComplete() {
                 mp->thread = false;
                 lp->thread = false;
-                NanAsyncWorker::WorkComplete();
+                Nan::AsyncWorker::WorkComplete();
             }
             void Execute () {
                 try {
@@ -242,54 +229,49 @@ namespace NodeGLPK {
         };
         
         static NAN_METHOD(BuildProb) {
-            NanScope();
+            V8CHECK(info.Length() != 2, "Wrong number of arguments");
+            V8CHECK(!info[0]->IsObject() || !info[1]->IsFunction(), "Wrong arguments");
             
-            V8CHECK(args.Length() != 2, "Wrong number of arguments");
-            V8CHECK(!args[0]->IsObject() || !args[1]->IsFunction(), "Wrong arguments");
-            
-            Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(args.Holder());
+            Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(info.Holder());
             V8CHECK(!mp->handle, "object deleted");
             V8CHECK(mp->thread, "an async operation is inprogress");
             
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args[0]->ToObject());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(info[0]->ToObject());
             V8CHECK(!lp || !lp->handle, "invalid problem");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
             
-            NanCallback *callback = new NanCallback(args[1].As<Function>());
+            Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
             BuildProbWorker *worker = new BuildProbWorker(callback, mp, lp);
             mp->thread = true;
             lp->thread = true;
-            NanAsyncQueueWorker(worker);
-            NanReturnUndefined();
+            Nan::AsyncQueueWorker(worker);
         }
         
         static NAN_METHOD(BuildProbSync){
-            NanScope();
+            V8CHECK(info.Length() != 1, "Wrong number of arguments");
+            V8CHECK(!info[0]->IsObject(), "Wrong arguments");
             
-            V8CHECK(args.Length() != 1, "Wrong number of arguments");
-            V8CHECK(!args[0]->IsObject(), "Wrong arguments");
-            
-            Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(args.Holder());
+            Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(info.Holder());
             V8CHECK(!mp->handle, "object deleted");
             V8CHECK(mp->thread, "an async operation is inprogress");
             
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args[0]->ToObject());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(info[0]->ToObject());
             V8CHECK(!lp || !lp->handle, "invalid problem");
             
             GLP_CATCH_RET(glp_mpl_build_prob(mp->handle, lp->handle);)
         }
 
-        class PostsolveWorker : public NanAsyncWorker {
+        class PostsolveWorker : public Nan::AsyncWorker {
         public:
-            PostsolveWorker(NanCallback *callback, Mathprog *mp, Problem *lp, int parm)
-            : NanAsyncWorker(callback), mp(mp), lp(lp), parm(parm){
+            PostsolveWorker(Nan::Callback *callback, Mathprog *mp, Problem *lp, int parm)
+            : Nan::AsyncWorker(callback), mp(mp), lp(lp), parm(parm){
                 
             }
             void WorkComplete() {
                 mp->thread = false;
                 lp->thread = false;
-                NanAsyncWorker::WorkComplete();
+                Nan::AsyncWorker::WorkComplete();
             }
             void Execute () {
                 try {
@@ -299,8 +281,8 @@ namespace NodeGLPK {
                 }
             }
             virtual void HandleOKCallback() {
-                Local<Value> args[] = {NanNull(), NanNew<Int32>(ret)};
-                callback->Call(2, args);
+                Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
+                callback->Call(2, info);
             }
         public:
             Mathprog *mp;
@@ -309,75 +291,66 @@ namespace NodeGLPK {
         };
         
         static NAN_METHOD(Postsolve) {
-            NanScope();
+            V8CHECK(info.Length() != 3, "Wrong number of arguments");
+            V8CHECK(!info[0]->IsObject() || !info[1]->IsInt32() || !info[2]->IsFunction(), "Wrong arguments");
             
-            V8CHECK(args.Length() != 3, "Wrong number of arguments");
-            V8CHECK(!args[0]->IsObject() || !args[1]->IsInt32() || !args[2]->IsFunction(), "Wrong arguments");
-            
-            Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(args.Holder());
+            Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(info.Holder());
             V8CHECK(!mp->handle, "object deleted");
             V8CHECK(mp->thread, "an async operation is inprogress");
             
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args[0]->ToObject());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(info[0]->ToObject());
             V8CHECK(!lp || !lp->handle, "invalid problem");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
-            NanCallback *callback = new NanCallback(args[2].As<Function>());
-            PostsolveWorker *worker = new PostsolveWorker(callback, mp, lp, args[1]->Int32Value());
+            Nan::Callback *callback = new Nan::Callback(info[2].As<Function>());
+            PostsolveWorker *worker = new PostsolveWorker(callback, mp, lp, info[1]->Int32Value());
             mp->thread = true;
-            NanAsyncQueueWorker(worker);
-            NanReturnUndefined();
+            Nan::AsyncQueueWorker(worker);
         }
         
         static NAN_METHOD(PostsolveSync){
-            NanScope();
+            V8CHECK(info.Length() != 2, "Wrong number of arguments");
+            V8CHECK(!info[0]->IsObject() || !info[1]->IsInt32(), "Wrong arguments");
             
-            V8CHECK(args.Length() != 2, "Wrong number of arguments");
-            V8CHECK(!args[0]->IsObject() || !args[1]->IsInt32(), "Wrong arguments");
-            
-            Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(args.Holder());
+            Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(info.Holder());
             V8CHECK(!mp->handle, "object deleted");
             V8CHECK(mp->thread, "an async operation is inprogress");
             
-            Problem* lp = ObjectWrap::Unwrap<Problem>(args[0]->ToObject());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(info[0]->ToObject());
             V8CHECK(!lp || !lp->handle, "invalid problem");
             
-            GLP_CATCH_RET(NanReturnValue(glp_mpl_postsolve(mp->handle, lp->handle, args[1]->Int32Value()));)
+            GLP_CATCH_RET(info.GetReturnValue().Set(glp_mpl_postsolve(mp->handle, lp->handle, info[1]->Int32Value()));)
         }
         
         static NAN_METHOD(getLine){
-            NanScope();
+            V8CHECK(info.Length() != 0, "Wrong number of arguments");
             
-            V8CHECK(args.Length() != 0, "Wrong number of arguments");
-            
-            Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(args.Holder());
+            Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(info.Holder());
             V8CHECK(!mp->handle, "object deleted");
             V8CHECK(mp->thread, "an async operation is inprogress");
             
-            NanReturnValue(*(int*)mp->handle);
+            info.GetReturnValue().Set(*(int*)mp->handle);
         }
         
         static NAN_METHOD(getLastError){
-            NanScope();
+            V8CHECK(info.Length() != 0, "Wrong number of arguments");
             
-            V8CHECK(args.Length() != 0, "Wrong number of arguments");
-            
-            Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(args.Holder());
+            Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(info.Holder());
             V8CHECK(!mp->handle, "object deleted");
             V8CHECK(mp->thread, "an async operation is inprogress");
             char * msg = glp_mpl_getlasterror(mp->handle);
             if (msg)
-                NanReturnValue(NanNew<String>(msg));
+                info.GetReturnValue().Set(Nan::New<String>(msg).ToLocalChecked());
             else
-                NanReturnValue(NanNull());
+                info.GetReturnValue().Set(Nan::Null());
         }
         
         GLP_BIND_DELETE(Mathprog, Delete, glp_mpl_free_wksp);
         
-        static Persistent<FunctionTemplate> constructor;
+        static Nan::Persistent<FunctionTemplate> constructor;
         glp_tran *handle;
         bool thread;
     };
     
-    Persistent<FunctionTemplate> Mathprog::constructor;
+    Nan::Persistent<FunctionTemplate> Mathprog::constructor;
 }
