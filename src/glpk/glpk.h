@@ -34,7 +34,7 @@ extern "C" {
     
 /* library version numbers: */
 #define GLP_MAJOR_VERSION  4
-#define GLP_MINOR_VERSION  55
+#define GLP_MINOR_VERSION  56
 
 typedef struct glp_prob glp_prob;
 /* LP/MIP problem object */
@@ -123,7 +123,7 @@ typedef struct
 #define GLP_PT_PSE      0x22  /* projected steepest edge */
       int r_test;             /* ratio test technique: */
 #define GLP_RT_STD      0x11  /* standard (textbook) */
-#define GLP_RT_HAR      0x22  /* two-pass Harris' ratio test */
+#define GLP_RT_HAR      0x22  /* Harris' two-pass ratio test */
       double tol_bnd;         /* spx.tol_bnd */
       double tol_dj;          /* spx.tol_dj */
       double tol_piv;         /* spx.tol_piv */

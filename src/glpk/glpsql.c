@@ -86,11 +86,10 @@ static char **args_concat(TABDCA *dca)
    int          j;
    int          j0;
    int          j1;
-   int          len;
+   size_t       len;
    int          lentot;
    int          narg;
    int          nline = 0;
-   void        *ret;
    char       **sqllines = NULL;
 
    narg = mpl_tab_num_args(dca);
@@ -184,12 +183,12 @@ static int db_escaped_string_length(const char* from)
     return count;
 }
 
-static int db_escape_string (char *to, const char *from)
+static void db_escape_string (char *to, const char *from)
 /* escape string*/
 {
    const char *source = from;
    char *target = to;
-   unsigned int remaining;
+   size_t remaining;
 
    remaining = strlen(from);
 
@@ -216,8 +215,6 @@ static int db_escape_string (char *to, const char *from)
 
    /* Write the terminating NUL character. */
    *target = '\0';
-
-   return target - to;
 }
 
 static char *db_generate_select_stmt(TABDCA *dca)

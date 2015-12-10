@@ -91,6 +91,17 @@ void sgf_reduce_nuc(LUF *luf, int *k1_, int *k2_, int cnt[/*1+n*/],
       while (ns > 0)
       {  /* column singleton is in j-th column of V */
          j = list[ns--];
+#if 1 /* 25/IX-2015 */
+         if (cnt[j] == 0)
+         {  /* j-th column in the current nucleus is actually empty */
+            /* this happened because on a previous step in the nucleus
+             * there were two or more identical column singletons (that
+             * means structural singularity), so removing one of them
+             * from the nucleus made other columns empty */
+            /* do not remove empty column from the nucleus */
+            continue;
+         }
+#endif
          /* find i-th row of V containing column singleton */
          ptr = vc_ptr[j];
          end = ptr + vc_len[j];
@@ -138,6 +149,14 @@ void sgf_reduce_nuc(LUF *luf, int *k1_, int *k2_, int cnt[/*1+n*/],
       while (ns > 0)
       {  /* row singleton is in i-th row of V */
          i = list[ns--];
+#if 1 /* 25/IX-2015 */
+         if (cnt[i] == 0)
+         {  /* i-th row in the current nucleus is actually empty */
+            /* (see comments above for similar case of empty column) */
+            /* do not remove empty row from the nucleus */
+            continue;
+         }
+#endif
          /* find j-th column of V containing row singleton */
          ptr = vr_ptr[i];
          end = ptr + vr_len[i];

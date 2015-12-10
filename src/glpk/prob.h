@@ -115,7 +115,7 @@ struct glp_prob
       double obj_val;
       /* objective function value */
       int it_cnt;
-      /* simplex method iteration count; increased by one on performing
+      /* simplex method iteration count; increases by one on performing
          one simplex iteration */
       int some;
       /* ordinal number of some auxiliary or structural variable having

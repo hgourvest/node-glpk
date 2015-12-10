@@ -375,10 +375,8 @@ static void print_version(int briefly)
       xprintf("GLPSOL: GLPK LP/MIP Solver, v%d.%d\n", GLP_MAJOR_VERSION, GLP_MINOR_VERSION);
       if (briefly) goto done;
       xprintf("\n");
-      xprintf("Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, "
-         "2007, 2008,\n");
-      xprintf("2009, 2010, 2011, 2013, 2014 Andrew Makhorin, Department"
-         " for Applied\n");
+      xprintf("Copyright (C) 2000-2015 Andrew Makhorin, Department for "
+         "Applied\n");
       xprintf("Informatics, Moscow Aviation Institute, Moscow, Russia. "
          "All rights\n");
       xprintf("reserved. E-mail: <mao@gnu.org>.\n");
