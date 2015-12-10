@@ -3,7 +3,7 @@
 /***********************************************************************
 *  This code is part of GLPK (GNU Linear Programming Kit).
 *
-*  Copyright (C) 2000, 2013 Andrew Makhorin, Department for Applied
+*  Copyright (C) 2000-2015 Andrew Makhorin, Department for Applied
 *  Informatics, Moscow Aviation Institute, Moscow, Russia. All rights
 *  reserved. E-mail: <mao@gnu.org>.
 *
@@ -47,6 +47,9 @@ static void errfunc(const char *fmt, ...)
 #ifdef HAVE_ENV
       ENV *env = get_env_ptr();
       va_list arg;
+#if 1 /* 07/XI-2015 */
+      env->err_st = 1;
+#endif
       env->term_out = GLP_ON;
       va_start(arg, fmt);
       xvprintf(fmt, arg);
@@ -93,6 +96,35 @@ glp_errfunc glp_error_(const char *file, int line)
 #endif
     return errfunc;
 }
+
+#ifdef HAVE_ENV
+#if 1 /* 07/XI-2015 */
+/***********************************************************************
+*  NAME
+*
+*  glp_at_error - check for error state
+*
+*  SYNOPSIS
+*
+*  int glp_at_error(void);
+*
+*  DESCRIPTION
+*
+*  The routine glp_at_error checks if the GLPK environment is at error
+*  state, i.e. if the call to the routine is (indirectly) made from the
+*  glp_error routine via an user-defined hook routine.
+*
+*  RETURNS
+*
+*  If the GLPK environment is at error state, the routine glp_at_error
+*  returns non-zero, otherwise zero. */
+
+int glp_at_error(void)
+{     ENV *env = get_env_ptr();
+      return env->err_st;
+}
+#endif
+#endif
 
 /***********************************************************************
 *  NAME

@@ -1,10 +1,9 @@
-/* glpspx.h (core simplex solvers) */
+/* simplex.h */
 
 /***********************************************************************
 *  This code is part of GLPK (GNU Linear Programming Kit).
 *
-*  Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
-*  2009, 2010, 2011, 2013 Andrew Makhorin, Department for Applied
+*  Copyright (C) 2015 Andrew Makhorin, Department for Applied
 *  Informatics, Moscow Aviation Institute, Moscow, Russia. All rights
 *  reserved. E-mail: <mao@gnu.org>.
 *
@@ -22,18 +21,18 @@
 *  along with GLPK. If not, see <http://www.gnu.org/licenses/>.
 ***********************************************************************/
 
-#ifndef GLPSPX_H
-#define GLPSPX_H
+#ifndef SIMPLEX_H
+#define SIMPLEX_H
 
 #include "prob.h"
 
 #define spx_primal _glp_spx_primal
-int spx_primal(glp_prob *lp, const glp_smcp *parm);
-/* core LP solver based on the primal simplex method */
+int spx_primal(glp_prob *P, const glp_smcp *parm);
+/* driver to primal simplex method */
 
-#define spx_dual _glp_spx_dual
-int spx_dual(glp_prob *lp, const glp_smcp *parm);
-/* core LP solver based on the dual simplex method */
+#define spy_dual _glp_spy_dual
+int spy_dual(glp_prob *P, const glp_smcp *parm);
+/* driver to dual simplex method */
 
 #endif
 

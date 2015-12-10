@@ -92,11 +92,9 @@
 		"glpscl.c",
 		"glpsdf.c",
 		"glpspm.c",
-		"glpspx02.c",
 		"glpsql.c",
 		"glpssx01.c",
 		"glpssx02.c",
-		"glptsp.c",
 		"lux.c",
 		"amd/amd_1.c",
 		"amd/amd_2.c",
@@ -164,6 +162,11 @@
 		"simplex/spxnt.c",
 		"simplex/spxprim.c",
 		"simplex/spxprob.c",
+
+		"simplex/spychuzc.c",
+		"simplex/spychuzr.c",
+		"simplex/spydual.c",
+
 		"zlib/adler32.c",
 		"zlib/compress.c",
 		"zlib/crc32.c",

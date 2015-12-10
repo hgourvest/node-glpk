@@ -111,8 +111,8 @@ int spx_chuzc_sel(SPXLP *lp, const double d[/*1+n-m*/], double tol,
 *     d[q] =   max |d[j]|,
 *            j in J
 *
-*  J <= {1, ..., n-m} is the set of indices of eligible non-basic
-*  variable, d[j] is the reduced cost of non-basic variable xN[j] in
+*  where J <= {1, ..., n-m} is the set of indices of eligible non-basic
+*  variables, d[j] is the reduced cost of non-basic variable xN[j] in
 *  the current basis.
 *
 *  Reduced costs of non-basic variables should be placed in the array
@@ -232,11 +232,11 @@ double spx_eval_gamma_j(SPXLP *lp, SPXSE *se, int j)
 *  This routine chooses most eligible non-basic variable xN[q]
 *  according to the projected steepest edge method:
 *
-*       d[q]              d[j]
+*      d[q]**2           d[j]**2
 *     -------- =   max  -------- ,
 *     gamma[q]   j in J gamma[j]
 *
-*  J <= {1, ..., n-m} is the set of indices of eligible non-basic
+*  where J <= {1, ..., n-m} is the set of indices of eligible non-basic
 *  variable, d[j] is the reduced cost of non-basic variable xN[j] in
 *  the current basis, gamma[j] is the projected steepest edge weight.
 *
@@ -349,7 +349,7 @@ double spx_update_gamma(SPXLP *lp, SPXSE *se, int p, int q,
          /* compute r[j] = T[p,j] / T[p,q] */
          r = trow[j] / tcol[p];
          /* compute inner product s[j] = N'[j] * u, where N[j] = A[k]
-          * is constraint matrix column corresponding xN[j] */
+          * is constraint matrix column corresponding to xN[j] */
          s = 0.0;
          k = head[m+j]; /* x[k] = xN[j] */
          ptr = lp->A_ptr[k];

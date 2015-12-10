@@ -25,7 +25,12 @@
 #include "glpenv.h"
 #include "glpios.h"
 #include "glpnpp.h"
+#if 0 /* 07/XI-2015 */
 #include "glpspx.h"
+#else
+#include "simplex.h"
+#define spx_dual spy_dual
+#endif
 
 /***********************************************************************
 *  NAME
@@ -486,7 +491,11 @@ void glp_init_smcp(glp_smcp *parm)
       parm->r_test = GLP_RT_HAR;
       parm->tol_bnd = 1e-7;
       parm->tol_dj = 1e-7;
+#if 0 /* 07/XI-2015 */
       parm->tol_piv = 1e-10;
+#else
+      parm->tol_piv = 1e-9;
+#endif
       parm->obj_ll = -DBL_MAX;
       parm->obj_ul = +DBL_MAX;
       parm->it_lim = INT_MAX;

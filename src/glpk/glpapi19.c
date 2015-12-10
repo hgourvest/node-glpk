@@ -48,6 +48,14 @@ int glp_minisat1(glp_prob *P)
          ret = GLP_EDATA;
          goto done;
       }
+#if 1 /* 07/XI-2015 */
+      if (sizeof(void *) != sizeof(int))
+      {  xprintf("glp_minisat1: sorry, MiniSat solver is not supported "
+            "on 64-bit platforms\n");
+         ret = GLP_EFAIL;
+         goto done;
+      }
+#endif
       /* solve CNF-SAT problem */
       xprintf("Solving CNF-SAT problem...\n");
       xprintf("Instance has %d variable%s, %d clause%s, and %d literal%"

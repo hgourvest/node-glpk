@@ -1,9 +1,9 @@
-/* env.h (GLPK environment) */
+/* glpenv.h (GLPK environment) */
 
 /***********************************************************************
 *  This code is part of GLPK (GNU Linear Programming Kit).
 *
-*  Copyright (C) 2000, 2013 Andrew Makhorin, Department for Applied
+*  Copyright (C) 2000-2015 Andrew Makhorin, Department for Applied
 *  Informatics, Moscow Aviation Institute, Moscow, Russia. All rights
 *  reserved. E-mail: <mao@gnu.org>.
 *
@@ -70,6 +70,10 @@ struct ENV
       /* output stream used to copy terminal output */
       /*--------------------------------------------------------------*/
       /* error handling */
+#if 1 /* 07/XI-2015 */
+      int err_st;
+      /* error state flag; set on entry to glp_error */
+#endif
       const char *err_file;
       /* value of the __FILE__ macro passed to glp_error */
       int err_line;

@@ -4,9 +4,9 @@
 *  This code is part of GLPK (GNU Linear Programming Kit).
 *
 *  Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
-*  2009, 2010, 2011, 2013, 2014 Andrew Makhorin, Department for Applied
-*  Informatics, Moscow Aviation Institute, Moscow, Russia. All rights
-*  reserved. E-mail: <mao@gnu.org>.
+*  2009, 2010, 2011, 2013, 2014, 2015 Andrew Makhorin, Department for
+*  Applied Informatics, Moscow Aviation Institute, Moscow, Russia. All
+*  rights reserved. E-mail: <mao@gnu.org>.
 *
 *  GLPK is free software: you can redistribute it and/or modify it
 *  under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ extern "C" {
     
 /* library version numbers: */
 #define GLP_MAJOR_VERSION  4
-#define GLP_MINOR_VERSION  56
+#define GLP_MINOR_VERSION  57
 
 typedef struct glp_prob glp_prob;
 /* LP/MIP problem object */
@@ -194,20 +194,15 @@ typedef struct
       int presolve;           /* enable/disable using MIP presolver */
       int binarize;           /* try to binarize integer variables */
       int fp_heur;            /* feasibility pump heuristic */
-#if 1 /* 25/V-2013 */
       int ps_heur;            /* proximity search heuristic */
-#endif
-#if 1 /* 29/VI-2013 */
       int ps_tm_lim;          /* proxy time limit, milliseconds */
-#endif
-#if 1 /* 11/VII-2013 */
+      int sr_heur;            /* simple rounding heuristic */
+#if 1 /* 24/X-2015; not documented--should not be used */
       int use_sol;            /* use existing solution */
       const char *save_sol;   /* filename to save every new solution */
-#endif
-#if 1 /* 28/V-2010 */
       int alien;              /* use alien solver */
 #endif
-      double foo_bar[25];     /* (reserved) */
+      double foo_bar[24];     /* (reserved) */
 } glp_iocp;
 
 typedef struct
@@ -884,6 +879,11 @@ typedef void (*glp_errfunc)(const char *fmt, ...);
 #define glp_error glp_error_(__FILE__, __LINE__)
 glp_errfunc glp_error_(const char *file, int line);
 /* display fatal error message and terminate execution */
+
+#if 1 /* 07/XI-2015 */
+int glp_at_error(void);
+/* check for error state */
+#endif
 
 #define glp_assert(expr) \
       ((void)((expr) || (glp_assert_(#expr, __FILE__, __LINE__), 1)))

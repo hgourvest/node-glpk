@@ -561,7 +561,6 @@ static void cleanup_the_tree(glp_tree *T)
       return;
 }
 
-#if 0 /* 09/VII-2013 */
 /***********************************************************************
 *  round_heur - simple rounding heuristic
 *
@@ -569,72 +568,6 @@ static void cleanup_the_tree(glp_tree *T)
 *  simple rounding values of all integer variables in basic solution to
 *  nearest integers. */
 
-static int round_heur(glp_tree *T)
-{     glp_prob *P = T->mip;
-      int m = P->m;
-      int n = P->n;
-      int i, j, ret;
-      double *x;
-      /* compute rounded values of variables */
-      x = talloc(1+n, double);
-      for (j = 1; j <= n; j++)
-      {  GLPCOL *col = P->col[j];
-         if (col->kind == GLP_IV)
-         {  /* integer variable */
-            x[j] = floor(col->prim + 0.5);
-         }
-         else if (col->type == GLP_FX)
-         {  /* fixed variable */
-            x[j] = col->prim;
-         }
-         else
-         {  /* non-integer non-fixed variable */
-            ret = 3;
-            goto done;
-         }
-      }
-      /* check that no constraints are violated */
-      for (i = 1; i <= m; i++)
-      {  GLPROW *row = P->row[i];
-         int type = row->type;
-         GLPAIJ *aij;
-         double sum;
-         if (type == GLP_FR)
-            continue;
-         /* compute value of linear form */
-         sum = 0.0;
-         for (aij = row->ptr; aij != NULL; aij = aij->r_next)
-            sum += aij->val * x[aij->col->j];
-         /* check lower bound */
-         if (type == GLP_LO || type == GLP_DB || type == GLP_FX)
-         {  if (sum < row->lb - 1e-9)
-            {  /* lower bound is violated */
-               ret = 2;
-               goto done;
-            }
-         }
-         /* check upper bound */
-         if (type == GLP_UP || type == GLP_DB || type == GLP_FX)
-         {  if (sum > row->ub + 1e-9)
-            {  /* upper bound is violated */
-               ret = 2;
-               goto done;
-            }
-         }
-      }
-      /* rounded solution is integer feasible */
-      if (glp_ios_heur_sol(T, x) == 0)
-      {  /* solution is accepted */
-         ret = 0;
-      }
-      else
-      {  /* solution is rejected */
-         ret = 1;
-      }
-done: tfree(x);
-      return ret;
-}
-#else
 /***********************************************************************
 *  round_heur - simple rounding heuristic
 *
@@ -706,7 +639,6 @@ static int round_heur(glp_tree *T)
 done: tfree(x);
       return ret;
 }
-#endif
 
 #if 0
 #define round_heur round_heur2
@@ -1006,6 +938,14 @@ select:
 #if 0
       if (ctx->p == 1)
          glp_write_lp(T->mip, NULL, "root.lp");
+#endif
+#if 1 /* 24/X-2015 */
+      if (ctx->p == 1)
+      {  if (T->parm->sr_heur == GLP_OFF)
+         {  if (T->parm->msg_lev >= GLP_MSG_ALL)
+               xprintf("Simple rounding heuristic disabled\n");
+         }
+      }
 #endif
       /* if it is the root subproblem, initialize cut generators */
       if (ctx->p == 1)
@@ -1308,8 +1248,9 @@ heur:
          }
       }
 #endif
-#if 1 /* 09/VII-2013 */
+#if 1 /* 24/X-2015 */
       /* try to find solution with a simple rounding heuristic */
+      if (T->parm->sr_heur)
       {  xassert(T->reason == 0);
          T->reason = GLP_IHEUR;
          round_heur(T);

@@ -57,10 +57,10 @@
 *  Current values of basic variables should be placed in the array
 *  locations beta[1], ..., beta[m].
 *
-*  The parameter 1 <= q <= n-m should specify the index of non-basic
+*  The parameter 1 <= q <= n-m specifies the index of non-basic
 *  variable xN[q] chosen.
 *
-*  The parameter s specify the direction in which xN[q] changes:
+*  The parameter s specifies the direction in which xN[q] changes:
 *  s = +1.0 means xN[q] increases, and s = -1.0 means xN[q] decreases.
 *  (Thus, the corresponding ray parameter is theta = s (xN[q] - f[q]),
 *  where f[q] is the active bound of xN[q] in the current basis.)
@@ -370,7 +370,7 @@ int spx_chuzr_harris(SPXLP *lp, int phase, const double beta[/*1+m*/],
             continue;
          }
          /* choose basic variable for which teta is not greater than
-          * teta_min determined for relaxed bound and which has best
+          * teta_min determined for relaxed bounds and which has best
           * (largest in magnitude) pivot */
          alfa = (alfa >= 0.0 ? +alfa : -alfa);
          if (teta <= teta_min && biga < alfa)

@@ -1,9 +1,9 @@
-/* jd.h (conversions between calendar date and Julian day number) */
+/* spychuzc.h */
 
 /***********************************************************************
 *  This code is part of GLPK (GNU Linear Programming Kit).
 *
-*  Copyright (C) 2000-2013 Andrew Makhorin, Department for Applied
+*  Copyright (C) 2015 Andrew Makhorin, Department for Applied
 *  Informatics, Moscow Aviation Institute, Moscow, Russia. All rights
 *  reserved. E-mail: <mao@gnu.org>.
 *
@@ -21,12 +21,23 @@
 *  along with GLPK. If not, see <http://www.gnu.org/licenses/>.
 ***********************************************************************/
 
-#define jday _glp_jday
-int jday(int d, int m, int y);
-/* convert calendar date to Julian day number */
+#ifndef SPYCHUZC_H
+#define SPYCHUZC_H
 
-#define jdate _glp_jdate
-int jdate(int j, int *d, int *m, int *y);
-/* convert Julian day number to calendar date */
+#include "spxlp.h"
+
+#define spy_chuzc_std _glp_spy_chuzc_std
+int spy_chuzc_std(SPXLP *lp, const double d[/*1+n-m*/],
+      double s, const double trow[/*1+n-m*/], double tol_piv,
+      double tol, double tol1);
+/* choose non-basic variable (dual textbook ratio test) */
+
+#define spy_chuzc_harris _glp_spy_chuzc_harris
+int spy_chuzc_harris(SPXLP *lp, const double d[/*1+n-m*/],
+      double s, const double trow[/*1+n-m*/], double tol_piv,
+      double tol, double tol1);
+/* choose non-basic variable (dual Harris' ratio test) */
+
+#endif
 
 /* eof */

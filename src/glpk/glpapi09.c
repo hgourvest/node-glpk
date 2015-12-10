@@ -763,17 +763,12 @@ void glp_init_iocp(glp_iocp *parm)
       parm->presolve = GLP_OFF;
       parm->binarize = GLP_OFF;
       parm->fp_heur = GLP_OFF;
-#if 1 /* 25/V-2013 */
       parm->ps_heur = GLP_OFF;
-#endif
-#if 1 /* 29/VI-2013 */
       parm->ps_tm_lim = 60000; /* 1 minute */
-#endif
-#if 1 /* 11/VII-2013 */
+      parm->sr_heur = GLP_ON;
+#if 1 /* 24/X-2015; not documented--should not be used */
       parm->use_sol = GLP_OFF;
       parm->save_sol = NULL;
-#endif
-#if 1 /* 28/V-2010 */
       parm->alien = GLP_OFF;
 #endif
       return;
