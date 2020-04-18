@@ -1,6 +1,6 @@
 {
   "name": "glpk",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "license": "MPL-2.0",
   "main": "index.js",
   "authors": [
@@ -23,5 +23,5 @@
     "configure": "node-gyp configure",
     "build": "node-gyp build"
   },
-  "engines" : { "node" : ">=0.11.0 <=8.x", "iojs": "*" }
+  "engines" : { "node" : ">=0.11.0 <=11.x", "iojs": "*" }
 }

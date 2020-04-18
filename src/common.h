@@ -38,7 +38,7 @@ Local<Number> constant_value =\
 Number::New(isolate, static_cast<double>(constant));\
 PropertyAttribute constant_attributes =\
 static_cast<PropertyAttribute>(ReadOnly | DontDelete);\
-(target)->ForceSet(constant_name, constant_value, constant_attributes);\
+Nan::DefineOwnProperty(target, constant_name, constant_value, constant_attributes);\
 }\
 while (0)
 
