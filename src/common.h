@@ -128,7 +128,7 @@ static NAN_METHOD(NAME) {\
     V8CHECK(host->thread, "an async operation is inprogress")\
     \
     GLP_CATCH_RET(API(host->handle, info[0]->Int32Value(Nan::GetCurrentContext()).FromJust(), info[1]->Int32Value(Nan::GetCurrentContext()).FromJust(),\
-                     info[2]->NumberValue(), info[3]->NumberValue());)\
+                     info[2]->NumberValue(Nan::GetCurrentContext()).FromJust(), info[3]->NumberValue(Nan::GetCurrentContext()).FromJust());)\
 }
 
 #define GLP_BIND_VOID_INT32_DOUBLE(CLASS, NAME, API)\
@@ -140,7 +140,7 @@ static NAN_METHOD(NAME) {\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread, "an async operation is inprogress")\
     \
-    GLP_CATCH_RET(API(host->handle, info[0]->Int32Value(Nan::GetCurrentContext()).FromJust(), info[1]->NumberValue());)\
+    GLP_CATCH_RET(API(host->handle, info[0]->Int32Value(Nan::GetCurrentContext()).FromJust(), info[1]->NumberValue(Nan::GetCurrentContext()).FromJust());)\
 }
 
 #define GLP_BIND_VALUE_INT32(CLASS, NAME, API)\
@@ -175,7 +175,7 @@ static NAN_METHOD(NAME) {\
     double* par = (double*)malloc(ar->Length() * sizeof(double));\
     \
     for (size_t i = 0; i < ja->Length(); i++) pja[i] = ja->Get(i)->Int32Value(Nan::GetCurrentContext()).FromJust();\
-    for (size_t i = 0; i < ar->Length(); i++) par[i] = ar->Get(i)->NumberValue();\
+    for (size_t i = 0; i < ar->Length(); i++) par[i] = ar->Get(i)->NumberValue(Nan::GetCurrentContext()).FromJust();\
     \
     GLP_CATCH_RET(API(host->handle, info[0]->Int32Value(Nan::GetCurrentContext()).FromJust(), count, pja, par);)\
     \

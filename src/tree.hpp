@@ -141,12 +141,12 @@ namespace NodeGLPK {
             
             for (unsigned int i = 0; i < count; i++){
                 pind[i] = ind->Int32Value(Nan::GetCurrentContext()).FromJust();
-                pval[i] = val->NumberValue();
+                pval[i] = val->NumberValue(Nan::GetCurrentContext()).FromJust();
             }
             
             count--;
             GLP_CATCH(info.GetReturnValue().Set(glp_ios_add_row(tree->handle, V8TOCSTRING(info[0]), info[1]->Int32Value(Nan::GetCurrentContext()).FromJust(),
-                info[2]->Int32Value(Nan::GetCurrentContext()).FromJust(), count, pind, pval, info[5]->Int32Value(Nan::GetCurrentContext()).FromJust(), info[6]->NumberValue()));)
+                info[2]->Int32Value(Nan::GetCurrentContext()).FromJust(), count, pind, pval, info[5]->Int32Value(Nan::GetCurrentContext()).FromJust(), info[6]->NumberValue(Nan::GetCurrentContext()).FromJust()));)
             
             free(pind);
             free(pval);
@@ -176,7 +176,7 @@ namespace NodeGLPK {
             GLP_CATCH_RET(V8CHECK(count != (glp_get_num_cols(glp_ios_get_prob(tree->handle)) + 1), "Invalid arrays length");)
             
             double* px = (double*)malloc(count * sizeof(double));
-            for (int i = 0; i < count; i++) px[i] = x->NumberValue();
+            for (int i = 0; i < count; i++) px[i] = x->NumberValue(Nan::GetCurrentContext()).FromJust();
             GLP_CATCH(info.GetReturnValue().Set(glp_ios_heur_sol(tree->handle, px));)
             free(px);
         }

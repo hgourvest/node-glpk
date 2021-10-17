@@ -176,19 +176,19 @@ namespace NodeGLPK {
                     scmp->r_test = val->Int32Value(Nan::GetCurrentContext()).FromJust();
                 } else if (keystr == "tolBnd"){
                     V8CHECKBOOL(!val->IsNumber(), "tolBnd: should be a Number");
-                    scmp->tol_bnd = val->NumberValue();
+                    scmp->tol_bnd = val->NumberValue(Nan::GetCurrentContext()).FromJust();
                 } else if (keystr == "tolDj"){
                     V8CHECKBOOL(!val->IsNumber(), "tolDj: should be a Number");
-                    scmp->tol_dj = val->NumberValue();
+                    scmp->tol_dj = val->NumberValue(Nan::GetCurrentContext()).FromJust();
                 } else if (keystr == "tolPiv"){
                     V8CHECKBOOL(!val->IsNumber(), "tolPiv: should be a Number");
-                    scmp->tol_piv = val->NumberValue();
+                    scmp->tol_piv = val->NumberValue(Nan::GetCurrentContext()).FromJust();
                 } else if (keystr == "objLl"){
                     V8CHECKBOOL(!val->IsNumber(), "objLl: should be a Number");
-                    scmp->obj_ll = val->NumberValue();
+                    scmp->obj_ll = val->NumberValue(Nan::GetCurrentContext()).FromJust();
                 } else if (keystr == "objUl"){
                     V8CHECKBOOL(!val->IsNumber(), "objUl: should be a Number");
-                    scmp->obj_ul = val->NumberValue();
+                    scmp->obj_ul = val->NumberValue(Nan::GetCurrentContext()).FromJust();
                 } else if (keystr == "itLim"){
                     V8CHECKBOOL(!val->IsInt32(), "itLim: should be int32");
                     scmp->it_lim = val->Int32Value(Nan::GetCurrentContext()).FromJust();
@@ -246,7 +246,7 @@ namespace NodeGLPK {
             
             for (size_t i = 0; i < ia->Length(); i++) pia[i] = ia->Get(i)->Int32Value(Nan::GetCurrentContext()).FromJust();
             for (size_t i = 0; i < ja->Length(); i++) pja[i] = ja->Get(i)->Int32Value(Nan::GetCurrentContext()).FromJust();
-            for (size_t i = 0; i < ar->Length(); i++) par[i] = ar->Get(i)->NumberValue();
+            for (size_t i = 0; i < ar->Length(); i++) par[i] = ar->Get(i)->NumberValue(Nan::GetCurrentContext()).FromJust();
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
@@ -470,7 +470,7 @@ namespace NodeGLPK {
                         mpscp->blank = val->Int32Value(Nan::GetCurrentContext()).FromJust();
                     } else if (keystr == "tolMps"){
                         V8CHECKBOOL(!val->IsNumber(), "tolMps: should be number");
-                        mpscp->tol_mps = val->NumberValue();
+                        mpscp->tol_mps = val->NumberValue(Nan::GetCurrentContext()).FromJust();
                     } else if (keystr == "objName"){
                         V8CHECKBOOL(!val->IsString(), "objName: should be a string");
                         std::string objname = std::string(V8TOCSTRING(val));
@@ -663,10 +663,10 @@ namespace NodeGLPK {
                         iocp->bt_tech = val->Int32Value(Nan::GetCurrentContext()).FromJust();
                     } else if (keystr == "tolInt"){
                         V8CHECKBOOL(!val->IsNumber(), "tolInt: should be number");
-                        iocp->tol_int = val->NumberValue();
+                        iocp->tol_int = val->NumberValue(Nan::GetCurrentContext()).FromJust();
                     } else if (keystr == "tolObj"){
                         V8CHECKBOOL(!val->IsNumber(), "tolObj: should be number");
-                        iocp->tol_obj = val->NumberValue();
+                        iocp->tol_obj = val->NumberValue(Nan::GetCurrentContext()).FromJust();
                     } else if (keystr == "tmLim"){
                         V8CHECKBOOL(!val->IsInt32(), "tmLim: should be int32");
                         iocp->tm_lim = val->Int32Value(Nan::GetCurrentContext()).FromJust();
@@ -681,7 +681,7 @@ namespace NodeGLPK {
                         iocp->pp_tech = val->Int32Value(Nan::GetCurrentContext()).FromJust();
                     } else if (keystr == "mipGap"){
                         V8CHECKBOOL(!val->IsNumber(), "mipGap: should be number");
-                        iocp->mip_gap = val->NumberValue();
+                        iocp->mip_gap = val->NumberValue(Nan::GetCurrentContext()).FromJust();
                     } else if (keystr == "mirCuts"){
                         V8CHECKBOOL(!val->IsInt32(), "mirCuts: should be int32");
                         iocp->mir_cuts = val->Int32Value(Nan::GetCurrentContext()).FromJust();
@@ -1105,7 +1105,7 @@ namespace NodeGLPK {
                                   bfcp.type = val->Int32Value(Nan::GetCurrentContext()).FromJust();
                               } else if (keystr == "pivTol"){
                                   V8CHECK(!val->IsNumber(), "pivTol: should be number");
-                                  bfcp.piv_tol = val->NumberValue();
+                                  bfcp.piv_tol = val->NumberValue(Nan::GetCurrentContext()).FromJust();
                               } else if (keystr == "pivLim"){
                                   V8CHECK(!val->IsInt32(), "pivLim: should be int32");
                                   bfcp.piv_lim = val->Int32Value(Nan::GetCurrentContext()).FromJust();
@@ -1114,7 +1114,7 @@ namespace NodeGLPK {
                                   bfcp.suhl = val->Int32Value(Nan::GetCurrentContext()).FromJust();
                               } else if (keystr == "epsTol"){
                                   V8CHECK(!val->IsNumber(), "epsTol: should be number");
-                                  bfcp.eps_tol = val->NumberValue();
+                                  bfcp.eps_tol = val->NumberValue(Nan::GetCurrentContext()).FromJust();
                               } else if (keystr == "nfsMax"){
                                   V8CHECK(!val->IsInt32(), "nfsMax: should be int32");
                                   bfcp.nfs_max = val->Int32Value(Nan::GetCurrentContext()).FromJust();
