@@ -109,7 +109,7 @@ namespace NodeGLPK {
             V8CHECK(host->thread, "an async operation is inprogress");
             
             glp_attr attr;
-            GLP_CATCH_RET(glp_ios_row_attr(host->handle, info[0]->Int32Value(), &attr);)
+            GLP_CATCH_RET(glp_ios_row_attr(host->handle, info[0]->Int32Value(Nan::GetCurrentContext()).FromJust(), &attr);)
             
             Local<Object> ret = Nan::New<Object>();
             GLP_SET_FIELD_INT32(ret, "level", attr.level);
@@ -140,13 +140,13 @@ namespace NodeGLPK {
             double* pval = (double*)malloc(count * sizeof(double));
             
             for (unsigned int i = 0; i < count; i++){
-                pind[i] = ind->Int32Value();
+                pind[i] = ind->Int32Value(Nan::GetCurrentContext()).FromJust();
                 pval[i] = val->NumberValue();
             }
             
             count--;
-            GLP_CATCH(info.GetReturnValue().Set(glp_ios_add_row(tree->handle, V8TOCSTRING(info[0]), info[1]->Int32Value(),
-                info[2]->Int32Value(), count, pind, pval, info[5]->Int32Value(), info[6]->NumberValue()));)
+            GLP_CATCH(info.GetReturnValue().Set(glp_ios_add_row(tree->handle, V8TOCSTRING(info[0]), info[1]->Int32Value(Nan::GetCurrentContext()).FromJust(),
+                info[2]->Int32Value(Nan::GetCurrentContext()).FromJust(), count, pind, pval, info[5]->Int32Value(Nan::GetCurrentContext()).FromJust(), info[6]->NumberValue()));)
             
             free(pind);
             free(pval);

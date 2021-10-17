@@ -91,7 +91,7 @@ namespace NodeGLPK {
             V8CHECK(mp->thread, "an async operation is inprogress");
             
             Nan::Callback *callback = new Nan::Callback(info[2].As<Function>());
-            ReadModelWorker *worker = new ReadModelWorker(callback, mp, V8TOCSTRING(info[0]), info[1]->Int32Value());
+            ReadModelWorker *worker = new ReadModelWorker(callback, mp, V8TOCSTRING(info[0]), info[1]->Int32Value(Nan::GetCurrentContext()).FromJust());
             mp->thread = true;
             Nan::AsyncQueueWorker(worker);
         }
@@ -303,7 +303,7 @@ namespace NodeGLPK {
             V8CHECK(lp->thread, "an async operation is inprogress");
             
             Nan::Callback *callback = new Nan::Callback(info[2].As<Function>());
-            PostsolveWorker *worker = new PostsolveWorker(callback, mp, lp, info[1]->Int32Value());
+            PostsolveWorker *worker = new PostsolveWorker(callback, mp, lp, info[1]->Int32Value(Nan::GetCurrentContext()).FromJust());
             mp->thread = true;
             Nan::AsyncQueueWorker(worker);
         }
@@ -319,7 +319,7 @@ namespace NodeGLPK {
             Problem* lp = ObjectWrap::Unwrap<Problem>(info[0]->ToObject());
             V8CHECK(!lp || !lp->handle, "invalid problem");
             
-            GLP_CATCH_RET(info.GetReturnValue().Set(glp_mpl_postsolve(mp->handle, lp->handle, info[1]->Int32Value()));)
+            GLP_CATCH_RET(info.GetReturnValue().Set(glp_mpl_postsolve(mp->handle, lp->handle, info[1]->Int32Value(Nan::GetCurrentContext()).FromJust()));)
         }
         
         static NAN_METHOD(getLine){
