@@ -34,7 +34,7 @@ extern "C" {
     void Init(Local<Object> exports) {
         glp_error_hook(_ErrorHook);
 
-        exports->Set(Nan::New<String>("termOutput").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(TermOutput)).ToLocalChecked());
+        exports->Set(Nan::GetCurrentContext(), Nan::New<String>("termOutput").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(TermOutput)).ToLocalChecked()).Check();
         
         GLP_DEFINE_CONSTANT(exports, GLP_MAJOR_VERSION, MAJOR_VERSION);
         GLP_DEFINE_CONSTANT(exports, GLP_MINOR_VERSION, MINOR_VERSION);

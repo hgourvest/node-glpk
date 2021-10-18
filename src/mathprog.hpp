@@ -34,7 +34,7 @@ namespace NodeGLPK {
             
             constructor.Reset(tpl);
 
-            exports->Set(Nan::New<String>("Mathprog").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
+            exports->Set(Nan::GetCurrentContext(), Nan::New<String>("Mathprog").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked()).Check();
         }
     private:
         explicit Mathprog(): node::ObjectWrap(){
