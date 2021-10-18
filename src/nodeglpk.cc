@@ -24,7 +24,7 @@ extern "C" {
         V8CHECK(info.Length() != 1, "Wrong number of arguments");
         V8CHECK(!info[0]->IsBoolean(), "Wrong arguments");
         
-        if (info[0]->BooleanValue()) {
+        if (Nan::To<bool>(info[0]).ToChecked()) {
             GLP_CATCH_RET(glp_term_hook(_TermHook);)
         } else {
             GLP_CATCH_RET(glp_term_hook(NULL);)
