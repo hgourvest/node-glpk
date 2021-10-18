@@ -209,7 +209,7 @@ static NAN_METHOD(NAME) {\
             Local<Function> cb = Local<Function>::Cast(info[1]);\
             const unsigned argc = 2;\
             Local<Value> argv[argc] = {ja, ar};\
-            cb->Call(Isolate::GetCurrent()->GetCurrentContext()->Global(), argc, argv);\
+            Nan::Call(cb, Isolate::GetCurrent()->GetCurrentContext()->Global(), argc, argv);\
             info.GetReturnValue().Set(count);\
         }\
     } catch (std::string s) {\
