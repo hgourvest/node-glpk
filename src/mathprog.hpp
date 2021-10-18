@@ -237,7 +237,7 @@ namespace NodeGLPK {
             V8CHECK(!mp->handle, "object deleted");
             V8CHECK(mp->thread, "an async operation is inprogress");
             
-            Problem* lp = ObjectWrap::Unwrap<Problem>(info[0]->ToObject());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(Nan::To<Object>(info[0]).ToLocalChecked());
             V8CHECK(!lp || !lp->handle, "invalid problem");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
@@ -257,7 +257,7 @@ namespace NodeGLPK {
             V8CHECK(!mp->handle, "object deleted");
             V8CHECK(mp->thread, "an async operation is inprogress");
             
-            Problem* lp = ObjectWrap::Unwrap<Problem>(info[0]->ToObject());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(Nan::To<Object>(info[0]).ToLocalChecked());
             V8CHECK(!lp || !lp->handle, "invalid problem");
             
             GLP_CATCH_RET(glp_mpl_build_prob(mp->handle, lp->handle);)
@@ -299,7 +299,7 @@ namespace NodeGLPK {
             V8CHECK(!mp->handle, "object deleted");
             V8CHECK(mp->thread, "an async operation is inprogress");
             
-            Problem* lp = ObjectWrap::Unwrap<Problem>(info[0]->ToObject());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(Nan::To<Object>(info[0]).ToLocalChecked());
             V8CHECK(!lp || !lp->handle, "invalid problem");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
@@ -317,7 +317,7 @@ namespace NodeGLPK {
             V8CHECK(!mp->handle, "object deleted");
             V8CHECK(mp->thread, "an async operation is inprogress");
             
-            Problem* lp = ObjectWrap::Unwrap<Problem>(info[0]->ToObject());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(Nan::To<Object>(info[0]).ToLocalChecked());
             V8CHECK(!lp || !lp->handle, "invalid problem");
             
             GLP_CATCH_RET(info.GetReturnValue().Set(glp_mpl_postsolve(mp->handle, lp->handle, info[1]->Int32Value(Nan::GetCurrentContext()).FromJust()));)
