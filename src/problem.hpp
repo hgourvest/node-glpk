@@ -158,7 +158,7 @@ namespace NodeGLPK {
         static bool SmcpInit(glp_smcp* scmp, Local<Value> value){
             if (!value->IsObject()) return false;
             Local<Object> obj = Nan::To<Object>(value).ToLocalChecked();
-            Local<Array> props = obj->GetPropertyNames();
+            Local<Array> props = Nan::GetPropertyNames(obj).ToLocalChecked();
             for(uint32_t i = 0; i < props->Length(); i++){
                 Local<Value> key = props->Get(i);
                 Local<Value> val = obj->Get(key);
@@ -379,7 +379,7 @@ namespace NodeGLPK {
         static bool IptcpInit(glp_iptcp* iptcp, Local<Value> value){
             if (!value->IsObject()) return true;
             Local<Object> obj = Nan::To<Object>(value).ToLocalChecked();
-            Local<Array> props = obj->GetPropertyNames();
+            Local<Array> props = Nan::GetPropertyNames(obj).ToLocalChecked();
             for(uint32_t i = 0; i < props->Length(); i++){
                 Local<Value> key = props->Get(i);
                 Local<Value> val = obj->Get(key);
@@ -461,7 +461,7 @@ namespace NodeGLPK {
         static bool MpscpInit(glp_mpscp *mpscp, Local<Value> value){
             if (value->IsObject()){
                 Local<Object> obj = Nan::To<Object>(value).ToLocalChecked();
-                Local<Array> props = obj->GetPropertyNames();
+                Local<Array> props = Nan::GetPropertyNames(obj).ToLocalChecked();
                 for(uint32_t i = 0; i < props->Length(); i++){
                     Local<Value> key = props->Get(i);
                     Local<Value> val = obj->Get(key);
@@ -648,7 +648,7 @@ namespace NodeGLPK {
         static bool IocpInit(glp_iocp *iocp, Local<Value> value){
             if (value->IsObject()){
                 Local<Object> obj = Nan::To<Object>(value).ToLocalChecked();
-                Local<Array> props = obj->GetPropertyNames();
+                Local<Array> props = Nan::GetPropertyNames(obj).ToLocalChecked();
                 for(uint32_t i = 0; i < props->Length(); i++){
                     Local<Value> key = props->Get(i);
                     Local<Value> val = obj->Get(key);
@@ -1096,7 +1096,7 @@ namespace NodeGLPK {
                       
                       if (info[0]->IsObject()){
                           Local<Object> obj = Nan::To<Object>(info[0]).ToLocalChecked();
-                          Local<Array> props = obj->GetPropertyNames();
+                          Local<Array> props = Nan::GetPropertyNames(obj).ToLocalChecked();
                           for(uint32_t i = 0; i < props->Length(); i++){
                               Local<Value> key = props->Get(i);
                               Local<Value> val = obj->Get(key);
