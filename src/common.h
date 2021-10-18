@@ -33,7 +33,7 @@
 do {\
 Isolate* isolate = Isolate::GetCurrent();\
 Local<String> constant_name =\
-String::NewFromUtf8(isolate, #name);\
+String::NewFromUtf8(isolate, #name, NewStringType::kNormal).ToLocalChecked();\
 Local<Number> constant_value =\
 Number::New(isolate, static_cast<double>(constant));\
 PropertyAttribute constant_attributes =\
