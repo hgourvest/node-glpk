@@ -10,7 +10,6 @@
 #define _common_h
 
 #include <nan.h>
-#include <nan_converters_43_inl.h>
 
 #define V8TOCSTRING(S) (*Nan::Utf8String(S))
 

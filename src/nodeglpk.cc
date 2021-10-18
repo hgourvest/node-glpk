@@ -31,7 +31,7 @@ extern "C" {
         }
     }
     
-    void Init(Handle<Object> exports) {
+    void Init(Local<Object> exports) {
         glp_error_hook(_ErrorHook);
 
         exports->Set(Nan::New<String>("termOutput").ToLocalChecked(), Nan::New<FunctionTemplate>(TermOutput)->GetFunction());

@@ -13,7 +13,7 @@ namespace NodeGLPK {
     
     class Problem : public node::ObjectWrap {
     public:
-        static void Init(Handle<Object> exports){
+        static void Init(Local<Object> exports){
             // Prepare constructor template
             Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
             tpl->SetClassName(Nan::New<String>("Problem").ToLocalChecked());
