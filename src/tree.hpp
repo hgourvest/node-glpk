@@ -44,7 +44,7 @@ namespace NodeGLPK {
         }
 
         static Local<Value> Instantiate(glp_tree* tree){
-            Local<Function> cons = Nan::New<FunctionTemplate>(constructor)->GetFunction();
+            Local<Function> cons = Nan::GetFunction(Nan::New<FunctionTemplate>(constructor)).ToLocalChecked();
             Local<Value> ret = Nan::NewInstance(cons).ToLocalChecked();
             Tree* host = ObjectWrap::Unwrap<Tree>(ret->ToObject());
             host->handle = tree;

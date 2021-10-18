@@ -151,7 +151,8 @@ namespace NodeGLPK {
             Nan::SetPrototypeMethod(tpl, "warmUp", WarmUp);
             
             constructor.Reset(tpl);
-            exports->Set(Nan::New<String>("Problem").ToLocalChecked(), tpl->GetFunction());
+
+            exports->Set(Nan::New<String>("Problem").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
         }
         
         static bool SmcpInit(glp_smcp* scmp, Local<Value> value){

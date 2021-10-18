@@ -33,7 +33,8 @@ namespace NodeGLPK {
             Nan::SetPrototypeMethod(tpl, "getLastError", getLastError);
             
             constructor.Reset(tpl);
-            exports->Set(Nan::New<String>("Mathprog").ToLocalChecked(), tpl->GetFunction());
+
+            exports->Set(Nan::New<String>("Mathprog").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
         }
     private:
         explicit Mathprog(): node::ObjectWrap(){
