@@ -174,10 +174,10 @@ static NAN_METHOD(NAME) {\
     double* par = (double*)malloc(ar->Length() * sizeof(double));\
     Local<Context> context = Nan::GetCurrentContext();\
     \
-    for (size_t i = 0; i < ja->Length(); i++) pja[i] = ja->Get(context, i).ToLocalChecked()->Int32Value(Nan::GetCurrentContext()).FromJust();\
-    for (size_t i = 0; i < ar->Length(); i++) par[i] = ar->Get(context, i).ToLocalChecked()->NumberValue(Nan::GetCurrentContext()).FromJust();\
+    for (size_t i = 0; i < ja->Length(); i++) pja[i] = ja->Get(context, i).ToLocalChecked()->Int32Value(context).FromJust();\
+    for (size_t i = 0; i < ar->Length(); i++) par[i] = ar->Get(context, i).ToLocalChecked()->NumberValue(context).FromJust();\
     \
-    GLP_CATCH_RET(API(host->handle, info[0]->Int32Value(Nan::GetCurrentContext()).FromJust(), count, pja, par);)\
+    GLP_CATCH_RET(API(host->handle, info[0]->Int32Value(context).FromJust(), count, pja, par);)\
     \
     free(pja);\
     free(par);\
@@ -193,7 +193,8 @@ static NAN_METHOD(NAME) {\
     V8CHECK(host->thread, "an async operation is inprogress")\
     \
     try{\
-        int row = info[0]->Int32Value(Nan::GetCurrentContext()).FromJust();\
+        Local<Context> context = Nan::GetCurrentContext();\
+        int row = info[0]->Int32Value(context).FromJust();\
         int count = API(host->handle, row, NULL, NULL);\
         \
         if ((info.Length() == 2) && (info[1]->IsFunction())) {\
@@ -202,15 +203,15 @@ static NAN_METHOD(NAME) {\
             API(host->handle, row, idx, val);\
             Local<Int32Array> ja = Int32Array::New(ArrayBuffer::New(Isolate::GetCurrent(), sizeof(int) * (count+1)), 0, count + 1);\
             Local<Float64Array> ar = Float64Array::New(ArrayBuffer::New(Isolate::GetCurrent(), sizeof(double) * (count+1)), 0, count + 1);\
-        	for (int i = 1; i <= count; i++) ja->Set(Nan::GetCurrentContext(), (uint32_t)i, Int32::New(Isolate::GetCurrent(), idx[i])).Check();\
-        	for (int i = 1; i <= count; i++) ar->Set(Nan::GetCurrentContext(), (uint32_t)i, Number::New(Isolate::GetCurrent(), val[i])).Check();\
+        	for (int i = 1; i <= count; i++) ja->Set(context, (uint32_t)i, Int32::New(Isolate::GetCurrent(), idx[i])).Check();\
+        	for (int i = 1; i <= count; i++) ar->Set(context, (uint32_t)i, Number::New(Isolate::GetCurrent(), val[i])).Check();\
         	free(idx);\
         	free(val);\
             \
             Local<Function> cb = Local<Function>::Cast(info[1]);\
             const unsigned argc = 2;\
             Local<Value> argv[argc] = {ja, ar};\
-            Nan::Call(cb, Isolate::GetCurrent()->GetCurrentContext()->Global(), argc, argv);\
+            Nan::Call(cb, context->Global(), argc, argv);\
             info.GetReturnValue().Set(count);\
         }\
     } catch (std::string s) {\
@@ -240,7 +241,7 @@ static NAN_METHOD(NAME) {\
     \
     int* idx = (int*)malloc(count * sizeof(int));\
     Local<Context> context = Nan::GetCurrentContext();\
-    for (int i = 0; i < count; i++) idx[i] = num->Get(context, i).ToLocalChecked()->Int32Value(Nan::GetCurrentContext()).FromJust();\
+    for (int i = 0; i < count; i++) idx[i] = num->Get(context, i).ToLocalChecked()->Int32Value(context).FromJust();\
     CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread, "an async operation is inprogress")\
@@ -271,7 +272,8 @@ static NAN_METHOD(NAME) {\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread, "an async operation is inprogress")\
     \
-    GLP_CATCH_RET(API(host->handle, info[0]->Int32Value(Nan::GetCurrentContext()).FromJust(), info[1]->Int32Value(Nan::GetCurrentContext()).FromJust());)\
+    Local<Context> context = Nan::GetCurrentContext();\
+    GLP_CATCH_RET(API(host->handle, info[0]->Int32Value(context).FromJust(), info[1]->Int32Value(context).FromJust());)\
 }
 
 #define GLP_BIND_VALUE_INT32_STR(CLASS, NAME, API)\

@@ -166,46 +166,46 @@ namespace NodeGLPK {
                 std::string keystr = std::string(V8TOCSTRING(key));
                 if (keystr == "msgLev"){
                     V8CHECKBOOL(!val->IsInt32(), "msgLev: should be int32");
-                    scmp->msg_lev = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                    scmp->msg_lev = val->Int32Value(context).FromJust();
                 } else if (keystr == "meth"){
                     V8CHECKBOOL(!val->IsInt32(), "meth: should be int32");
-                    scmp->meth = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                    scmp->meth = val->Int32Value(context).FromJust();
                 } else if (keystr == "pricing"){
                     V8CHECKBOOL(!val->IsInt32(), "pricing: should be int32");
-                    scmp->pricing = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                    scmp->pricing = val->Int32Value(context).FromJust();
                 } else if (keystr == "rTest"){
                     V8CHECKBOOL(!val->IsInt32(), "rTest: should be int32");
-                    scmp->r_test = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                    scmp->r_test = val->Int32Value(context).FromJust();
                 } else if (keystr == "tolBnd"){
                     V8CHECKBOOL(!val->IsNumber(), "tolBnd: should be a Number");
-                    scmp->tol_bnd = val->NumberValue(Nan::GetCurrentContext()).FromJust();
+                    scmp->tol_bnd = val->NumberValue(context).FromJust();
                 } else if (keystr == "tolDj"){
                     V8CHECKBOOL(!val->IsNumber(), "tolDj: should be a Number");
-                    scmp->tol_dj = val->NumberValue(Nan::GetCurrentContext()).FromJust();
+                    scmp->tol_dj = val->NumberValue(context).FromJust();
                 } else if (keystr == "tolPiv"){
                     V8CHECKBOOL(!val->IsNumber(), "tolPiv: should be a Number");
-                    scmp->tol_piv = val->NumberValue(Nan::GetCurrentContext()).FromJust();
+                    scmp->tol_piv = val->NumberValue(context).FromJust();
                 } else if (keystr == "objLl"){
                     V8CHECKBOOL(!val->IsNumber(), "objLl: should be a Number");
-                    scmp->obj_ll = val->NumberValue(Nan::GetCurrentContext()).FromJust();
+                    scmp->obj_ll = val->NumberValue(context).FromJust();
                 } else if (keystr == "objUl"){
                     V8CHECKBOOL(!val->IsNumber(), "objUl: should be a Number");
-                    scmp->obj_ul = val->NumberValue(Nan::GetCurrentContext()).FromJust();
+                    scmp->obj_ul = val->NumberValue(context).FromJust();
                 } else if (keystr == "itLim"){
                     V8CHECKBOOL(!val->IsInt32(), "itLim: should be int32");
-                    scmp->it_lim = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                    scmp->it_lim = val->Int32Value(context).FromJust();
                 } else if (keystr == "tmLim"){
                     V8CHECKBOOL(!val->IsInt32(), "tmLim: should be int32");
-                    scmp->tm_lim = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                    scmp->tm_lim = val->Int32Value(context).FromJust();
                 } else if (keystr == "outFrq"){
                     V8CHECKBOOL(!val->IsInt32(), "outFrq: should be int32");
-                    scmp->out_frq = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                    scmp->out_frq = val->Int32Value(context).FromJust();
                 } else if (keystr == "outDly"){
                     V8CHECKBOOL(!val->IsInt32(), "outDly: should be int32");
-                    scmp->out_dly = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                    scmp->out_dly = val->Int32Value(context).FromJust();
                 } else if (keystr == "presolve"){
                     V8CHECKBOOL(!val->IsInt32(), "presolve: should be int32");
-                    scmp->presolve = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                    scmp->presolve = val->Int32Value(context).FromJust();
                 } else {
                     std::string error("Unknow field: ");
                     error += keystr;
@@ -247,15 +247,15 @@ namespace NodeGLPK {
             double* par = new double[ar->Length()];
             Local<Context> context = Nan::GetCurrentContext();
             
-            for (size_t i = 0; i < ia->Length(); i++) pia[i] = ia->Get(context, i).ToLocalChecked()->Int32Value(Nan::GetCurrentContext()).FromJust();
-            for (size_t i = 0; i < ja->Length(); i++) pja[i] = ja->Get(context, i).ToLocalChecked()->Int32Value(Nan::GetCurrentContext()).FromJust();
-            for (size_t i = 0; i < ar->Length(); i++) par[i] = ar->Get(context, i).ToLocalChecked()->NumberValue(Nan::GetCurrentContext()).FromJust();
+            for (size_t i = 0; i < ia->Length(); i++) pia[i] = ia->Get(context, i).ToLocalChecked()->Int32Value(context).FromJust();
+            for (size_t i = 0; i < ja->Length(); i++) pja[i] = ja->Get(context, i).ToLocalChecked()->Int32Value(context).FromJust();
+            for (size_t i = 0; i < ar->Length(); i++) par[i] = ar->Get(context, i).ToLocalChecked()->NumberValue(context).FromJust();
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
-            GLP_CATCH(glp_load_matrix(lp->handle, info[0]->Int32Value(Nan::GetCurrentContext()).FromJust(), pia, pja, par);)
+            GLP_CATCH(glp_load_matrix(lp->handle, info[0]->Int32Value(context).FromJust(), pia, pja, par);)
             
             delete[] pia;
             delete[] pja;
@@ -389,10 +389,10 @@ namespace NodeGLPK {
                 std::string keystr = std::string(V8TOCSTRING(key));
                 if (keystr == "msgLev"){
                     V8CHECKBOOL(!val->IsInt32(), "msgLev: should be int32");
-                    iptcp->msg_lev = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                    iptcp->msg_lev = val->Int32Value(context).FromJust();
                 } else if (keystr == "ordAlg"){
                     V8CHECKBOOL(!val->IsInt32(), "ordAlg: should be int32");
-                    iptcp->ord_alg = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                    iptcp->ord_alg = val->Int32Value(context).FromJust();
                 } else {
                     std::string error("Unknow field: ");
                     error += keystr;
@@ -472,10 +472,10 @@ namespace NodeGLPK {
                     std::string keystr = std::string(V8TOCSTRING(key));
                     if (keystr == "blank"){
                         V8CHECKBOOL(!val->IsInt32(), "blank: should be int32");
-                        mpscp->blank = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                        mpscp->blank = val->Int32Value(context).FromJust();
                     } else if (keystr == "tolMps"){
                         V8CHECKBOOL(!val->IsNumber(), "tolMps: should be number");
-                        mpscp->tol_mps = val->NumberValue(Nan::GetCurrentContext()).FromJust();
+                        mpscp->tol_mps = val->NumberValue(context).FromJust();
                     } else if (keystr == "objName"){
                         V8CHECKBOOL(!val->IsString(), "objName: should be a string");
                         std::string objname = std::string(V8TOCSTRING(val));
@@ -660,67 +660,67 @@ namespace NodeGLPK {
                     std::string keystr = std::string(V8TOCSTRING(key));
                     if (keystr == "msgLev"){
                         V8CHECKBOOL(!val->IsInt32(), "msgLev: should be int32");
-                        iocp->msg_lev = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                        iocp->msg_lev = val->Int32Value(context).FromJust();
                     } else if (keystr == "brTech"){
                         V8CHECKBOOL(!val->IsInt32(), "brTech: should be int32");
-                        iocp->br_tech = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                        iocp->br_tech = val->Int32Value(context).FromJust();
                     } else if (keystr == "btTech"){
                         V8CHECKBOOL(!val->IsInt32(), "btTech: should be int32");
-                        iocp->bt_tech = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                        iocp->bt_tech = val->Int32Value(context).FromJust();
                     } else if (keystr == "tolInt"){
                         V8CHECKBOOL(!val->IsNumber(), "tolInt: should be number");
-                        iocp->tol_int = val->NumberValue(Nan::GetCurrentContext()).FromJust();
+                        iocp->tol_int = val->NumberValue(context).FromJust();
                     } else if (keystr == "tolObj"){
                         V8CHECKBOOL(!val->IsNumber(), "tolObj: should be number");
-                        iocp->tol_obj = val->NumberValue(Nan::GetCurrentContext()).FromJust();
+                        iocp->tol_obj = val->NumberValue(context).FromJust();
                     } else if (keystr == "tmLim"){
                         V8CHECKBOOL(!val->IsInt32(), "tmLim: should be int32");
-                        iocp->tm_lim = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                        iocp->tm_lim = val->Int32Value(context).FromJust();
                     } else if (keystr == "outFrq"){
                         V8CHECKBOOL(!val->IsInt32(), "outFrq: should be int32");
-                        iocp->out_frq = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                        iocp->out_frq = val->Int32Value(context).FromJust();
                     } else if (keystr == "outDly"){
                         V8CHECKBOOL(!val->IsInt32(), "outDly: should be int32");
-                        iocp->out_dly = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                        iocp->out_dly = val->Int32Value(context).FromJust();
                     } else if (keystr == "ppTech"){
                         V8CHECKBOOL(!val->IsInt32(), "ppTech: should be int32");
-                        iocp->pp_tech = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                        iocp->pp_tech = val->Int32Value(context).FromJust();
                     } else if (keystr == "mipGap"){
                         V8CHECKBOOL(!val->IsNumber(), "mipGap: should be number");
-                        iocp->mip_gap = val->NumberValue(Nan::GetCurrentContext()).FromJust();
+                        iocp->mip_gap = val->NumberValue(context).FromJust();
                     } else if (keystr == "mirCuts"){
                         V8CHECKBOOL(!val->IsInt32(), "mirCuts: should be int32");
-                        iocp->mir_cuts = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                        iocp->mir_cuts = val->Int32Value(context).FromJust();
                     } else if (keystr == "gmiCuts"){
                         V8CHECKBOOL(!val->IsInt32(), "gmiCuts: should be int32");
-                        iocp->gmi_cuts = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                        iocp->gmi_cuts = val->Int32Value(context).FromJust();
                     } else if (keystr == "covCuts"){
                         V8CHECKBOOL(!val->IsInt32(), "covCuts: should be int32");
-                        iocp->cov_cuts = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                        iocp->cov_cuts = val->Int32Value(context).FromJust();
                     } else if (keystr == "clqCuts"){
                         V8CHECKBOOL(!val->IsInt32(), "clqCuts: should be int32");
-                        iocp->clq_cuts = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                        iocp->clq_cuts = val->Int32Value(context).FromJust();
                     } else if (keystr == "presolve"){
                         V8CHECKBOOL(!val->IsInt32(), "presolve: should be int32");
-                        iocp->presolve = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                        iocp->presolve = val->Int32Value(context).FromJust();
                     } else if (keystr == "binarize"){
                         V8CHECKBOOL(!val->IsInt32(), "binarize: should be int32");
-                        iocp->binarize = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                        iocp->binarize = val->Int32Value(context).FromJust();
                     } else if (keystr == "fpHeur"){
                         V8CHECKBOOL(!val->IsInt32(), "fpHeur: should be int32");
-                        iocp->fp_heur = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                        iocp->fp_heur = val->Int32Value(context).FromJust();
                     } else if (keystr == "psHeur"){
                         V8CHECKBOOL(!val->IsInt32(), "psHeur: should be int32");
-                        iocp->ps_heur = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                        iocp->ps_heur = val->Int32Value(context).FromJust();
                     } else if (keystr == "psTmLim"){
                         V8CHECKBOOL(!val->IsInt32(), "psTmLim: should be int32");
-                        iocp->ps_tm_lim = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                        iocp->ps_tm_lim = val->Int32Value(context).FromJust();
                     } else if (keystr == "useSol"){
                         V8CHECKBOOL(!val->IsInt32(), "useSol: should be int32");
-                        iocp->use_sol = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                        iocp->use_sol = val->Int32Value(context).FromJust();
                     } else if (keystr == "alien"){
                         V8CHECKBOOL(!val->IsInt32(), "alien: should be int32");
-                        iocp->alien = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                        iocp->alien = val->Int32Value(context).FromJust();
                     } else if (keystr == "saveSol"){
                         V8CHECKBOOL(!val->IsString(), "saveSol: should be a string");
                         std::string solfile = std::string(V8TOCSTRING(val));
@@ -732,7 +732,7 @@ namespace NodeGLPK {
                         iocp->cb_info = new Nan::Callback(Local<Function>::Cast(val));
                     } else if (keystr == "cbReasons"){
                         V8CHECKBOOL(!val->IsInt32(), "cbReason: should be int32");
-                        iocp->cb_reasons = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                        iocp->cb_reasons = val->Int32Value(context).FromJust();
                     } else {
                         std::string error("Unknow field: ");
                         error += keystr;
@@ -992,12 +992,12 @@ namespace NodeGLPK {
                     if (count > 1) {
                         plist = new int[count];
 
-                        for (size_t i = 0; i < count; i++) plist[i] = list->Get(context, i).ToLocalChecked()->Int32Value(Nan::GetCurrentContext()).FromJust();
+                        for (size_t i = 0; i < count; i++) plist[i] = list->Get(context, i).ToLocalChecked()->Int32Value(context).FromJust();
                         count--;
                     }
                 }
                       
-                ret = glp_print_ranges(lp->handle, count, plist, info[1]->Int32Value(Nan::GetCurrentContext()).FromJust(), V8TOCSTRING(info[2]));
+                ret = glp_print_ranges(lp->handle, count, plist, info[1]->Int32Value(context).FromJust(), V8TOCSTRING(info[2]));
                       
             )
             if (plist) delete[] plist;
@@ -1059,9 +1059,9 @@ namespace NodeGLPK {
             
             Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
             Local<Context> context = Nan::GetCurrentContext();
-            PrintRangesWorker *worker = new PrintRangesWorker(callback, lp, len, info[1]->Int32Value(Nan::GetCurrentContext()).FromJust(), V8TOCSTRING(info[2]));
+            PrintRangesWorker *worker = new PrintRangesWorker(callback, lp, len, info[1]->Int32Value(context).FromJust(), V8TOCSTRING(info[2]));
             if (len > 0) {
-                for (size_t i = 0; i < len; i++) worker->list[i] = list->Get(context, i).ToLocalChecked()->Int32Value(Nan::GetCurrentContext()).FromJust();
+                for (size_t i = 0; i < len; i++) worker->list[i] = list->Get(context, i).ToLocalChecked()->Int32Value(context).FromJust();
                 worker->len--;
             }
             
@@ -1112,25 +1112,25 @@ namespace NodeGLPK {
                               std::string keystr = std::string(V8TOCSTRING(key));
                               if (keystr == "type"){
                                   V8CHECK(!val->IsInt32(), "type: should be int32");
-                                  bfcp.type = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                                  bfcp.type = val->Int32Value(context).FromJust();
                               } else if (keystr == "pivTol"){
                                   V8CHECK(!val->IsNumber(), "pivTol: should be number");
-                                  bfcp.piv_tol = val->NumberValue(Nan::GetCurrentContext()).FromJust();
+                                  bfcp.piv_tol = val->NumberValue(context).FromJust();
                               } else if (keystr == "pivLim"){
                                   V8CHECK(!val->IsInt32(), "pivLim: should be int32");
-                                  bfcp.piv_lim = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                                  bfcp.piv_lim = val->Int32Value(context).FromJust();
                               } else if (keystr == "suhl"){
                                   V8CHECK(!val->IsInt32(), "suhl: should be int32");
-                                  bfcp.suhl = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                                  bfcp.suhl = val->Int32Value(context).FromJust();
                               } else if (keystr == "epsTol"){
                                   V8CHECK(!val->IsNumber(), "epsTol: should be number");
-                                  bfcp.eps_tol = val->NumberValue(Nan::GetCurrentContext()).FromJust();
+                                  bfcp.eps_tol = val->NumberValue(context).FromJust();
                               } else if (keystr == "nfsMax"){
                                   V8CHECK(!val->IsInt32(), "nfsMax: should be int32");
-                                  bfcp.nfs_max = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                                  bfcp.nfs_max = val->Int32Value(context).FromJust();
                               } else if (keystr == "nrsMax"){
                                   V8CHECK(!val->IsInt32(), "nrsMax: should be int32");
-                                  bfcp.nrs_max = val->Int32Value(Nan::GetCurrentContext()).FromJust();
+                                  bfcp.nrs_max = val->Int32Value(context).FromJust();
                               } else {
                                   std::string error("Unknow field: ");
                                   error += keystr;
