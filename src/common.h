@@ -172,9 +172,10 @@ static NAN_METHOD(NAME) {\
     \
     int* pja = (int*)malloc(ja->Length() * sizeof(int));\
     double* par = (double*)malloc(ar->Length() * sizeof(double));\
+    Local<Context> context = Nan::GetCurrentContext();\
     \
-    for (size_t i = 0; i < ja->Length(); i++) pja[i] = ja->Get(i)->Int32Value(Nan::GetCurrentContext()).FromJust();\
-    for (size_t i = 0; i < ar->Length(); i++) par[i] = ar->Get(i)->NumberValue(Nan::GetCurrentContext()).FromJust();\
+    for (size_t i = 0; i < ja->Length(); i++) pja[i] = ja->Get(context, i).ToLocalChecked()->Int32Value(Nan::GetCurrentContext()).FromJust();\
+    for (size_t i = 0; i < ar->Length(); i++) par[i] = ar->Get(context, i).ToLocalChecked()->NumberValue(Nan::GetCurrentContext()).FromJust();\
     \
     GLP_CATCH_RET(API(host->handle, info[0]->Int32Value(Nan::GetCurrentContext()).FromJust(), count, pja, par);)\
     \
@@ -238,7 +239,8 @@ static NAN_METHOD(NAME) {\
     V8CHECK(count <= 1, "Invalid Array size");\
     \
     int* idx = (int*)malloc(count * sizeof(int));\
-    for (int i = 0; i < count; i++) idx[i] = num->Get(i)->Int32Value(Nan::GetCurrentContext()).FromJust();\
+    Local<Context> context = Nan::GetCurrentContext();\
+    for (int i = 0; i < count; i++) idx[i] = num->Get(context, i).ToLocalChecked()->Int32Value(Nan::GetCurrentContext()).FromJust();\
     CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread, "an async operation is inprogress")\

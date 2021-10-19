@@ -159,9 +159,10 @@ namespace NodeGLPK {
             if (!value->IsObject()) return false;
             Local<Object> obj = Nan::To<Object>(value).ToLocalChecked();
             Local<Array> props = Nan::GetPropertyNames(obj).ToLocalChecked();
+            Local<Context> context = Nan::GetCurrentContext();
             for(uint32_t i = 0; i < props->Length(); i++){
-                Local<Value> key = props->Get(i);
-                Local<Value> val = obj->Get(key);
+                Local<Value> key = props->Get(context, i).ToLocalChecked();
+                Local<Value> val = obj->Get(context, key).ToLocalChecked();
                 std::string keystr = std::string(V8TOCSTRING(key));
                 if (keystr == "msgLev"){
                     V8CHECKBOOL(!val->IsInt32(), "msgLev: should be int32");
@@ -244,10 +245,11 @@ namespace NodeGLPK {
             int* pia = new int[ia->Length()];
             int* pja = new int[ja->Length()];
             double* par = new double[ar->Length()];
+            Local<Context> context = Nan::GetCurrentContext();
             
-            for (size_t i = 0; i < ia->Length(); i++) pia[i] = ia->Get(i)->Int32Value(Nan::GetCurrentContext()).FromJust();
-            for (size_t i = 0; i < ja->Length(); i++) pja[i] = ja->Get(i)->Int32Value(Nan::GetCurrentContext()).FromJust();
-            for (size_t i = 0; i < ar->Length(); i++) par[i] = ar->Get(i)->NumberValue(Nan::GetCurrentContext()).FromJust();
+            for (size_t i = 0; i < ia->Length(); i++) pia[i] = ia->Get(context, i).ToLocalChecked()->Int32Value(Nan::GetCurrentContext()).FromJust();
+            for (size_t i = 0; i < ja->Length(); i++) pja[i] = ja->Get(context, i).ToLocalChecked()->Int32Value(Nan::GetCurrentContext()).FromJust();
+            for (size_t i = 0; i < ar->Length(); i++) par[i] = ar->Get(context, i).ToLocalChecked()->NumberValue(Nan::GetCurrentContext()).FromJust();
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
@@ -380,9 +382,10 @@ namespace NodeGLPK {
             if (!value->IsObject()) return true;
             Local<Object> obj = Nan::To<Object>(value).ToLocalChecked();
             Local<Array> props = Nan::GetPropertyNames(obj).ToLocalChecked();
+            Local<Context> context = Nan::GetCurrentContext();
             for(uint32_t i = 0; i < props->Length(); i++){
-                Local<Value> key = props->Get(i);
-                Local<Value> val = obj->Get(key);
+                Local<Value> key = props->Get(context, i).ToLocalChecked();
+                Local<Value> val = obj->Get(context, key).ToLocalChecked();
                 std::string keystr = std::string(V8TOCSTRING(key));
                 if (keystr == "msgLev"){
                     V8CHECKBOOL(!val->IsInt32(), "msgLev: should be int32");
@@ -462,9 +465,10 @@ namespace NodeGLPK {
             if (value->IsObject()){
                 Local<Object> obj = Nan::To<Object>(value).ToLocalChecked();
                 Local<Array> props = Nan::GetPropertyNames(obj).ToLocalChecked();
+                Local<Context> context = Nan::GetCurrentContext();
                 for(uint32_t i = 0; i < props->Length(); i++){
-                    Local<Value> key = props->Get(i);
-                    Local<Value> val = obj->Get(key);
+                    Local<Value> key = props->Get(context, i).ToLocalChecked();
+                    Local<Value> val = obj->Get(context, key).ToLocalChecked();
                     std::string keystr = std::string(V8TOCSTRING(key));
                     if (keystr == "blank"){
                         V8CHECKBOOL(!val->IsInt32(), "blank: should be int32");
@@ -649,9 +653,10 @@ namespace NodeGLPK {
             if (value->IsObject()){
                 Local<Object> obj = Nan::To<Object>(value).ToLocalChecked();
                 Local<Array> props = Nan::GetPropertyNames(obj).ToLocalChecked();
+                Local<Context> context = Nan::GetCurrentContext();
                 for(uint32_t i = 0; i < props->Length(); i++){
-                    Local<Value> key = props->Get(i);
-                    Local<Value> val = obj->Get(key);
+                    Local<Value> key = props->Get(context, i).ToLocalChecked();
+                    Local<Value> val = obj->Get(context, key).ToLocalChecked();
                     std::string keystr = std::string(V8TOCSTRING(key));
                     if (keystr == "msgLev"){
                         V8CHECKBOOL(!val->IsInt32(), "msgLev: should be int32");
@@ -980,12 +985,14 @@ namespace NodeGLPK {
             int* plist = NULL;
             int ret = 0;
             GLP_CATCH(
+                Local<Context> context = Nan::GetCurrentContext();
                 if (info[0]->IsInt32Array()) {
                     Local<Int32Array> list = Local<Int32Array>::Cast(info[0]);
                     count = list->Length();
                     if (count > 1) {
                         plist = new int[count];
-                        for (size_t i = 0; i < count; i++) plist[i] = list->Get(i)->Int32Value(Nan::GetCurrentContext()).FromJust();
+
+                        for (size_t i = 0; i < count; i++) plist[i] = list->Get(context, i).ToLocalChecked()->Int32Value(Nan::GetCurrentContext()).FromJust();
                         count--;
                     }
                 }
@@ -1051,9 +1058,10 @@ namespace NodeGLPK {
             }
             
             Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
+            Local<Context> context = Nan::GetCurrentContext();
             PrintRangesWorker *worker = new PrintRangesWorker(callback, lp, len, info[1]->Int32Value(Nan::GetCurrentContext()).FromJust(), V8TOCSTRING(info[2]));
             if (len > 0) {
-                for (size_t i = 0; i < len; i++) worker->list[i] = list->Get(i)->Int32Value(Nan::GetCurrentContext()).FromJust();
+                for (size_t i = 0; i < len; i++) worker->list[i] = list->Get(context, i).ToLocalChecked()->Int32Value(Nan::GetCurrentContext()).FromJust();
                 worker->len--;
             }
             
@@ -1097,9 +1105,10 @@ namespace NodeGLPK {
                       if (info[0]->IsObject()){
                           Local<Object> obj = Nan::To<Object>(info[0]).ToLocalChecked();
                           Local<Array> props = Nan::GetPropertyNames(obj).ToLocalChecked();
+                          Local<Context> context = Nan::GetCurrentContext();
                           for(uint32_t i = 0; i < props->Length(); i++){
-                              Local<Value> key = props->Get(i);
-                              Local<Value> val = obj->Get(key);
+                              Local<Value> key = props->Get(context, i).ToLocalChecked();
+                              Local<Value> val = obj->Get(context, key).ToLocalChecked();
                               std::string keystr = std::string(V8TOCSTRING(key));
                               if (keystr == "type"){
                                   V8CHECK(!val->IsInt32(), "type: should be int32");
