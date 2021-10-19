@@ -530,7 +530,7 @@ namespace NodeGLPK {
             }
             void HandleOKCallback() {
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
-                callback->Call(2, info);
+                callback->Call(2, info, async_resource);
             }
             
         public:
@@ -602,7 +602,7 @@ namespace NodeGLPK {
             }
             void HandleOKCallback() {
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
-                callback->Call(2, info);
+                callback->Call(2, info, async_resource);
             }
             
         public:
@@ -807,7 +807,7 @@ namespace NodeGLPK {
             
             void HandleOKCallback(){
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ctx.ret)};
-                callback->Call(2, info);
+                callback->Call(2, info, async_resource);
             }
             
             void Destroy() {
@@ -868,7 +868,7 @@ namespace NodeGLPK {
             }
             void HandleOKCallback() {
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
-                callback->Call(2, info);
+                callback->Call(2, info, async_resource);
             }
             
         public:
@@ -921,7 +921,7 @@ namespace NodeGLPK {
             }
             void HandleOKCallback() {
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
-                callback->Call(2, info);
+                callback->Call(2, info, async_resource);
             }
         public:
             int ret;
@@ -1013,7 +1013,7 @@ namespace NodeGLPK {
             
             void HandleOKCallback() {
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
-                callback->Call(2, info);
+                callback->Call(2, info, async_resource);
             }
             void WorkComplete() {
                 lp->thread = false;
@@ -1188,7 +1188,7 @@ namespace NodeGLPK {
             }
             void HandleOKCallback() {
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
-                callback->Call(2, info);
+                callback->Call(2, info, async_resource);
             }
         public:
             Problem *lp;

@@ -75,7 +75,7 @@ namespace NodeGLPK {
             }
             virtual void HandleOKCallback() {
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
-                callback->Call(2, info);
+                callback->Call(2, info, async_resource);
             }
             public:
                 Mathprog *mp;
@@ -118,7 +118,7 @@ namespace NodeGLPK {
             }
             virtual void HandleOKCallback() {
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
-                callback->Call(2, info);
+                callback->Call(2, info, async_resource);
             }
         public:
             Mathprog *mp;
@@ -164,7 +164,7 @@ namespace NodeGLPK {
             }
             virtual void HandleOKCallback() {
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
-                callback->Call(2, info);
+                callback->Call(2, info, async_resource);
             }
             
         public:
@@ -283,7 +283,7 @@ namespace NodeGLPK {
             }
             virtual void HandleOKCallback() {
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
-                callback->Call(2, info);
+                callback->Call(2, info, async_resource);
             }
         public:
             Mathprog *mp;
