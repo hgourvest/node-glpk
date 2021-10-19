@@ -193,8 +193,7 @@ static NAN_METHOD(NAME) {\
     V8CHECK(host->thread, "an async operation is inprogress")\
     \
     try{\
-        Local<Context> context = Nan::GetCurrentContext();\
-        int row = info[0]->Int32Value(context).FromJust();\
+        int row = info[0]->Int32Value(Nan::GetCurrentContext()).FromJust();\
         int count = API(host->handle, row, NULL, NULL);\
         \
         if ((info.Length() == 2) && (info[1]->IsFunction())) {\
@@ -203,15 +202,15 @@ static NAN_METHOD(NAME) {\
             API(host->handle, row, idx, val);\
             Local<Int32Array> ja = Int32Array::New(ArrayBuffer::New(Isolate::GetCurrent(), sizeof(int) * (count+1)), 0, count + 1);\
             Local<Float64Array> ar = Float64Array::New(ArrayBuffer::New(Isolate::GetCurrent(), sizeof(double) * (count+1)), 0, count + 1);\
-        	for (int i = 1; i <= count; i++) ja->Set(context, (uint32_t)i, Int32::New(Isolate::GetCurrent(), idx[i])).Check();\
-        	for (int i = 1; i <= count; i++) ar->Set(context, (uint32_t)i, Number::New(Isolate::GetCurrent(), val[i])).Check();\
+        	for (int i = 1; i <= count; i++) Nan::Set(ja, (uint32_t)i, Int32::New(Isolate::GetCurrent(), idx[i])).Check();\
+        	for (int i = 1; i <= count; i++) Nan::Set(ar, (uint32_t)i, Number::New(Isolate::GetCurrent(), val[i])).Check();\
         	free(idx);\
         	free(val);\
             \
             Local<Function> cb = Local<Function>::Cast(info[1]);\
             const unsigned argc = 2;\
             Local<Value> argv[argc] = {ja, ar};\
-            Nan::Call(cb, context->Global(), argc, argv);\
+            Nan::Call(cb, Nan::GetCurrentContext()->Global(), argc, argv);\
             info.GetReturnValue().Set(count);\
         }\
     } catch (std::string s) {\
@@ -311,10 +310,10 @@ static NAN_METHOD(NAME) {\
 }
 
 #define GLP_SET_FIELD_INT32(OBJ, KEY, VALUE)\
-OBJ->Set(Nan::GetCurrentContext(), Nan::New<String>(KEY).ToLocalChecked(), Nan::New<Int32>(VALUE)).Check();
+Nan::Set(OBJ, Nan::New<String>(KEY).ToLocalChecked(), Nan::New<Int32>(VALUE)).Check();
 
 #define GLP_SET_FIELD_DOUBLE(OBJ, KEY, VALUE)\
-OBJ->Set(Nan::GetCurrentContext(), Nan::New<String>(KEY).ToLocalChecked(), Nan::New<Number>(VALUE)).Check();
+Nan::Set(OBJ, Nan::New<String>(KEY).ToLocalChecked(), Nan::New<Number>(VALUE)).Check();
 
 
 #define GLP_ASYNC_INT32_STR(CLASS, NAME, API)\

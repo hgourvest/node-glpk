@@ -152,7 +152,7 @@ namespace NodeGLPK {
             
             constructor.Reset(tpl);
 
-            exports->Set(Nan::GetCurrentContext(), Nan::New<String>("Problem").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked()).Check();
+            Nan::Set(exports, Nan::New<String>("Problem").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked()).Check();
         }
         
         static bool SmcpInit(glp_smcp* scmp, Local<Value> value){
