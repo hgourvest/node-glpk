@@ -21,8 +21,7 @@
   },
   "scripts": {
     "configure": "node-gyp configure",
-    "build": "node-gyp build",
-    "test": "echo \"Info: no test specified\" && exit 0"
+    "build": "node-gyp build"
   },
   "engines" : { "node" : ">=0.11.0 <=16.x", "iojs": "*" }
 }
