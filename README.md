@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/dmitrymyadzelets/node-glpk.svg?branch=node-v12)](https://travis-ci.org/dmitrymyadzelets/node-glpk)
+[![Build Status](https://travis-ci.org/dmitrymyadzelets/node-glpk.svg?branch=master)](https://travis-ci.org/dmitrymyadzelets/node-glpk)
 # node-glpk
 Node.js native module for GLPK.
 
