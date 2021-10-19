@@ -8,7 +8,8 @@
   ],
    "repository": {
     "type": "git",
-    "url": "git://github.com/hgourvest/node-glpk.git"
+    "url": "git://github.com/hgourvest/node-glpk.git",
+    "test": "echo \"Info: no test specified\" && exit 0"
   },
   "homepage": "http://github.com/hgourvest/node-glpk",
   "description": "Node.js native module for GLPK.",
