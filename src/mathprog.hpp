@@ -11,7 +11,7 @@ namespace NodeGLPK {
 
     class Mathprog : public node::ObjectWrap {
     public:
-        static void Init(Handle<Object> exports){
+        static void Init(Local<Object> exports){
             // Prepare constructor template
             Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
             tpl->SetClassName(Nan::New<String>("Mathprog").ToLocalChecked());
@@ -33,7 +33,8 @@ namespace NodeGLPK {
             Nan::SetPrototypeMethod(tpl, "getLastError", getLastError);
             
             constructor.Reset(tpl);
-            exports->Set(Nan::New<String>("Mathprog").ToLocalChecked(), tpl->GetFunction());
+
+            Nan::Set(exports, Nan::New<String>("Mathprog").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked()).Check();
         }
     private:
         explicit Mathprog(): node::ObjectWrap(){
@@ -74,7 +75,7 @@ namespace NodeGLPK {
             }
             virtual void HandleOKCallback() {
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
-                callback->Call(2, info);
+                callback->Call(2, info, async_resource);
             }
             public:
                 Mathprog *mp;
@@ -91,7 +92,7 @@ namespace NodeGLPK {
             V8CHECK(mp->thread, "an async operation is inprogress");
             
             Nan::Callback *callback = new Nan::Callback(info[2].As<Function>());
-            ReadModelWorker *worker = new ReadModelWorker(callback, mp, V8TOCSTRING(info[0]), info[1]->Int32Value());
+            ReadModelWorker *worker = new ReadModelWorker(callback, mp, V8TOCSTRING(info[0]), info[1]->Int32Value(Nan::GetCurrentContext()).FromJust());
             mp->thread = true;
             Nan::AsyncQueueWorker(worker);
         }
@@ -117,7 +118,7 @@ namespace NodeGLPK {
             }
             virtual void HandleOKCallback() {
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
-                callback->Call(2, info);
+                callback->Call(2, info, async_resource);
             }
         public:
             Mathprog *mp;
@@ -163,7 +164,7 @@ namespace NodeGLPK {
             }
             virtual void HandleOKCallback() {
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
-                callback->Call(2, info);
+                callback->Call(2, info, async_resource);
             }
             
         public:
@@ -236,7 +237,7 @@ namespace NodeGLPK {
             V8CHECK(!mp->handle, "object deleted");
             V8CHECK(mp->thread, "an async operation is inprogress");
             
-            Problem* lp = ObjectWrap::Unwrap<Problem>(info[0]->ToObject());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(Nan::To<Object>(info[0]).ToLocalChecked());
             V8CHECK(!lp || !lp->handle, "invalid problem");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
@@ -256,7 +257,7 @@ namespace NodeGLPK {
             V8CHECK(!mp->handle, "object deleted");
             V8CHECK(mp->thread, "an async operation is inprogress");
             
-            Problem* lp = ObjectWrap::Unwrap<Problem>(info[0]->ToObject());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(Nan::To<Object>(info[0]).ToLocalChecked());
             V8CHECK(!lp || !lp->handle, "invalid problem");
             
             GLP_CATCH_RET(glp_mpl_build_prob(mp->handle, lp->handle);)
@@ -282,7 +283,7 @@ namespace NodeGLPK {
             }
             virtual void HandleOKCallback() {
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
-                callback->Call(2, info);
+                callback->Call(2, info, async_resource);
             }
         public:
             Mathprog *mp;
@@ -298,12 +299,12 @@ namespace NodeGLPK {
             V8CHECK(!mp->handle, "object deleted");
             V8CHECK(mp->thread, "an async operation is inprogress");
             
-            Problem* lp = ObjectWrap::Unwrap<Problem>(info[0]->ToObject());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(Nan::To<Object>(info[0]).ToLocalChecked());
             V8CHECK(!lp || !lp->handle, "invalid problem");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
             Nan::Callback *callback = new Nan::Callback(info[2].As<Function>());
-            PostsolveWorker *worker = new PostsolveWorker(callback, mp, lp, info[1]->Int32Value());
+            PostsolveWorker *worker = new PostsolveWorker(callback, mp, lp, info[1]->Int32Value(Nan::GetCurrentContext()).FromJust());
             mp->thread = true;
             Nan::AsyncQueueWorker(worker);
         }
@@ -316,10 +317,10 @@ namespace NodeGLPK {
             V8CHECK(!mp->handle, "object deleted");
             V8CHECK(mp->thread, "an async operation is inprogress");
             
-            Problem* lp = ObjectWrap::Unwrap<Problem>(info[0]->ToObject());
+            Problem* lp = ObjectWrap::Unwrap<Problem>(Nan::To<Object>(info[0]).ToLocalChecked());
             V8CHECK(!lp || !lp->handle, "invalid problem");
             
-            GLP_CATCH_RET(info.GetReturnValue().Set(glp_mpl_postsolve(mp->handle, lp->handle, info[1]->Int32Value()));)
+            GLP_CATCH_RET(info.GetReturnValue().Set(glp_mpl_postsolve(mp->handle, lp->handle, info[1]->Int32Value(Nan::GetCurrentContext()).FromJust()));)
         }
         
         static NAN_METHOD(getLine){

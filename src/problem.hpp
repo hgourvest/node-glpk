@@ -13,7 +13,7 @@ namespace NodeGLPK {
     
     class Problem : public node::ObjectWrap {
     public:
-        static void Init(Handle<Object> exports){
+        static void Init(Local<Object> exports){
             // Prepare constructor template
             Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
             tpl->SetClassName(Nan::New<String>("Problem").ToLocalChecked());
@@ -151,59 +151,61 @@ namespace NodeGLPK {
             Nan::SetPrototypeMethod(tpl, "warmUp", WarmUp);
             
             constructor.Reset(tpl);
-            exports->Set(Nan::New<String>("Problem").ToLocalChecked(), tpl->GetFunction());
+
+            Nan::Set(exports, Nan::New<String>("Problem").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked()).Check();
         }
         
         static bool SmcpInit(glp_smcp* scmp, Local<Value> value){
             if (!value->IsObject()) return false;
-            Local<Object> obj = value->ToObject();
-            Local<Array> props = obj->GetPropertyNames();
+            Local<Object> obj = Nan::To<Object>(value).ToLocalChecked();
+            Local<Array> props = Nan::GetPropertyNames(obj).ToLocalChecked();
+            Local<Context> context = Nan::GetCurrentContext();
             for(uint32_t i = 0; i < props->Length(); i++){
-                Local<Value> key = props->Get(i);
-                Local<Value> val = obj->Get(key);
+                Local<Value> key = props->Get(context, i).ToLocalChecked();
+                Local<Value> val = obj->Get(context, key).ToLocalChecked();
                 std::string keystr = std::string(V8TOCSTRING(key));
                 if (keystr == "msgLev"){
                     V8CHECKBOOL(!val->IsInt32(), "msgLev: should be int32");
-                    scmp->msg_lev = val->Int32Value();
+                    scmp->msg_lev = val->Int32Value(context).FromJust();
                 } else if (keystr == "meth"){
                     V8CHECKBOOL(!val->IsInt32(), "meth: should be int32");
-                    scmp->meth = val->Int32Value();
+                    scmp->meth = val->Int32Value(context).FromJust();
                 } else if (keystr == "pricing"){
                     V8CHECKBOOL(!val->IsInt32(), "pricing: should be int32");
-                    scmp->pricing = val->Int32Value();
+                    scmp->pricing = val->Int32Value(context).FromJust();
                 } else if (keystr == "rTest"){
                     V8CHECKBOOL(!val->IsInt32(), "rTest: should be int32");
-                    scmp->r_test = val->Int32Value();
+                    scmp->r_test = val->Int32Value(context).FromJust();
                 } else if (keystr == "tolBnd"){
                     V8CHECKBOOL(!val->IsNumber(), "tolBnd: should be a Number");
-                    scmp->tol_bnd = val->NumberValue();
+                    scmp->tol_bnd = val->NumberValue(context).FromJust();
                 } else if (keystr == "tolDj"){
                     V8CHECKBOOL(!val->IsNumber(), "tolDj: should be a Number");
-                    scmp->tol_dj = val->NumberValue();
+                    scmp->tol_dj = val->NumberValue(context).FromJust();
                 } else if (keystr == "tolPiv"){
                     V8CHECKBOOL(!val->IsNumber(), "tolPiv: should be a Number");
-                    scmp->tol_piv = val->NumberValue();
+                    scmp->tol_piv = val->NumberValue(context).FromJust();
                 } else if (keystr == "objLl"){
                     V8CHECKBOOL(!val->IsNumber(), "objLl: should be a Number");
-                    scmp->obj_ll = val->NumberValue();
+                    scmp->obj_ll = val->NumberValue(context).FromJust();
                 } else if (keystr == "objUl"){
                     V8CHECKBOOL(!val->IsNumber(), "objUl: should be a Number");
-                    scmp->obj_ul = val->NumberValue();
+                    scmp->obj_ul = val->NumberValue(context).FromJust();
                 } else if (keystr == "itLim"){
                     V8CHECKBOOL(!val->IsInt32(), "itLim: should be int32");
-                    scmp->it_lim = val->Int32Value();
+                    scmp->it_lim = val->Int32Value(context).FromJust();
                 } else if (keystr == "tmLim"){
                     V8CHECKBOOL(!val->IsInt32(), "tmLim: should be int32");
-                    scmp->tm_lim = val->Int32Value();
+                    scmp->tm_lim = val->Int32Value(context).FromJust();
                 } else if (keystr == "outFrq"){
                     V8CHECKBOOL(!val->IsInt32(), "outFrq: should be int32");
-                    scmp->out_frq = val->Int32Value();
+                    scmp->out_frq = val->Int32Value(context).FromJust();
                 } else if (keystr == "outDly"){
                     V8CHECKBOOL(!val->IsInt32(), "outDly: should be int32");
-                    scmp->out_dly = val->Int32Value();
+                    scmp->out_dly = val->Int32Value(context).FromJust();
                 } else if (keystr == "presolve"){
                     V8CHECKBOOL(!val->IsInt32(), "presolve: should be int32");
-                    scmp->presolve = val->Int32Value();
+                    scmp->presolve = val->Int32Value(context).FromJust();
                 } else {
                     std::string error("Unknow field: ");
                     error += keystr;
@@ -243,16 +245,17 @@ namespace NodeGLPK {
             int* pia = new int[ia->Length()];
             int* pja = new int[ja->Length()];
             double* par = new double[ar->Length()];
+            Local<Context> context = Nan::GetCurrentContext();
             
-            for (size_t i = 0; i < ia->Length(); i++) pia[i] = ia->Get(i)->Int32Value();
-            for (size_t i = 0; i < ja->Length(); i++) pja[i] = ja->Get(i)->Int32Value();
-            for (size_t i = 0; i < ar->Length(); i++) par[i] = ar->Get(i)->NumberValue();
+            for (size_t i = 0; i < ia->Length(); i++) pia[i] = ia->Get(context, i).ToLocalChecked()->Int32Value(context).FromJust();
+            for (size_t i = 0; i < ja->Length(); i++) pja[i] = ja->Get(context, i).ToLocalChecked()->Int32Value(context).FromJust();
+            for (size_t i = 0; i < ar->Length(); i++) par[i] = ar->Get(context, i).ToLocalChecked()->NumberValue(context).FromJust();
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread, "an async operation is inprogress");
             
-            GLP_CATCH(glp_load_matrix(lp->handle, info[0]->Int32Value(), pia, pja, par);)
+            GLP_CATCH(glp_load_matrix(lp->handle, info[0]->Int32Value(context).FromJust(), pia, pja, par);)
             
             delete[] pia;
             delete[] pja;
@@ -377,18 +380,19 @@ namespace NodeGLPK {
         
         static bool IptcpInit(glp_iptcp* iptcp, Local<Value> value){
             if (!value->IsObject()) return true;
-            Local<Object> obj = value->ToObject();
-            Local<Array> props = obj->GetPropertyNames();
+            Local<Object> obj = Nan::To<Object>(value).ToLocalChecked();
+            Local<Array> props = Nan::GetPropertyNames(obj).ToLocalChecked();
+            Local<Context> context = Nan::GetCurrentContext();
             for(uint32_t i = 0; i < props->Length(); i++){
-                Local<Value> key = props->Get(i);
-                Local<Value> val = obj->Get(key);
+                Local<Value> key = props->Get(context, i).ToLocalChecked();
+                Local<Value> val = obj->Get(context, key).ToLocalChecked();
                 std::string keystr = std::string(V8TOCSTRING(key));
                 if (keystr == "msgLev"){
                     V8CHECKBOOL(!val->IsInt32(), "msgLev: should be int32");
-                    iptcp->msg_lev = val->Int32Value();
+                    iptcp->msg_lev = val->Int32Value(context).FromJust();
                 } else if (keystr == "ordAlg"){
                     V8CHECKBOOL(!val->IsInt32(), "ordAlg: should be int32");
-                    iptcp->ord_alg = val->Int32Value();
+                    iptcp->ord_alg = val->Int32Value(context).FromJust();
                 } else {
                     std::string error("Unknow field: ");
                     error += keystr;
@@ -459,18 +463,19 @@ namespace NodeGLPK {
         
         static bool MpscpInit(glp_mpscp *mpscp, Local<Value> value){
             if (value->IsObject()){
-                Local<Object> obj = value->ToObject();
-                Local<Array> props = obj->GetPropertyNames();
+                Local<Object> obj = Nan::To<Object>(value).ToLocalChecked();
+                Local<Array> props = Nan::GetPropertyNames(obj).ToLocalChecked();
+                Local<Context> context = Nan::GetCurrentContext();
                 for(uint32_t i = 0; i < props->Length(); i++){
-                    Local<Value> key = props->Get(i);
-                    Local<Value> val = obj->Get(key);
+                    Local<Value> key = props->Get(context, i).ToLocalChecked();
+                    Local<Value> val = obj->Get(context, key).ToLocalChecked();
                     std::string keystr = std::string(V8TOCSTRING(key));
                     if (keystr == "blank"){
                         V8CHECKBOOL(!val->IsInt32(), "blank: should be int32");
-                        mpscp->blank = val->Int32Value();
+                        mpscp->blank = val->Int32Value(context).FromJust();
                     } else if (keystr == "tolMps"){
                         V8CHECKBOOL(!val->IsNumber(), "tolMps: should be number");
-                        mpscp->tol_mps = val->NumberValue();
+                        mpscp->tol_mps = val->NumberValue(context).FromJust();
                     } else if (keystr == "objName"){
                         V8CHECKBOOL(!val->IsString(), "objName: should be a string");
                         std::string objname = std::string(V8TOCSTRING(val));
@@ -500,7 +505,7 @@ namespace NodeGLPK {
                 V8CHECK(!lp->handle, "object deleted");
                 V8CHECK(lp->thread, "an async operation is inprogress");
                           
-                int ret = glp_read_mps(lp->handle, info[0]->Int32Value(), &mpscp, V8TOCSTRING(info[2]));
+                int ret = glp_read_mps(lp->handle, info[0]->Int32Value(Nan::GetCurrentContext()).FromJust(), &mpscp, V8TOCSTRING(info[2]));
                 if (mpscp.obj_name) delete[] mpscp.obj_name;
                 info.GetReturnValue().Set(ret);
             )
@@ -529,7 +534,7 @@ namespace NodeGLPK {
             }
             void HandleOKCallback() {
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
-                callback->Call(2, info);
+                callback->Call(2, info, async_resource);
             }
             
         public:
@@ -549,7 +554,7 @@ namespace NodeGLPK {
             V8CHECK(lp->thread, "an async operation is inprogress");
             
             Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
-            ReadMpsWorker *worker = new ReadMpsWorker(callback, lp, info[0]->Int32Value(), V8TOCSTRING(info[2]));
+            ReadMpsWorker *worker = new ReadMpsWorker(callback, lp, info[0]->Int32Value(Nan::GetCurrentContext()).FromJust(), V8TOCSTRING(info[2]));
             if (!MpscpInit(&worker->mpscp, info[1])){
                 worker->Destroy();
                 return;
@@ -574,7 +579,7 @@ namespace NodeGLPK {
               V8CHECK(!lp->handle, "object deleted");
               V8CHECK(lp->thread, "an async operation is inprogress");
                           
-              info.GetReturnValue().Set(glp_write_mps(lp->handle, info[0]->Int32Value(), &mpscp, V8TOCSTRING(info[2])));
+              info.GetReturnValue().Set(glp_write_mps(lp->handle, info[0]->Int32Value(Nan::GetCurrentContext()).FromJust(), &mpscp, V8TOCSTRING(info[2])));
             )
         }
         
@@ -601,7 +606,7 @@ namespace NodeGLPK {
             }
             void HandleOKCallback() {
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
-                callback->Call(2, info);
+                callback->Call(2, info, async_resource);
             }
             
         public:
@@ -621,7 +626,7 @@ namespace NodeGLPK {
             V8CHECK(lp->thread, "an async operation is inprogress");
             
             Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
-            WriteMpsWorker *worker = new WriteMpsWorker(callback, lp, info[0]->Int32Value(), V8TOCSTRING(info[2]));
+            WriteMpsWorker *worker = new WriteMpsWorker(callback, lp, info[0]->Int32Value(Nan::GetCurrentContext()).FromJust(), V8TOCSTRING(info[2]));
             if (!MpscpInit(&worker->mpscp, info[1])){
                 worker->Destroy();
                 return;
@@ -638,7 +643,7 @@ namespace NodeGLPK {
             Local<Value> t = Tree::Instantiate(T);
             Local<Value> argv[argc] = {Nan::New<Value>(t)};
             cb->Call(argc, argv);
-            Tree* host = ObjectWrap::Unwrap<Tree>(t->ToObject());
+            Tree* host = ObjectWrap::Unwrap<Tree>(Nan::To<Object>(t).ToLocalChecked());
             host->thread = true;
             host->handle = NULL;
         };
@@ -646,75 +651,76 @@ namespace NodeGLPK {
         
         static bool IocpInit(glp_iocp *iocp, Local<Value> value){
             if (value->IsObject()){
-                Local<Object> obj = value->ToObject();
-                Local<Array> props = obj->GetPropertyNames();
+                Local<Object> obj = Nan::To<Object>(value).ToLocalChecked();
+                Local<Array> props = Nan::GetPropertyNames(obj).ToLocalChecked();
+                Local<Context> context = Nan::GetCurrentContext();
                 for(uint32_t i = 0; i < props->Length(); i++){
-                    Local<Value> key = props->Get(i);
-                    Local<Value> val = obj->Get(key);
+                    Local<Value> key = props->Get(context, i).ToLocalChecked();
+                    Local<Value> val = obj->Get(context, key).ToLocalChecked();
                     std::string keystr = std::string(V8TOCSTRING(key));
                     if (keystr == "msgLev"){
                         V8CHECKBOOL(!val->IsInt32(), "msgLev: should be int32");
-                        iocp->msg_lev = val->Int32Value();
+                        iocp->msg_lev = val->Int32Value(context).FromJust();
                     } else if (keystr == "brTech"){
                         V8CHECKBOOL(!val->IsInt32(), "brTech: should be int32");
-                        iocp->br_tech = val->Int32Value();
+                        iocp->br_tech = val->Int32Value(context).FromJust();
                     } else if (keystr == "btTech"){
                         V8CHECKBOOL(!val->IsInt32(), "btTech: should be int32");
-                        iocp->bt_tech = val->Int32Value();
+                        iocp->bt_tech = val->Int32Value(context).FromJust();
                     } else if (keystr == "tolInt"){
                         V8CHECKBOOL(!val->IsNumber(), "tolInt: should be number");
-                        iocp->tol_int = val->NumberValue();
+                        iocp->tol_int = val->NumberValue(context).FromJust();
                     } else if (keystr == "tolObj"){
                         V8CHECKBOOL(!val->IsNumber(), "tolObj: should be number");
-                        iocp->tol_obj = val->NumberValue();
+                        iocp->tol_obj = val->NumberValue(context).FromJust();
                     } else if (keystr == "tmLim"){
                         V8CHECKBOOL(!val->IsInt32(), "tmLim: should be int32");
-                        iocp->tm_lim = val->Int32Value();
+                        iocp->tm_lim = val->Int32Value(context).FromJust();
                     } else if (keystr == "outFrq"){
                         V8CHECKBOOL(!val->IsInt32(), "outFrq: should be int32");
-                        iocp->out_frq = val->Int32Value();
+                        iocp->out_frq = val->Int32Value(context).FromJust();
                     } else if (keystr == "outDly"){
                         V8CHECKBOOL(!val->IsInt32(), "outDly: should be int32");
-                        iocp->out_dly = val->Int32Value();
+                        iocp->out_dly = val->Int32Value(context).FromJust();
                     } else if (keystr == "ppTech"){
                         V8CHECKBOOL(!val->IsInt32(), "ppTech: should be int32");
-                        iocp->pp_tech = val->Int32Value();
+                        iocp->pp_tech = val->Int32Value(context).FromJust();
                     } else if (keystr == "mipGap"){
                         V8CHECKBOOL(!val->IsNumber(), "mipGap: should be number");
-                        iocp->mip_gap = val->NumberValue();
+                        iocp->mip_gap = val->NumberValue(context).FromJust();
                     } else if (keystr == "mirCuts"){
                         V8CHECKBOOL(!val->IsInt32(), "mirCuts: should be int32");
-                        iocp->mir_cuts = val->Int32Value();
+                        iocp->mir_cuts = val->Int32Value(context).FromJust();
                     } else if (keystr == "gmiCuts"){
                         V8CHECKBOOL(!val->IsInt32(), "gmiCuts: should be int32");
-                        iocp->gmi_cuts = val->Int32Value();
+                        iocp->gmi_cuts = val->Int32Value(context).FromJust();
                     } else if (keystr == "covCuts"){
                         V8CHECKBOOL(!val->IsInt32(), "covCuts: should be int32");
-                        iocp->cov_cuts = val->Int32Value();
+                        iocp->cov_cuts = val->Int32Value(context).FromJust();
                     } else if (keystr == "clqCuts"){
                         V8CHECKBOOL(!val->IsInt32(), "clqCuts: should be int32");
-                        iocp->clq_cuts = val->Int32Value();
+                        iocp->clq_cuts = val->Int32Value(context).FromJust();
                     } else if (keystr == "presolve"){
                         V8CHECKBOOL(!val->IsInt32(), "presolve: should be int32");
-                        iocp->presolve = val->Int32Value();
+                        iocp->presolve = val->Int32Value(context).FromJust();
                     } else if (keystr == "binarize"){
                         V8CHECKBOOL(!val->IsInt32(), "binarize: should be int32");
-                        iocp->binarize = val->Int32Value();
+                        iocp->binarize = val->Int32Value(context).FromJust();
                     } else if (keystr == "fpHeur"){
                         V8CHECKBOOL(!val->IsInt32(), "fpHeur: should be int32");
-                        iocp->fp_heur = val->Int32Value();
+                        iocp->fp_heur = val->Int32Value(context).FromJust();
                     } else if (keystr == "psHeur"){
                         V8CHECKBOOL(!val->IsInt32(), "psHeur: should be int32");
-                        iocp->ps_heur = val->Int32Value();
+                        iocp->ps_heur = val->Int32Value(context).FromJust();
                     } else if (keystr == "psTmLim"){
                         V8CHECKBOOL(!val->IsInt32(), "psTmLim: should be int32");
-                        iocp->ps_tm_lim = val->Int32Value();
+                        iocp->ps_tm_lim = val->Int32Value(context).FromJust();
                     } else if (keystr == "useSol"){
                         V8CHECKBOOL(!val->IsInt32(), "useSol: should be int32");
-                        iocp->use_sol = val->Int32Value();
+                        iocp->use_sol = val->Int32Value(context).FromJust();
                     } else if (keystr == "alien"){
                         V8CHECKBOOL(!val->IsInt32(), "alien: should be int32");
-                        iocp->alien = val->Int32Value();
+                        iocp->alien = val->Int32Value(context).FromJust();
                     } else if (keystr == "saveSol"){
                         V8CHECKBOOL(!val->IsString(), "saveSol: should be a string");
                         std::string solfile = std::string(V8TOCSTRING(val));
@@ -726,7 +732,7 @@ namespace NodeGLPK {
                         iocp->cb_info = new Nan::Callback(Local<Function>::Cast(val));
                     } else if (keystr == "cbReasons"){
                         V8CHECKBOOL(!val->IsInt32(), "cbReason: should be int32");
-                        iocp->cb_reasons = val->Int32Value();
+                        iocp->cb_reasons = val->Int32Value(context).FromJust();
                     } else {
                         std::string error("Unknow field: ");
                         error += keystr;
@@ -806,7 +812,7 @@ namespace NodeGLPK {
             
             void HandleOKCallback(){
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ctx.ret)};
-                callback->Call(2, info);
+                callback->Call(2, info, async_resource);
             }
             
             void Destroy() {
@@ -867,7 +873,7 @@ namespace NodeGLPK {
             }
             void HandleOKCallback() {
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
-                callback->Call(2, info);
+                callback->Call(2, info, async_resource);
             }
             
         public:
@@ -920,7 +926,7 @@ namespace NodeGLPK {
             }
             void HandleOKCallback() {
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
-                callback->Call(2, info);
+                callback->Call(2, info, async_resource);
             }
         public:
             int ret;
@@ -952,7 +958,7 @@ namespace NodeGLPK {
             
             double ae_max, re_max;
             int ae_ind, re_ind;
-            GLP_CATCH_RET(glp_check_kkt(lp->handle, info[0]->Int32Value(), info[1]->Int32Value(), &ae_max, &ae_ind, &re_max, &re_ind);)
+            GLP_CATCH_RET(glp_check_kkt(lp->handle, info[0]->Int32Value(Nan::GetCurrentContext()).FromJust(), info[1]->Int32Value(Nan::GetCurrentContext()).FromJust(), &ae_max, &ae_ind, &re_max, &re_ind);)
             
             Nan::Callback* cb = new Nan::Callback(Local<Function>::Cast(info[2]));
             const unsigned argc = 4;
@@ -979,17 +985,19 @@ namespace NodeGLPK {
             int* plist = NULL;
             int ret = 0;
             GLP_CATCH(
+                Local<Context> context = Nan::GetCurrentContext();
                 if (info[0]->IsInt32Array()) {
                     Local<Int32Array> list = Local<Int32Array>::Cast(info[0]);
                     count = list->Length();
                     if (count > 1) {
                         plist = new int[count];
-                        for (size_t i = 0; i < count; i++) plist[i] = list->Get(i)->Int32Value();
+
+                        for (size_t i = 0; i < count; i++) plist[i] = list->Get(context, i).ToLocalChecked()->Int32Value(context).FromJust();
                         count--;
                     }
                 }
                       
-                ret = glp_print_ranges(lp->handle, count, plist, info[1]->Int32Value(), V8TOCSTRING(info[2]));
+                ret = glp_print_ranges(lp->handle, count, plist, info[1]->Int32Value(context).FromJust(), V8TOCSTRING(info[2]));
                       
             )
             if (plist) delete[] plist;
@@ -1012,7 +1020,7 @@ namespace NodeGLPK {
             
             void HandleOKCallback() {
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
-                callback->Call(2, info);
+                callback->Call(2, info, async_resource);
             }
             void WorkComplete() {
                 lp->thread = false;
@@ -1050,9 +1058,10 @@ namespace NodeGLPK {
             }
             
             Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
-            PrintRangesWorker *worker = new PrintRangesWorker(callback, lp, len, info[1]->Int32Value(), V8TOCSTRING(info[2]));
+            Local<Context> context = Nan::GetCurrentContext();
+            PrintRangesWorker *worker = new PrintRangesWorker(callback, lp, len, info[1]->Int32Value(context).FromJust(), V8TOCSTRING(info[2]));
             if (len > 0) {
-                for (size_t i = 0; i < len; i++) worker->list[i] = list->Get(i)->Int32Value();
+                for (size_t i = 0; i < len; i++) worker->list[i] = list->Get(context, i).ToLocalChecked()->Int32Value(context).FromJust();
                 worker->len--;
             }
             
@@ -1094,33 +1103,34 @@ namespace NodeGLPK {
                       glp_get_bfcp(lp->handle, &bfcp);
                       
                       if (info[0]->IsObject()){
-                          Local<Object> obj = info[0]->ToObject();
-                          Local<Array> props = obj->GetPropertyNames();
+                          Local<Object> obj = Nan::To<Object>(info[0]).ToLocalChecked();
+                          Local<Array> props = Nan::GetPropertyNames(obj).ToLocalChecked();
+                          Local<Context> context = Nan::GetCurrentContext();
                           for(uint32_t i = 0; i < props->Length(); i++){
-                              Local<Value> key = props->Get(i);
-                              Local<Value> val = obj->Get(key);
+                              Local<Value> key = props->Get(context, i).ToLocalChecked();
+                              Local<Value> val = obj->Get(context, key).ToLocalChecked();
                               std::string keystr = std::string(V8TOCSTRING(key));
                               if (keystr == "type"){
                                   V8CHECK(!val->IsInt32(), "type: should be int32");
-                                  bfcp.type = val->Int32Value();
+                                  bfcp.type = val->Int32Value(context).FromJust();
                               } else if (keystr == "pivTol"){
                                   V8CHECK(!val->IsNumber(), "pivTol: should be number");
-                                  bfcp.piv_tol = val->NumberValue();
+                                  bfcp.piv_tol = val->NumberValue(context).FromJust();
                               } else if (keystr == "pivLim"){
                                   V8CHECK(!val->IsInt32(), "pivLim: should be int32");
-                                  bfcp.piv_lim = val->Int32Value();
+                                  bfcp.piv_lim = val->Int32Value(context).FromJust();
                               } else if (keystr == "suhl"){
                                   V8CHECK(!val->IsInt32(), "suhl: should be int32");
-                                  bfcp.suhl = val->Int32Value();
+                                  bfcp.suhl = val->Int32Value(context).FromJust();
                               } else if (keystr == "epsTol"){
                                   V8CHECK(!val->IsNumber(), "epsTol: should be number");
-                                  bfcp.eps_tol = val->NumberValue();
+                                  bfcp.eps_tol = val->NumberValue(context).FromJust();
                               } else if (keystr == "nfsMax"){
                                   V8CHECK(!val->IsInt32(), "nfsMax: should be int32");
-                                  bfcp.nfs_max = val->Int32Value();
+                                  bfcp.nfs_max = val->Int32Value(context).FromJust();
                               } else if (keystr == "nrsMax"){
                                   V8CHECK(!val->IsInt32(), "nrsMax: should be int32");
-                                  bfcp.nrs_max = val->Int32Value();
+                                  bfcp.nrs_max = val->Int32Value(context).FromJust();
                               } else {
                                   std::string error("Unknow field: ");
                                   error += keystr;
@@ -1163,7 +1173,7 @@ namespace NodeGLPK {
             V8CHECK(lp->thread, "an async operation is inprogress");
             
             Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
-            ScaleWorker *worker = new ScaleWorker(callback, lp, info[0]->Int32Value());
+            ScaleWorker *worker = new ScaleWorker(callback, lp, info[0]->Int32Value(Nan::GetCurrentContext()).FromJust());
             lp->thread = true;
             Nan::AsyncQueueWorker(worker);
         }
@@ -1187,7 +1197,7 @@ namespace NodeGLPK {
             }
             void HandleOKCallback() {
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
-                callback->Call(2, info);
+                callback->Call(2, info, async_resource);
             }
         public:
             Problem *lp;

@@ -1,6 +1,6 @@
 {
   "name": "glpk",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "license": "MPL-2.0",
   "main": "index.js",
   "authors": [
@@ -16,12 +16,13 @@
     "glpk"
     ],
   "dependencies": {
-    "nan": "^2.1.0",
+    "nan": "^2.14.0",
     "bindings": "^1.2.1"
   },
   "scripts": {
     "configure": "node-gyp configure",
-    "build": "node-gyp build"
+    "build": "node-gyp build",
+    "test": "echo \"Info: no test specified\" && exit 0"
   },
-  "engines" : { "node" : ">=0.11.0 <=11.x", "iojs": "*" }
+  "engines" : { "node" : ">=0.11.0 <=16.x", "iojs": "*" }
 }

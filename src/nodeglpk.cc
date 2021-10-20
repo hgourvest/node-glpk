@@ -24,17 +24,17 @@ extern "C" {
         V8CHECK(info.Length() != 1, "Wrong number of arguments");
         V8CHECK(!info[0]->IsBoolean(), "Wrong arguments");
         
-        if (info[0]->BooleanValue()) {
+        if (Nan::To<bool>(info[0]).ToChecked()) {
             GLP_CATCH_RET(glp_term_hook(_TermHook);)
         } else {
             GLP_CATCH_RET(glp_term_hook(NULL);)
         }
     }
     
-    void Init(Handle<Object> exports) {
+    void Init(Local<Object> exports) {
         glp_error_hook(_ErrorHook);
 
-        exports->Set(Nan::New<String>("termOutput").ToLocalChecked(), Nan::New<FunctionTemplate>(TermOutput)->GetFunction());
+        Nan::Set(exports, Nan::New<String>("termOutput").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(TermOutput)).ToLocalChecked()).Check();
         
         GLP_DEFINE_CONSTANT(exports, GLP_MAJOR_VERSION, MAJOR_VERSION);
         GLP_DEFINE_CONSTANT(exports, GLP_MINOR_VERSION, MINOR_VERSION);
